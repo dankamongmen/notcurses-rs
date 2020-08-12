@@ -20,9 +20,3 @@ do = "doc --no-deps --open"
 # TEST
 # fix IO errors: https://github.com/dankamongmen/notcurses/issues/766
 t = "test -- --test-threads 1 --nocapture"
-
-# EXAMPLES
-e1 = "re 1-direct"
-qe1 = "rqe 1-direct"
-e2 = "re 2-fullscreen"
-qe2 = "rqe 2-fullscreen"
