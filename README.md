@@ -6,6 +6,9 @@
 A safe and ergonomic Rust wrapper for the [notcurses C library](https://github.com/dankamongmen/notcurses).
 
 
-**NOTE:** This is WIP (alpha pre-release) in preparation for the upcoming 2.0 version.
-With API still incomplete and unstable, as well as the documentation.
+**IMPORTANT NOTE:**
+
+This is a WIP (alpha pre-release) in preparation for the upcoming 2.0 version.
+With API and documentation still incomplete and unstable. And its dependencies
+can point to unpublished crates versions which will not work through crates.io.
 
