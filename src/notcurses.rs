@@ -1,3 +1,49 @@
+// methods: 39
+// ------------------------------------------ (done / wont / remaining)
+// (+) implemented: 4 / … / 35
+// (#) +unit tests: 0 / … / 39
+// ------------------------- ↓ from bindgen
+// notcurses_at_yx
+//+notcurses_canchangecolor
+//+notcurses_canfade
+//+notcurses_canopen_images
+//+notcurses_canopen_videos
+//+notcurses_cansixel
+//+notcurses_cantruecolor
+//+notcurses_canutf8
+// notcurses_cursor_disable
+// notcurses_cursor_enable
+// notcurses_debug
+//xnotcurses_drop_planes      // in Drop Trait
+// notcurses_getc
+//+notcurses_init             // inside new()
+// notcurses_inputready_fd
+// notcurses_lex_blitter
+// notcurses_lex_margins
+// notcurses_lex_scalemode
+// notcurses_mouse_disable
+// notcurses_mouse_enable
+// notcurses_palette_size
+// notcurses_refresh
+// notcurses_render
+// notcurses_render_to_file
+// notcurses_reset_stats
+// notcurses_stats
+// notcurses_stdplane
+// notcurses_stdplane_const
+// notcurses_stop
+// notcurses_str_blitter
+// notcurses_str_scalemode
+// notcurses_supported_styles
+// notcurses_top
+// notcurses_version
+// notcurses_version_components
+// ------------------------- ↓ static inlines reimplemented
+// notcurses_getc_blocking
+// notcurses_getc_nblock
+// notcurses_stddim_yx
+// notcurses_term_dim_yx
+
 use std::ptr::{null, null_mut};
 
 use libnotcurses_sys as nc;
@@ -127,11 +173,13 @@ pub struct NotCurses {
 }
 
 impl NotCurses {
-
     /// Returns a NotCurses instance
     ///
-    // TODO[LOW]: support custom locale
-    // TODO[LOW]: support custom fn() in notcurses_init 2nd parameter
+    // TODO:
+    // (1) always call setlocale as the first thing you do, using LC_ALL, "" as arguments.
+    // document that users of your crate ought have LANG properly defined.
+    // (2) pass the NcOptionFlag::InhibitSetlocale once you're doing so
+    // [link](https://github.com/dankamongmen/notcurses/issues/866#issuecomment-672921476)
     //
     pub fn new(options: NcOptions) -> Result<Self, NcError> {
         unsafe {
@@ -139,8 +187,7 @@ impl NotCurses {
             // appropriate to use setlocale(LC_ALL, ""), relying on the user to set the LANG environment variable.
             //
             // [docs.rs → libc::setlocale](https://docs.rs/libc/0.2.74/libc/fn.setlocale.html)
-            //
-            // let _ = setlocale(LC_ALL, CString::new("es_ES.UTF-8").unwrap().as_ptr()); // DEBUG TEST
+
             let _ = libc::setlocale(libc::LC_ALL, std::ffi::CString::new("").unwrap().as_ptr());
         }
 
@@ -168,7 +215,8 @@ impl NotCurses {
     pub(crate) fn new_default_test() -> Result<Self, NcError> {
         Self::new(NcOptions::new(
             NcLogLevel::Silent,
-            NcOptionFlag::SuppressBanners
+            NcOptionFlag::InhibitSetlocale
+                | NcOptionFlag::SuppressBanners
                 | NcOptionFlag::NoAlternateScreen
                 | NcOptionFlag::NoWinchSighandler
                 | NcOptionFlag::NoQuitSighandlers,
@@ -186,21 +234,77 @@ impl NotCurses {
     }
 
     /// Returns a flag that indicates the supported styles for the current terminal
+    // TODO: TEST
     pub fn supported_styles(&self) -> u32 {
         unsafe { nc::notcurses_supported_styles(self.data) }
     }
 
     /// Returns the name of the flags supported
+    // TODO: TEST
     pub fn supported_styles_str(&self) -> String {
         let sf = self.supported_styles();
         let mut sstr = String::new();
 
         for s in NcStyle::iter() {
-	    if s as u32 & sf != 0 {
-                sstr = format!{"{} {:?}", sstr, s};
+            if s as u32 & sf != 0 {
+                sstr = format! {"{} {:?}", sstr, s};
             }
         }
         sstr.trim().to_owned()
+    }
+
+    /// Can we set the "hardware" palette?
+    ///
+    /// Requires the "ccc" terminfo capability.
+    // TODO: TEST
+    pub fn can_change_color(&self) -> bool {
+        unsafe { nc::notcurses_canchangecolor(self.data) }
+    }
+
+    /// Can we fade?
+    ///
+    /// Requires either the "rgb" or "ccc" terminfo capability.
+    // TODO: TEST
+    pub fn can_fade(&self) -> bool {
+        unsafe { nc::notcurses_canfade(self.data) }
+    }
+
+    /// Can we load images?
+    ///
+    /// Requires being built against FFmpeg/OIIO.
+    // TODO: TEST
+    pub fn can_open_images(&self) -> bool {
+        unsafe { nc::notcurses_canopen_images(self.data) }
+    }
+
+    /// Can we load videos?
+    ///
+    /// Requires being built against FFmpeg.
+    // TODO: TEST
+    pub fn can_open_videos(&self) -> bool {
+        unsafe { nc::notcurses_canopen_videos(self.data) }
+    }
+
+    /// Can we blit to Sixel?
+    // TODO: TEST
+    pub fn can_sixel(&self) -> bool {
+        unsafe { nc::notcurses_cansixel(self.data) }
+    }
+
+    /// Can we directly specify RGB values per cell?
+    ///
+    /// If not, we can only use palettes.
+    // TODO: TEST
+    pub fn can_truecolor(&self) -> bool {
+        unsafe { nc::notcurses_cantruecolor(self.data) }
+    }
+
+    /// Is our encoding UTF-8?
+    ///
+    /// Requires LANG being set to a UTF8 locale.
+    // TODO: TEST
+    pub fn can_utf8(&self) -> bool {
+        unsafe { nc::notcurses_canutf8(self.data) }
     }
 }
 
@@ -254,4 +358,3 @@ mod test {
         Ok(())
     }
 }
-

@@ -1,6 +1,26 @@
-use libnotcurses_sys as nc;
+// total functions: 16
+// ------------------------------------------ (done / wont / remaining)
+// - implemented: 9 / … / 16
+// - +unit tests: 0 / … / 16
+// ------------------------- ↓ from bindgen: 16
+// ncvisual_at_yx
+// ncvisual_decode
+// ncvisual_destroy
+// ncvisual_from_bgra
+// ncvisual_from_file
+// ncvisual_from_plane
+// ncvisual_from_rgba
+// ncvisual_geom
+// ncvisual_polyfill_yx
+// ncvisual_render
+// ncvisual_resize
+// ncvisual_rotate
+// ncvisual_set_yx
+// ncvisual_simple_streamer
+// ncvisual_stream
+// ncvisual_subtitle
 
-// TODO:
+use libnotcurses_sys as nc;
 
 #[repr(u32)] // = ncscale_e
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -18,10 +38,13 @@ pub enum NcAlign {
     Right = nc::ncalign_e_NCALIGN_RIGHT as nc::ncalign_e,
 }
 
-/// each has the empty cell in addition to the product of its dimensions. i.e.
-/// NCBLIT_1x1 has two states: empty and full block. NCBLIT_1x1x4 has five
-/// states: empty, the three shaded blocks, and the full block.
-//
+// each has the empty cell in addition to the product of its dimensions. i.e.
+// NCBLIT_1x1 has two states: empty and full block. NCBLIT_1x1x4 has five
+// states: empty, the three shaded blocks, and the full block.
+
+///
+/// NOTE: NcBlitter::_1x1x4 & NcBlitter::_4x1 are still unimplemented,
+/// they both ought be falling back to 1x1 with a top half.
 #[repr(u32)] // = ncblitter_e
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum NcBlitter {
@@ -53,8 +76,7 @@ pub enum NcBlitter {
     Sixel = nc::ncblitter_e_NCBLIT_SIXEL as nc::ncblitter_e,
 }
 
-pub struct NcVisualOptions {
-}
+pub struct NcVisualOptions {}
 
 // ncvisual_at_yx⚠
 // ncvisual_decode⚠
@@ -73,8 +95,38 @@ pub struct NcVisualOptions {
 // ncvisual_stream⚠
 // ncvisual_subtitle⚠
 
-pub struct NcVisual {
-}
+pub struct NcVisual {}
 
 impl NcVisual {
+    // pub fn ncvisual_at_yx() {}
+
+    // pub fn ncvisual_decode() {}
+
+    // pub fn ncvisual_destroy() {}
+
+    // pub fn ncvisual_from_bgra() {}
+
+    // pub fn ncvisual_from_file() {}
+
+    // pub fn ncvisual_from_plane() {}
+
+    // pub fn ncvisual_from_rgba() {}
+
+    // pub fn ncvisual_geom() {}
+
+    // pub fn ncvisual_polyfill_yx() {}
+
+    // pub fn ncvisual_render() {}
+
+    // pub fn ncvisual_resize() {}
+
+    // pub fn ncvisual_rotate() {}
+
+    // pub fn ncvisual_set_yx() {}
+
+    // pub fn ncvisual_simple_streamer() {}
+
+    // pub fn ncvisual_stream() {}
+
+    // pub fn ncvisual_subtitle() {}
 }

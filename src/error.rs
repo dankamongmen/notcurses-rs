@@ -5,7 +5,6 @@ use libnotcurses_sys as nc;
 // TODO: Join together NcError & NcVisualError in NotcursesError,
 // change the name of the structs from NcSomething to just Something.
 
-
 use thiserror::Error as ThisError;
 
 /// NcError enumerates all possible errors returned by this library.
@@ -45,7 +44,6 @@ pub enum NcError {
 //         write!(f, "error: {:?}", self)
 //     }
 // }
-
 
 #[repr(u32)] // = nc_err_e
 #[derive(ThisError, Debug, Copy, Clone, PartialEq)]

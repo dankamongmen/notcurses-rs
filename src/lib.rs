@@ -14,28 +14,13 @@
 #[macro_use]
 extern crate strum_macros;
 
-mod error;
 mod direct;
+mod error;
 mod notcurses;
 mod plane;
 mod visual;
 
-pub use error::{
-    NcError,
-    NcVisualError,
-};
+pub use crate::notcurses::{NcLogLevel, NcOptionFlag, NcOptions, NcStyle, NotCurses};
 pub use direct::NcDirect;
-pub use crate::notcurses::{
-    NotCurses,
-    NcLogLevel,
-    NcOptionFlag,
-    NcOptions,
-    NcStyle,
-};
-pub use visual::{
-    NcScale,
-    NcAlign,
-    NcBlitter,
-    NcVisualOptions,
-    NcVisual,
-};
+pub use error::{NcError, NcVisualError};
+pub use visual::{NcAlign, NcBlitter, NcScale, NcVisual, NcVisualOptions};
