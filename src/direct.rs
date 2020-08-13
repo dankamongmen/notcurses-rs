@@ -1,34 +1,34 @@
 // total functions: 35
 // ------------------------------------------ (done / wont / remaining)
-// - implemented: 15 / … / 20
+// - implemented: 24 / … / 11
 // - +unit tests:  7 / … / 28
 // ------------------------- ↓ from bindgen: 35
-// ncdirect_bg
-// ncdirect_bg_default
-// ncdirect_bg_palindex
+//+ncdirect_bg
+//+ncdirect_bg_default
+// ncdirect_bg_palindex        ?
 // ncdirect_box
 //+ncdirect_canopen_images
 //+ncdirect_canutf8
-//+ncdirect_clear
-//#ncdirect_cursor_disable
+//#ncdirect_clear
+//+ncdirect_cursor_disable
 //+ncdirect_cursor_down
-//#ncdirect_cursor_enable
+//+ncdirect_cursor_enable
 //+ncdirect_cursor_left
 //#ncdirect_cursor_move_yx
-// ncdirect_cursor_pop
-// ncdirect_cursor_push
+//+ncdirect_cursor_pop
+//+ncdirect_cursor_push
 //+ncdirect_cursor_right
 //+ncdirect_cursor_up
-//+ncdirect_cursor_yx
-//+ncdirect_dim_x
-//+ncdirect_dim_y
+//#ncdirect_cursor_yx
+//#ncdirect_dim_x
+//#ncdirect_dim_y
 // ncdirect_double_box
-// ncdirect_fg
-// ncdirect_fg_default
-// ncdirect_fg_palindex
-// ncdirect_hline_interp
-// ncdirect_init               // inside new()
-// ncdirect_palette_size
+//+ncdirect_fg
+//+ncdirect_fg_default
+// ncdirect_fg_palindex        ?
+//+ncdirect_hline_interp
+//#ncdirect_init               // inside new()
+//#ncdirect_palette_size
 // ncdirect_printf_aligned
 // ncdirect_putstr
 //+ncdirect_render_image
@@ -37,7 +37,7 @@
 // ncdirect_styles_off
 // ncdirect_styles_on
 // ncdirect_styles_set
-// ncdirect_vline_interp
+//+ncdirect_vline_interp
 
 use std::ffi::CString;
 use std::ptr::{null, null_mut};
@@ -45,6 +45,7 @@ use std::ptr::{null, null_mut};
 use libnotcurses_sys as nc;
 
 use crate::error::{NcError, NcVisualError};
+use crate::types::Rgb;
 use crate::visual::{NcAlign, NcBlitter, NcScale};
 
 extern "C" {
@@ -65,9 +66,19 @@ pub struct NcDirect {
 }
 
 impl NcDirect {
-    // CONSTRUCTOR
+    // CONSTRUCTORS: new() -----------------------------------------------------
 
     /// Returns a Direct Mode instance
+    ///
+    /// Initialize a direct-mode notcurses context on the connected terminal,
+    /// which must be a tty. You'll usually want stdout.
+    ///
+    /// Direct mode supportes a limited subset of notcurses routines which
+    /// directly affect the terminal, and neither supports nor requires
+    /// `notcurses_render()`.  This can be used to add color and styling to
+    /// text in the standard output paradigm. Returns NULL on error,
+    /// including any failure initializing terminfo.
+    ///
     pub fn new() -> Result<Self, NcError> {
         unsafe {
             let _ = libc::setlocale(libc::LC_ALL, std::ffi::CString::new("").unwrap().as_ptr());
@@ -78,7 +89,31 @@ impl NcDirect {
         })
     }
 
-    // CAPABILITIES
+    // ----------------------------------------------------------^ CONSTRUCTORS
+
+    /// Set the background color
+    ///
+    // TODO: TEST
+    pub fn bg(&mut self, rgb: Rgb) -> Result<(), NcError> {
+        unsafe {
+            if nc::ncdirect_bg(self.data, rgb) < 0 {
+                return Err(NcError::GenericError);
+            }
+        }
+        Ok(())
+    }
+
+    /// Set the default background color
+    ///
+    // TODO: TEST
+    pub fn bg_default(&mut self) -> Result<(), NcError> {
+        unsafe {
+            if nc::ncdirect_bg_default(self.data) < 0 {
+                return Err(NcError::GenericError);
+            }
+        }
+        Ok(())
+    }
 
     ///
     // TODO: TEST
@@ -92,15 +127,12 @@ impl NcDirect {
         unsafe { nc::ncdirect_canutf8(self.data) }
     }
 
-    // CURSOR
-
-    /// Enables the cursor
-    ///
+    /// Clear the screen
     // TODO: TEST
-    pub fn cursor_enable(&mut self) -> Result<(), NcError> {
+    pub fn clear(&mut self) -> Result<(), NcError> {
         unsafe {
-            if nc::ncdirect_cursor_enable(self.data) != 0 {
-                return Err(NcError::Cursor);
+            if nc::ncdirect_clear(self.data) < 0 {
+                return Err(NcError::Clear);
             }
         }
         Ok(())
@@ -108,10 +140,24 @@ impl NcDirect {
 
     /// Disables the cursor
     ///
+    /// -1 to retain current location on that axis
     // TODO: TEST
     pub fn cursor_disable(&mut self) -> Result<(), NcError> {
         unsafe {
-            if nc::ncdirect_cursor_disable(self.data) != 0 {
+            if nc::ncdirect_cursor_disable(self.data) < 0 {
+                return Err(NcError::Cursor);
+            }
+        }
+        Ok(())
+    }
+
+    /// Enables the cursor
+    ///
+    /// -1 to retain current location on that axis
+    // TODO: TEST
+    pub fn cursor_enable(&mut self) -> Result<(), NcError> {
+        unsafe {
+            if nc::ncdirect_cursor_enable(self.data) < 0 {
                 return Err(NcError::Cursor);
             }
         }
@@ -119,11 +165,15 @@ impl NcDirect {
     }
 
     /// Returns the position of the cursor as a tuple of (rows, cols)
+    ///
+    /// Get the cursor position, when supported. This requires writing to the
+    /// terminal, and then reading from it. If the terminal doesn't reply, or
+    /// doesn't reply in a way we understand, the results might be deleterious.
     pub fn cursor_yx(&mut self) -> Result<(i32, i32), NcError> {
         let mut y = 0;
         let mut x = 0;
         unsafe {
-            if nc::ncdirect_cursor_yx(self.data, &mut y, &mut x) != 0 {
+            if nc::ncdirect_cursor_yx(self.data, &mut y, &mut x) < 0 {
                 return Err(NcError::Cursor);
             }
         }
@@ -131,9 +181,11 @@ impl NcDirect {
     }
 
     /// Moves the cursor to the provided coordinates (rows, cols)
+    ///
+    /// -1 to retain current location on that axis
     pub fn cursor_move_yx(&mut self, y: i32, x: i32) -> Result<(), NcError> {
         unsafe {
-            if nc::ncdirect_cursor_move_yx(self.data, y, x) != 0 {
+            if nc::ncdirect_cursor_move_yx(self.data, y, x) < 0 {
                 return Err(NcError::Cursor);
             }
         }
@@ -141,21 +193,12 @@ impl NcDirect {
     }
 
     /// Moves the cursor the specified number of rows down
+    ///
+    /// -1 to retain current location on that axis
     // TODO: TEST
     pub fn cursor_down(&mut self, rows: i32) -> Result<(), NcError> {
         unsafe {
-            if nc::ncdirect_cursor_down(self.data, rows) != 0 {
-                return Err(NcError::Cursor);
-            }
-        }
-        Ok(())
-    }
-
-    /// Moves the cursor the specified number of rows up
-    // TODO: TEST
-    pub fn cursor_up(&mut self, rows: i32) -> Result<(), NcError> {
-        unsafe {
-            if nc::ncdirect_cursor_up(self.data, rows) != 0 {
+            if nc::ncdirect_cursor_down(self.data, rows) < 0 {
                 return Err(NcError::Cursor);
             }
         }
@@ -163,10 +206,34 @@ impl NcDirect {
     }
 
     /// Moves the cursor the specified number of columns left
+    ///
+    /// -1 to retain current location on that axis
     // TODO: TEST
     pub fn cursor_left(&mut self, cols: i32) -> Result<(), NcError> {
         unsafe {
-            if nc::ncdirect_cursor_left(self.data, cols) != 0 {
+            if nc::ncdirect_cursor_left(self.data, cols) < 0 {
+                return Err(NcError::Cursor);
+            }
+        }
+        Ok(())
+    }
+
+    /// Pop the cursor location to the terminal's stack. The depth of this
+    /// stack, and indeed its existence, is terminal-dependent.
+    pub fn cursor_pop(&mut self) -> Result<(), NcError> {
+        unsafe {
+            if nc::ncdirect_cursor_pop(self.data) < 0 {
+                return Err(NcError::Cursor);
+            }
+        }
+        Ok(())
+    }
+
+    /// Pop the cursor location to the terminal's stack. The depth of this
+    /// stack, and indeed its existence, is terminal-dependent.
+    pub fn cursor_push(&mut self) -> Result<(), NcError> {
+        unsafe {
+            if nc::ncdirect_cursor_push(self.data) < 0 {
                 return Err(NcError::Cursor);
             }
         }
@@ -174,17 +241,30 @@ impl NcDirect {
     }
 
     /// Moves the cursor the specified number of columns right
+    ///
+    /// -1 to retain current location on that axis
     // TODO: TEST
     pub fn cursor_right(&mut self, cols: i32) -> Result<(), NcError> {
         unsafe {
-            if nc::ncdirect_cursor_right(self.data, cols) != 0 {
+            if nc::ncdirect_cursor_right(self.data, cols) < 0 {
                 return Err(NcError::Cursor);
             }
         }
         Ok(())
     }
 
-    // DIMENSIONS
+    /// Moves the cursor the specified number of rows up
+    ///
+    /// -1 to retain current location on that axis
+    // TODO: TEST
+    pub fn cursor_up(&mut self, rows: i32) -> Result<(), NcError> {
+        unsafe {
+            if nc::ncdirect_cursor_up(self.data, rows) < 0 {
+                return Err(NcError::Cursor);
+            }
+        }
+        Ok(())
+    }
 
     /// Get the current number of columns
     ///
@@ -198,14 +278,92 @@ impl NcDirect {
         unsafe { nc::ncdirect_dim_y(self.data) }
     }
 
-    // IMAGE
+    /// Set the foreground color
+    ///
+    // TODO: TEST
+    pub fn fg(&mut self, rgb: Rgb) -> Result<(), NcError> {
+        unsafe {
+            if nc::ncdirect_fg(self.data, rgb) < 0 {
+                return Err(NcError::GenericError);
+            }
+        }
+        Ok(())
+    }
+
+    /// Set the default foreground color
+    ///
+    // TODO: TEST
+    pub fn fg_default(&mut self) -> Result<(), NcError> {
+        unsafe {
+            if nc::ncdirect_fg_default(self.data) < 0 {
+                return Err(NcError::GenericError);
+            }
+        }
+        Ok(())
+    }
+
+    /// Draw horizontal lines using the specified channels, interpolating
+    /// between them as we go. The EGC may not use more than one column.
+    ///
+    /// For a horizontal line, |len| cannot exceed the screen width minus the
+    /// cursor's offset. All lines start at the current cursor position.
+    ///
+    // TODO: TEST
+    // FIXME: TYPES
+    pub fn hline_interp(&mut self, egc: &str, len: i32, h1: u64, h2: u64) -> Result<(), NcError> {
+        unsafe {
+            if nc::ncdirect_hline_interp(
+                self.data,
+                CString::new(egc).unwrap().as_ptr(),
+                len,
+                h1,
+                h2,
+            ) < 0
+            {
+                return Err(NcError::GenericError);
+            }
+        }
+        Ok(())
+    }
+
+    /// Draw vertical lines using the specified channels, interpolating between
+    /// them as we go. The EGC may not use more than one column.
+    ///
+    /// For a vertical line, |len| may be as long as you'd like; the screen
+    /// will scroll as necessary. All lines start at the current cursor position.
+    ///
+    // TODO: TEST
+    // FIXME: TYPES
+    pub fn vline_interp(&mut self, egc: &str, len: i32, h1: u64, h2: u64) -> Result<(), NcError> {
+        unsafe {
+            if nc::ncdirect_vline_interp(
+                self.data,
+                CString::new(egc).unwrap().as_ptr(),
+                len,
+                h1,
+                h2,
+            ) < 0
+            {
+                return Err(NcError::GenericError);
+            }
+        }
+        Ok(())
+    }
+
+    /// Returns the number of simultaneous colors claimed to be supported, or 1 if
+    /// there is no color support. Note that several terminal emulators advertise
+    /// more colors than they actually support, downsampling internally.
+    // TODO: TEST
+    // CHECK: probably should be unsigned
+    pub fn palette_size(&self) -> i32 {
+        unsafe { nc::ncdirect_palette_size(self.data) }
+    }
 
     /// Display an image using the specified blitter and scaling. The image may
     /// be arbitrarily many rows -- the output will scroll -- but will only occupy
     /// the column of the cursor, and those to the right.
     ///
     // TODO: TEST
-    // NOTE: Changing the blitter has no effect: https://github.com/dankamongmen/notcurses/issues/866
     pub fn render_image(
         &mut self,
         filename: &str,
@@ -217,32 +375,12 @@ impl NcDirect {
             if nc::ncdirect_render_image(
                 self.data,
                 CString::new(filename).expect("err filename").as_ptr(),
-                //CString::new("1-direct-image-16.png").unwrap().as_ptr(),
                 align as nc::ncalign_e,
                 blitter as nc::ncblitter_e,
                 scale as nc::ncscale_e,
             ) != 0
             {
                 return Err(NcError::ImageRender);
-            }
-        }
-        Ok(())
-    }
-
-    /// Returns the number of simultaneous colors claimed to be supported, or 1 if
-    /// there is no color support. Note that several terminal emulators advertise
-    /// more colors than they actually support, downsampling internally.
-    // TODO: TEST
-    pub fn palette_size(&self) -> i32 {
-        unsafe { nc::ncdirect_palette_size(self.data) }
-    }
-
-    /// Clear the screen
-    // TODO: TEST
-    pub fn clear(&mut self) -> Result<(), NcError> {
-        unsafe {
-            if nc::ncdirect_clear(self.data) != 0 {
-                return Err(NcError::Clear);
             }
         }
         Ok(())
@@ -279,18 +417,21 @@ mod test {
     */
 
     #[test]
-    fn new() -> Result<(), NcError> {
-        let _nc = NcDirect::new()?;
+    fn clear() -> Result<(), NcError> {
+        let mut _nc = NcDirect::new()?;
+        // NOTE: commented out bc when the screen gets cleared the previous output is lost.
+        //nc.clear()?;
         Ok(())
     }
 
     #[test]
-    fn dim_y() -> Result<(), NcError> {
-        let nc = NcDirect::new()?;
-        let _y = nc.dim_y();
-        print!("dim_y={} ", _y);
+    fn cursor_yx() -> Result<(), NcError> {
+        let mut nc = NcDirect::new()?;
+        let _yx = nc.cursor_yx()?;
+        print!("cursor_yx={:?} ", _yx);
         Ok(())
     }
+
     #[test]
     fn dim_x() -> Result<(), NcError> {
         let nc = NcDirect::new()?;
@@ -300,10 +441,10 @@ mod test {
     }
 
     #[test]
-    fn cursor_yx() -> Result<(), NcError> {
-        let mut nc = NcDirect::new()?;
-        let _yx = nc.cursor_yx()?;
-        print!("cursor_yx={:?} ", _yx);
+    fn dim_y() -> Result<(), NcError> {
+        let nc = NcDirect::new()?;
+        let _y = nc.dim_y();
+        print!("dim_y={} ", _y);
         Ok(())
     }
 
@@ -327,17 +468,17 @@ mod test {
         // assert_eq!((yx_a.0, yx_a.1), (_yx_c.0, _yx_c.1));
         Ok(())
     }
+
+    #[test]
+    fn new() -> Result<(), NcError> {
+        let _nc = NcDirect::new()?;
+        Ok(())
+    }
+
     #[test]
     fn palette_size() -> Result<(), NcError> {
         let mut _nc = NcDirect::new()?;
         assert!(_nc.palette_size() > 0);
-        Ok(())
-    }
-    #[test]
-    fn clear() -> Result<(), NcError> {
-        let mut _nc = NcDirect::new()?;
-        // NOTE: commented out bc when the screen gets cleared the previous output is lost.
-        //nc.clear()?;
         Ok(())
     }
 }

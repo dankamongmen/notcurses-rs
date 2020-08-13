@@ -1,7 +1,7 @@
 // methods: 39
 // ------------------------------------------ (done / wont / remaining)
-// (+) implemented: 4 / … / 35
-// (#) +unit tests: 0 / … / 39
+// (+) implemented: 11 / … / 28
+// (#) +unit tests:  0 / … / 39
 // ------------------------- ↓ from bindgen
 // notcurses_at_yx
 //+notcurses_canchangecolor
@@ -11,10 +11,10 @@
 //+notcurses_cansixel
 //+notcurses_cantruecolor
 //+notcurses_canutf8
-// notcurses_cursor_disable
-// notcurses_cursor_enable
+//+notcurses_cursor_disable
+//+notcurses_cursor_enable
 // notcurses_debug
-//xnotcurses_drop_planes      // in Drop Trait
+//+notcurses_drop_planes
 // notcurses_getc
 //+notcurses_init             // inside new()
 // notcurses_inputready_fd
@@ -31,7 +31,7 @@
 // notcurses_stats
 // notcurses_stdplane
 // notcurses_stdplane_const
-// notcurses_stop
+//xnotcurses_stop             // in Drop Trait
 // notcurses_str_blitter
 // notcurses_str_scalemode
 // notcurses_supported_styles
@@ -173,6 +173,8 @@ pub struct NotCurses {
 }
 
 impl NotCurses {
+    // CONSTRUCTORS: new(), new_default_test() ---------------------------------
+
     /// Returns a NotCurses instance
     ///
     // TODO:
@@ -223,35 +225,9 @@ impl NotCurses {
         ))
     }
 
-    /// Returns the standard NcPlane for the current context
-    ///
-    // [man notcurses_stdplane](https://nick-black.com/notcurses/notcurses_stdplane.3.html)
-    // It is an error to call ncplane_destroy, ncplane_resize, or ncplane_move
-    // on the standard plane, but it can be freely moved along the z-axis.
-    //
-    pub fn stdplane(&mut self) -> NcPlane {
-        unsafe { NcPlane::new_from(nc::notcurses_stdplane(self.data)) }
-    }
+    // ----------------------------------------------------------^ CONSTRUCTORS
 
-    /// Returns a flag that indicates the supported styles for the current terminal
-    // TODO: TEST
-    pub fn supported_styles(&self) -> u32 {
-        unsafe { nc::notcurses_supported_styles(self.data) }
-    }
-
-    /// Returns the name of the flags supported
-    // TODO: TEST
-    pub fn supported_styles_str(&self) -> String {
-        let sf = self.supported_styles();
-        let mut sstr = String::new();
-
-        for s in NcStyle::iter() {
-            if s as u32 & sf != 0 {
-                sstr = format! {"{} {:?}", sstr, s};
-            }
-        }
-        sstr.trim().to_owned()
-    }
+    // notcurses_at_yx
 
     /// Can we set the "hardware" palette?
     ///
@@ -305,6 +281,60 @@ impl NotCurses {
     // TODO: TEST
     pub fn can_utf8(&self) -> bool {
         unsafe { nc::notcurses_canutf8(self.data) }
+    }
+
+    /// Disables the cursor
+    // TODO: TEST
+    pub fn cursor_disable(&mut self) {
+        unsafe {
+            nc::notcurses_cursor_disable(self.data);
+        }
+    }
+
+    /// Enables the cursor
+    // TODO: TEST
+    pub fn cursor_enable(&mut self) {
+        unsafe {
+            nc::notcurses_cursor_enable(self.data);
+        }
+    }
+
+    /// Destroy all ncplanes other than the stdplane.
+    // TODO: TEST
+    pub fn drop_planes(&mut self) {
+        unsafe {
+            nc::notcurses_drop_planes(self.data);
+        }
+    }
+
+    /// Returns the standard NcPlane for the current context
+    ///
+    // [man notcurses_stdplane](https://nick-black.com/notcurses/notcurses_stdplane.3.html)
+    // It is an error to call ncplane_destroy, ncplane_resize, or ncplane_move
+    // on the standard plane, but it can be freely moved along the z-axis.
+    //
+    pub fn stdplane(&mut self) -> NcPlane {
+        unsafe { NcPlane::new_from(nc::notcurses_stdplane(self.data)) }
+    }
+
+    /// Returns a flag that indicates the supported styles for the current terminal
+    // TODO: TEST
+    pub fn supported_styles(&self) -> u32 {
+        unsafe { nc::notcurses_supported_styles(self.data) }
+    }
+
+    /// Returns the name of the flags supported
+    // TODO: TEST
+    pub fn supported_styles_str(&self) -> String {
+        let sf = self.supported_styles();
+        let mut sstr = String::new();
+
+        for s in NcStyle::iter() {
+            if s as u32 & sf != 0 {
+                sstr = format! {"{} {:?}", sstr, s};
+            }
+        }
+        sstr.trim().to_owned()
     }
 }
 

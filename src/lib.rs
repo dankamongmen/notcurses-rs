@@ -18,9 +18,11 @@ mod direct;
 mod error;
 mod notcurses;
 mod plane;
+mod types;
 mod visual;
 
 pub use crate::notcurses::{NcLogLevel, NcOptionFlag, NcOptions, NcStyle, NotCurses};
 pub use direct::NcDirect;
 pub use error::{NcError, NcVisualError};
+pub use types::Rgb;
 pub use visual::{NcAlign, NcBlitter, NcScale, NcVisual, NcVisualOptions};

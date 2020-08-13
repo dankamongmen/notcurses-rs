@@ -10,6 +10,10 @@ use thiserror::Error as ThisError;
 /// NcError enumerates all possible errors returned by this library.
 #[derive(ThisError, Debug)]
 pub enum NcError {
+    /// Temporary generic error (TBD more specific)
+    #[error("ERROR: Generic (TBD more specific)")]
+    GenericError,
+
     /// Represents the error of an _init() function
     #[error("Error initializing the structure.")]
     Init,
