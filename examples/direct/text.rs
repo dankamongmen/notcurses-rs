@@ -19,62 +19,36 @@ fn main() -> Result<(), NcError> {
 
     // TEXT & STYLE
 
+    let stylesv = vec![
+        ("[DIM]", NcStyle::Dim),
+        ("[UNDERLINE]", NcStyle::Underline),
+        ("[ITALIC]", NcStyle::Italic),
+        ("[BOLD]", NcStyle::Bold),
+        ("[REVERSE]", NcStyle::Reverse),
+        ("[BLINK]", NcStyle::Blink),
+        ("[INVIS]", NcStyle::Invis),
+        ("[PROTECT]", NcStyle::Protect),
+        ("[STANDOUT]", NcStyle::Standout),
+    ];
+
     ncd.putstr(0, "\nSingle styles:\n")?;
+
     ncd.putstr(0, "[DEFAULT]")?;
-
-    ncd.styles_on(NcStyle::Dim)?;
-    ncd.putstr(0, "[DIM]")?;
-    ncd.styles_off(NcStyle::Dim)?;
-
-    ncd.styles_on(NcStyle::Underline)?;
-    ncd.putstr(0, "[UNDERLINE]")?;
-    ncd.styles_off(NcStyle::Underline)?;
-
-    ncd.styles_on(NcStyle::Italic)?;
-    ncd.putstr(0, "[ITALIC]")?;
-    ncd.styles_off(NcStyle::Italic)?;
-
-    ncd.styles_on(NcStyle::Bold)?;
-    ncd.putstr(0, "[BOLD]")?;
-    ncd.styles_off(NcStyle::Bold)?;
-
-    ncd.styles_on(NcStyle::Reverse)?;
-    ncd.putstr(0, "[REVERSE]")?;
-    ncd.styles_off(NcStyle::Reverse)?;
-
-    ncd.styles_on(NcStyle::Blink)?;
-    ncd.putstr(0, "[BLINK]")?;
-    ncd.styles_off(NcStyle::Blink)?;
-
-    ncd.styles_on(NcStyle::Invis)?;
-    ncd.putstr(0, "[INVIS]")?;
-    ncd.styles_off(NcStyle::Invis)?;
-
-    ncd.styles_on(NcStyle::Protect)?;
-    ncd.putstr(0, "[PROTECT]")?;
-    ncd.styles_off(NcStyle::Protect)?;
-
-    ncd.styles_on(NcStyle::Standout)?;
-    ncd.putstr(0, "[STANDOUT]")?;
-    ncd.styles_off(NcStyle::Standout)?;
-
+    for (label, style) in stylesv.iter() {
+        ncd.styles_on(*style)?;
+        ncd.putstr(0, label)?;
+        ncd.styles_off(*style)?;
+    }
 
     ncd.putstr(0, "\nJoint styles:\n")?;
 
-    ncd.putstr(0, "[")?;
-    ncd.putstr(0, "DEFAULT ")?;
-    ncd.styles_on(NcStyle::Dim)?;
-    ncd.putstr(0, " DIM ")?;
-    ncd.styles_on(NcStyle::Underline)?;
-    ncd.putstr(0, " UNDERLINE ")?;
-    ncd.styles_on(NcStyle::Italic)?;
-    ncd.putstr(0, " ITALIC ")?;
-    ncd.styles_on(NcStyle::Bold)?;
-    ncd.putstr(0, " BOLD ")?;
-    ncd.styles_on(NcStyle::Reverse)?;
-    ncd.putstr(0, " REVERSE ")?;
-    ncd.styles_on(NcStyle::Blink)?;
-    ncd.putstr(0, " BLINK ")?;
+    ncd.putstr(0, "[DEFAULT ")?;
+    for (label, style) in stylesv.iter() {
+        ncd.styles_on(*style)?;
+        ncd.putstr(0, &label.chars().map(
+            |c| match c { '[' | ']' => ' ', _ => c }).collect::<String>())?;
+        if let NcStyle::Blink = style { break ; }
+    }
     ncd.styles_off_all()?;
     ncd.putstr(0, "]")?;
 
@@ -100,6 +74,7 @@ fn main() -> Result<(), NcError> {
     println!("\nhello colors? (investigate)");
     ncd.putstr(nc::channels_combine(0xFF008800, 0xFFBB0099), "hello colors 2")?;
     ncd.putstr(0, "...")?;
+
 
     // WIP----------------------- ↓
 
