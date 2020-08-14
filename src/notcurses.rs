@@ -101,13 +101,40 @@ pub struct Options {
 }
 
 impl Options {
-    /// Returns a new options structure with no logging and no empty flags
-    pub fn new_default() -> Self {
-        Self::new(LogLevel::Silent, BitFlags::empty())
+
+    // CONSTRUCTORS new() new_custom()
+
+    /// Return a default Options structure
+    ///
+    /// - uses alternate mode
+    /// - doesn't show the info banners
+    ///
+    pub fn new() -> Self {
+        Self::new_custom(LogLevel::Silent, OptionFlag::SuppressBanners)
     }
 
+    /// Return a new Options structure
     ///
-    pub fn new(loglevel: LogLevel, flags: impl Into<BitFlags<OptionFlag>>) -> Self {
+    /// - uses alternate mode
+    /// - shows the info banners
+    ///
+    pub fn with_banners() -> Self {
+        Self::new_custom(LogLevel::Silent, BitFlags::empty())
+    }
+
+
+    /// Return a new Options structure
+    ///
+    /// - doesn't use alternate mode
+    /// - doesn't show the info banners
+    ///
+    pub fn without_altmode() -> Self {
+        Self::new_custom(LogLevel::Silent, OptionFlag::NoAlternateScreen | OptionFlag::SuppressBanners)
+
+    }
+
+    /// Return a new customized Options structure
+    pub fn new_custom(loglevel: LogLevel, flags: impl Into<BitFlags<OptionFlag>>) -> Self {
         Options {
             data: nc::notcurses_options {
                 // Progressively higher log levels result in more logging to stderr. By
@@ -200,7 +227,7 @@ impl NotCurses {
 
     /// Returns a NotCurses instance perfect for unit tests
     pub(crate) fn new_default_test() -> Result<Self, Error> {
-        Self::new(Options::new(
+        Self::new(Options::new_custom(
             LogLevel::Silent,
             OptionFlag::InhibitSetlocale
                 | OptionFlag::SuppressBanners
@@ -355,7 +382,7 @@ mod test {
 
     #[test]
     fn new() -> Result<(), Error> {
-        let o = Options::new(LogLevel::Silent, OptionFlag::SuppressBanners);
+        let o = Options::new_custom(LogLevel::Silent, OptionFlag::SuppressBanners);
         let _ = NotCurses::new(o)?;
         Ok(())
     }
