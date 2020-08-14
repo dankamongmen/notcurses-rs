@@ -21,8 +21,8 @@ mod plane;
 mod types;
 mod visual;
 
-pub use crate::notcurses::{NcLogLevel, NcOptionFlag, NcOptions, NcStyle, NotCurses};
+pub use crate::notcurses::{NcLogLevel, NcOptionFlag, NcOptions, NotCurses};
 pub use direct::NcDirect;
 pub use error::{NcError, NcVisualError};
-pub use types::Rgb;
+pub use types::{Rgb, ChannelPair, NcStyle};
 pub use visual::{NcAlign, NcBlitter, NcScale, NcVisual, NcVisualOptions};
