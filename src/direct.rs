@@ -74,7 +74,7 @@ pub struct NcDirect {
 impl NcDirect {
     // CONSTRUCTORS: new() -----------------------------------------------------
 
-    /// Returns a Direct Mode instance
+    /// Return a Direct Mode instance
     ///
     /// Initialize a direct-mode notcurses context on the connected terminal,
     /// which must be a tty. You'll usually want stdout.
@@ -121,13 +121,13 @@ impl NcDirect {
         Ok(())
     }
 
-    ///
+    /// Return true if terminal can open images
     // TODO: TEST
     pub fn can_open_images(&self) -> bool {
         unsafe { nc::ncdirect_canopen_images(self.data) }
     }
 
-    ///
+    /// Return true if terminal can display UTF-8 characters
     // TODO: TEST
     pub fn can_utf8(&self) -> bool {
         unsafe { nc::ncdirect_canutf8(self.data) }
@@ -356,7 +356,7 @@ impl NcDirect {
         Ok(())
     }
 
-    /// Returns the number of simultaneous colors claimed to be supported, or 1 if
+    /// Return the number of simultaneous colors claimed to be supported, or 1 if
     /// there is no color support. Note that several terminal emulators advertise
     /// more colors than they actually support, downsampling internally.
     // TODO: TEST
@@ -404,7 +404,7 @@ impl NcDirect {
     }
 
 
-    /// Turns off the indicated styles
+    /// Turn off the indicated styles
     pub fn styles_off(&mut self, style: impl Into<BitFlags<NcStyle>>) -> Result<(), NcError> {
         unsafe {
             if nc::ncdirect_styles_off(self.data, style.into().bits()) < 0 {
@@ -414,7 +414,7 @@ impl NcDirect {
         Ok(())
     }
 
-    /// Turns off all the styling
+    /// Turn off all the styling
     pub fn styles_off_all(&mut self) -> Result<(), NcError> {
         unsafe {
             if nc::ncdirect_styles_off(self.data, nc::NCSTYLE_MASK) < 0 {
@@ -424,7 +424,7 @@ impl NcDirect {
         Ok(())
     }
 
-    /// Turns on the indicated styles
+    /// Turn on the indicated styles
     pub fn styles_on(&mut self, style: impl Into<BitFlags<NcStyle>>) -> Result<(), NcError> {
         unsafe {
             if nc::ncdirect_styles_on(self.data, style.into().bits()) < 0 {
@@ -434,6 +434,7 @@ impl NcDirect {
         Ok(())
     }
 
+    /// Turn on just the indicated styles, and off the rest
     pub fn styles_set(&mut self, style: impl Into<BitFlags<NcStyle>>) -> Result<(), NcError> {
         unsafe {
             if nc::ncdirect_styles_set(self.data, style.into().bits()) < 0 {

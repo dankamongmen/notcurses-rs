@@ -3,12 +3,12 @@ use notcurses::{NcAlign, NcBlitter, NcDirect, NcError, NcScale};
 fn main() -> Result<(), NcError> {
     let mut ncd = NcDirect::new()?;
 
-    if !ncd.canopen_images() {
+    if !ncd.can_open_images() {
         println!("Sorry, your terminal doesn't support images.");
         std::process::exit(1);
     }
 
-    let img = examples_path("direct-image.png");
+    let img = examples_path("res/image-16x16.png");
 
     // Alignment
     ncd.render_image(&img, NcAlign::Left, NcBlitter::_1x1, NcScale::None)?;

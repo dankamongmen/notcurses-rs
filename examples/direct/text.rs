@@ -30,6 +30,10 @@ fn main() -> Result<(), NcError> {
     ncd.putstr(0, "[UNDERLINE]")?;
     ncd.styles_off(NcStyle::Underline)?;
 
+    ncd.styles_on(NcStyle::Italic)?;
+    ncd.putstr(0, "[ITALIC]")?;
+    ncd.styles_off(NcStyle::Italic)?;
+
     ncd.styles_on(NcStyle::Bold)?;
     ncd.putstr(0, "[BOLD]")?;
     ncd.styles_off(NcStyle::Bold)?;
@@ -45,10 +49,6 @@ fn main() -> Result<(), NcError> {
     ncd.styles_on(NcStyle::Invis)?;
     ncd.putstr(0, "[INVIS]")?;
     ncd.styles_off(NcStyle::Invis)?;
-
-    ncd.styles_on(NcStyle::Italic)?;
-    ncd.putstr(0, "[ITALIC]")?;
-    ncd.styles_off(NcStyle::Italic)?;
 
     ncd.styles_on(NcStyle::Protect)?;
     ncd.putstr(0, "[PROTECT]")?;
@@ -67,23 +67,31 @@ fn main() -> Result<(), NcError> {
     ncd.putstr(0, " DIM ")?;
     ncd.styles_on(NcStyle::Underline)?;
     ncd.putstr(0, " UNDERLINE ")?;
+    ncd.styles_on(NcStyle::Italic)?;
+    ncd.putstr(0, " ITALIC ")?;
     ncd.styles_on(NcStyle::Bold)?;
     ncd.putstr(0, " BOLD ")?;
     ncd.styles_on(NcStyle::Reverse)?;
     ncd.putstr(0, " REVERSE ")?;
     ncd.styles_on(NcStyle::Blink)?;
     ncd.putstr(0, " BLINK ")?;
-    ncd.styles_off_all()?;  // FIXME makes it italic, lol!!
+    ncd.styles_off_all()?;
     ncd.putstr(0, "]")?;
 
-    ncd.putstr(0, "\nshouldn't be italic, lol")?;
-    println!("this is println!");
 
+    // TEXT mixing Rust's print!() & println!() and notcurses' putstr() & printf()
+    //
     ncd.putstr(0, "\n\n1")?;
     println!("2 < instead of printing this concatenated AFTER, it appears BEFORE 1");
 
     ncd.putstr(0, "\n\n1 \n")?;
     println!("2 < it does work (better) with a `\\n` after 1");
+
+
+    // TODO: more tests with styles_set & bold+italic
+    //
+    //ncd.styles_off(NcStyle::Bold)?;
+    //ncd.styles_on(NcStyle::Italic)?;
 
     // COLORS & TEXT (WIP)
 
