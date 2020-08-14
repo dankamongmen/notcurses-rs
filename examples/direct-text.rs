@@ -73,30 +73,35 @@ fn main() -> Result<(), NcError> {
     ncd.putstr(0, " REVERSE ")?;
     ncd.styles_on(NcStyle::Blink)?;
     ncd.putstr(0, " BLINK ")?;
-    ncd.styles_off_all()?;  // FIXME makes it blink!!
+    ncd.styles_off_all()?;  // FIXME makes it italic, lol!!
     ncd.putstr(0, "]")?;
+
     ncd.putstr(0, "\nshouldn't be italic, lol")?;
+    println!("this is println!");
+
+    ncd.putstr(0, "\n\n1")?;
+    println!("2 < instead of printing this concatenated AFTER, it appears BEFORE 1");
+
+    ncd.putstr(0, "\n\n1 \n")?;
+    println!("2 < it does work (better) with a `\\n` after 1");
+
+    // COLORS & TEXT (WIP)
+
+    ncd.bg(0x00FF00 as u32)?; // FIXME: colors don't seem to work
+    ncd.fg(0xFF0000 as u32)?;
+    println!("\nhello colors? (investigate)");
+    ncd.putstr(nc::channels_combine(0xFF008800, 0xFFBB0099), "hello colors 2")?;
+    ncd.putstr(0, "...")?;
 
     // WIP----------------------- ↓
 
     // CURSOR & TEXT
 
-    //println!("Cursor position: {:?}", ncd.cursor_yx()?);
+    // println!("Cursor position: {:?}", ncd.cursor_yx()?);
     // ncd.cursor_move_yx(200,100)?;
     // ncd.cursor_move_yx(yx.0, yx.1)?;
     // ncd.cursor_disable()?;
     // ncd.cursor_enable()?;
-
-    // COLORS & TEXT (WIP)
-
-
-    // ncd.bg(0x00FF00)?; // FIXME: colors don't seem to work
-    // ncd.fg(0xFF0000)?;
-    // println!("hello colors?");
-    //
-    // // TODO: implement Channel & Channels (or ChannelPair)
-    // ncd.putstr(nc::channels_combine(0x004400, 0x1100dd), "hello colors 2?")?; // FIXME: colors don't seem to work
-
 
     // ncd.clear()?;
 
