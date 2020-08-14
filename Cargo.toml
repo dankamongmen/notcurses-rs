@@ -44,5 +44,9 @@ path = "examples/direct/text.rs"
 name = "d-image"
 path = "examples/direct/image.rs"
 
+[[example]]
+name = "f-text"
+path = "examples/fullscreen/text.rs"
+
 
 # https://doc.rust-lang.org/cargo/reference/manifest.html
