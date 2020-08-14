@@ -24,7 +24,7 @@ use libnotcurses_sys as nc;
 
 #[repr(u32)] // = ncscale_e
 #[derive(Debug, Copy, Clone, PartialEq)]
-pub enum NcScale {
+pub enum Scale {
     None = nc::ncscale_e_NCSCALE_NONE as nc::ncscale_e,
     Scale = nc::ncscale_e_NCSCALE_SCALE as nc::ncscale_e,
     Stretch = nc::ncscale_e_NCSCALE_STRETCH as nc::ncscale_e,
@@ -32,7 +32,7 @@ pub enum NcScale {
 
 #[repr(u32)] // = ncalign_e
 #[derive(Debug, Copy, Clone, PartialEq)]
-pub enum NcAlign {
+pub enum Align {
     Left = nc::ncalign_e_NCALIGN_LEFT as nc::ncalign_e,
     Center = nc::ncalign_e_NCALIGN_CENTER as nc::ncalign_e,
     Right = nc::ncalign_e_NCALIGN_RIGHT as nc::ncalign_e,
@@ -43,11 +43,11 @@ pub enum NcAlign {
 // states: empty, the three shaded blocks, and the full block.
 
 ///
-/// NOTE: NcBlitter::_1x1x4 & NcBlitter::_4x1 are still unimplemented,
+/// NOTE: Blitter::_1x1x4 & Blitter::_4x1 are still unimplemented,
 /// they both ought be falling back to 1x1 with a top half.
 #[repr(u32)] // = ncblitter_e
 #[derive(Debug, Copy, Clone, PartialEq)]
-pub enum NcBlitter {
+pub enum Blitter {
     /// full block                █
     _1x1 = nc::ncblitter_e_NCBLIT_1x1 as nc::ncblitter_e,
 
@@ -76,7 +76,7 @@ pub enum NcBlitter {
     Sixel = nc::ncblitter_e_NCBLIT_SIXEL as nc::ncblitter_e,
 }
 
-pub struct NcVisualOptions {}
+pub struct VisualOptions {}
 
 // ncvisual_at_yx⚠
 // ncvisual_decode⚠
@@ -95,9 +95,9 @@ pub struct NcVisualOptions {}
 // ncvisual_stream⚠
 // ncvisual_subtitle⚠
 
-pub struct NcVisual {}
+pub struct Visual {}
 
-impl NcVisual {
+impl Visual {
     // pub fn ncvisual_at_yx() {}
 
     // pub fn ncvisual_decode() {}

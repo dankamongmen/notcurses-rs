@@ -9,7 +9,7 @@ pub use nc::ChannelPair;
 /// Style Flags
 #[repr(u32)]
 #[derive(BitFlags, EnumIter, Copy, Clone, Debug, PartialEq)]
-pub enum NcStyle {
+pub enum Style {
     Blink = nc::NCSTYLE_BLINK as u32,
     Bold = nc::NCSTYLE_BOLD as u32,
     Dim = nc::NCSTYLE_DIM as u32,

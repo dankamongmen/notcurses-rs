@@ -2,17 +2,17 @@ use std::fmt;
 
 use libnotcurses_sys as nc;
 
-// TODO: Join together NcError & NcVisualError in NotcursesError,
+// TODO: Join together Error & NcVisualError in NotcursesError,
 // change the name of the structs from NcSomething to just Something.
 
 use thiserror::Error as ThisError;
 
-/// NcError enumerates all possible errors returned by this library.
+/// Error enumerates all possible errors returned by this library.
 #[derive(ThisError, Debug)]
-pub enum NcError {
+pub enum Error {
     /// Temporary generic error (TBD more specific)
     #[error("ERROR: Generic (TBD more specific)")]
-    GenericError,
+    Generic,
 
     /// Represents the error of an _init() function
     #[error("Error initializing the structure.")]
@@ -43,7 +43,7 @@ pub enum NcError {
     IOError(#[from] std::io::Error),
     */
 }
-// impl fmt::Display for NcError {
+// impl fmt::Display for Error {
 //     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 //         write!(f, "error: {:?}", self)
 //     }

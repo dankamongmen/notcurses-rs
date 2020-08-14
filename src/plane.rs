@@ -136,7 +136,7 @@
 use libnotcurses_sys as nc;
 use std::ptr::{null, null_mut};
 
-use crate::error::NcError;
+use crate::error::Error;
 use crate::notcurses::NotCurses;
 
 /// Alignment within a plane or terminal. Left/right-justified, or centered.
@@ -144,7 +144,7 @@ use crate::notcurses::NotCurses;
 /// [C sourcecode](https://nick-black.com/notcurses/html/notcurses_8h_source.html#l00063)
 #[repr(u32)] // = nc::ncalign_e
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub enum NcAlign {
+pub enum Align {
     Left = nc::ncalign_e_NCALIGN_LEFT as nc::ncalign_e,
     Center = nc::ncalign_e_NCALIGN_CENTER as nc::ncalign_e,
     Right = nc::ncalign_e_NCALIGN_RIGHT as nc::ncalign_e,
@@ -162,21 +162,21 @@ pub enum NcAlign {
 //
 // - Following initialization, a single ncplane exists, the “standard plane”. This plane cannot be destroyed
 //   nor manually resized, and is always exactly as large as the screen.
-// - Further `NcPlane`s can be created with `NcPlane::new()`. A total z-ordering always exists on the set of
-//   `NcPlane`s, and new `NcPlane`s are placed at the top of the z-buffer.
-// - `NcPlane`s can be larger, smaller, or the same size as the physical screen, and can be placed anywhere
+// - Further `Plane`s can be created with `Plane::new()`. A total z-ordering always exists on the set of
+//   `Plane`s, and new `Plane`s are placed at the top of the z-buffer.
+// - `Plane`s can be larger, smaller, or the same size as the physical screen, and can be placed anywhere
 //   relative to it (including entirely off-screen).
-// - TODO: `NcPlane`s are made up of `NcCell`s cells.
+// - TODO: `Plane`s are made up of `NcCell`s cells.
 // - TODO: All user-created planes can be destroyed in one call with notcurses_drop_planes()
 // - It is generally more performant to “hide” planes at the bottom of the stack, ideally behind a large
 //   opaque plane, rather than moving them beyond the boundaries of the visible window.
 // - Planes ought be no larger than necessary, so that they intersect with the minimum number of cells.
 //
-// Ncplanes are the fundamental drawing object of notcurses.
+// Planes are the fundamental drawing object of notcurses.
 //
-// TODO: (METHODS?) All output functions take a struct `NcPlane` as an argument.
+// TODO: (METHODS?) All output functions take a struct `Plane` as an argument.
 //
-// They can be any size, and placed anywhere. In addition to its framebuffer an NcPlane is defined by:
+// They can be any size, and placed anywhere. In addition to its framebuffer an Plane is defined by:
 //  - a base cell, used for any cell on the plane without a glyph
 //  - the egcpool backing its cells
 //  - a current cursor location
@@ -190,23 +190,23 @@ pub enum NcAlign {
 /// - [man notcurses_stdplane](https://nick-black.com/notcurses/notcurses_stdplane.3.html)
 /// - [doxygen ncplane struct reference](https://nick-black.com/notcurses/html/structncplane.html)
 ///
-pub struct NcPlane {
+pub struct Plane {
     data: *mut nc::ncplane,
 }
 
 // NOTE: it is an error to call ncplane_destroy, ncplane_resize, or ncplane_move on the standard plane.
 //
-impl NcPlane {
+impl Plane {
     // CONSTRUCTORS: aligned(), bound(), dup(), new() --------------------------
 
     pub fn aligned(
-        plane: NcPlane,
+        plane: Plane,
         rows: i32,
         cols: i32,
         yoff: i32,
-        align: NcAlign,
-    ) -> Result<Self, NcError> {
-        Ok(NcPlane {
+        align: Align,
+    ) -> Result<Self, Error> {
+        Ok(Plane {
             data: unsafe {
                 nc::ncplane_aligned(
                     plane.data,
@@ -226,20 +226,20 @@ impl NcPlane {
     /// and if that plane moves, all its bound planes move along with it.
     /// When a plane is destroyed, all planes bound to it (directly or transitively) are destroyed.
     pub fn bound(
-        plane: NcPlane,
+        plane: Plane,
         rows: i32,
         cols: i32,
         yoff: i32,
         xoff: i32,
-    ) -> Result<Self, NcError> {
-        Ok(NcPlane {
+    ) -> Result<Self, Error> {
+        Ok(Plane {
             data: unsafe { nc::ncplane_bound(plane.data, rows, cols, yoff, xoff, null_mut()) },
         })
     }
 
     /// Duplicates a plane
-    pub fn dup(&self) -> Result<Self, NcError> {
-        Ok(NcPlane {
+    pub fn dup(&self) -> Result<Self, Error> {
+        Ok(Plane {
             data: unsafe { nc::ncplane_dup(self.data, null_mut()) },
         })
     }
@@ -251,16 +251,16 @@ impl NcPlane {
         cols: i32,
         yoff: i32,
         xoff: i32,
-    ) -> Result<Self, NcError> {
-        Ok(NcPlane {
+    ) -> Result<Self, Error> {
+        Ok(Plane {
             // https://nick-black.com/notcurses/html/notcurses_8c.html#ae53e76e41aa6f82e1f1130093df1b007
             data: unsafe { nc::ncplane_new(notcurses.data, rows, cols, yoff, xoff, null_mut()) },
         })
     }
 
-    /// Returns a new NcPlane struct from an existing notcurses_ncplane struct
+    /// Returns a new Plane struct from an existing notcurses_ncplane struct
     pub(crate) fn new_from(ncplane: *mut nc::ncplane) -> Self {
-        NcPlane { data: ncplane }
+        Plane { data: ncplane }
     }
 
     // ----------------------------------------------------------^ CONSTRUCTORS
@@ -301,7 +301,7 @@ impl NcPlane {
     pub fn r#move(&mut self) {}
 
     /// Detaches the plane from any plane to which it is bound, and binds it to newparent if newparent is not NULL
-    pub fn reparent(&mut self, newparent: &mut NcPlane) {
+    pub fn reparent(&mut self, newparent: &mut Plane) {
         unsafe { nc::ncplane_reparent(self.data, newparent.data) };
     }
 
@@ -341,45 +341,45 @@ impl NcPlane {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::notcurses::NcOptions;
+    use crate::notcurses::Options;
 
     /*
     #[test]
-    fn () -> Result<(), NcError> {
+    fn () -> Result<(), Error> {
         let mut nc = NotCurses::new_default_test()?;
-        let plane = NcPlane::new(&mut nc, 50, 100, 0, 0)?;
+        let plane = Plane::new(&mut nc, 50, 100, 0, 0)?;
         assert_eq!(, );
         Ok()
     }
     */
 
     #[test]
-    fn new() -> Result<(), NcError> {
+    fn new() -> Result<(), Error> {
         let mut nc = NotCurses::new_default_test()?;
-        NcPlane::new(&mut nc, 50, 100, 0, 0)?;
+        Plane::new(&mut nc, 50, 100, 0, 0)?;
         Ok(())
     }
 
     #[test]
-    fn dim_x() -> Result<(), NcError> {
+    fn dim_x() -> Result<(), Error> {
         let mut nc = NotCurses::new_default_test()?;
-        let plane = NcPlane::new(&mut nc, 50, 100, 0, 0)?;
+        let plane = Plane::new(&mut nc, 50, 100, 0, 0)?;
         assert_eq!(100, plane.dim_x());
         Ok(())
     }
 
     #[test]
-    fn dim_y() -> Result<(), NcError> {
+    fn dim_y() -> Result<(), Error> {
         let mut nc = NotCurses::new_default_test()?;
-        let plane = NcPlane::new(&mut nc, 50, 100, 0, 0)?;
+        let plane = Plane::new(&mut nc, 50, 100, 0, 0)?;
         assert_eq!(50, plane.dim_y());
         Ok(())
     }
 
     #[test]
-    fn dim_yx() -> Result<(), NcError> {
+    fn dim_yx() -> Result<(), Error> {
         let mut nc = NotCurses::new_default_test()?;
-        let plane = NcPlane::new(&mut nc, 50, 100, 0, 0)?;
+        let plane = Plane::new(&mut nc, 50, 100, 0, 0)?;
         assert_eq!((50, 100), plane.dim_yx());
         Ok(())
     }

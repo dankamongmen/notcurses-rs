@@ -1,10 +1,10 @@
 #![allow(unused_imports)]
 
-use notcurses::{NcDirect, NcError, NcStyle};
+use notcurses::{Direct, Error, Style};
 use libnotcurses_sys as nc;
 
-fn main() -> Result<(), NcError> {
-    let mut ncd = NcDirect::new()?;
+fn main() -> Result<(), Error> {
+    let mut ncd = Direct::new()?;
 
 
     // INFO
@@ -20,15 +20,15 @@ fn main() -> Result<(), NcError> {
     // TEXT & STYLE
 
     let stylesv = vec![
-        ("[DIM]", NcStyle::Dim),
-        ("[UNDERLINE]", NcStyle::Underline),
-        ("[ITALIC]", NcStyle::Italic),
-        ("[BOLD]", NcStyle::Bold),
-        ("[REVERSE]", NcStyle::Reverse),
-        ("[BLINK]", NcStyle::Blink),
-        ("[INVIS]", NcStyle::Invis),
-        ("[PROTECT]", NcStyle::Protect),
-        ("[STANDOUT]", NcStyle::Standout),
+        ("[DIM]", Style::Dim),
+        ("[UNDERLINE]", Style::Underline),
+        ("[ITALIC]", Style::Italic),
+        ("[BOLD]", Style::Bold),
+        ("[REVERSE]", Style::Reverse),
+        ("[BLINK]", Style::Blink),
+        ("[INVIS]", Style::Invis),
+        ("[PROTECT]", Style::Protect),
+        ("[STANDOUT]", Style::Standout),
     ];
 
     ncd.putstr(0, "\nSingle styles:\n")?;
@@ -47,7 +47,7 @@ fn main() -> Result<(), NcError> {
         ncd.styles_on(*style)?;
         ncd.putstr(0, &label.chars().map(
             |c| match c { '[' | ']' => ' ', _ => c }).collect::<String>())?;
-        if let NcStyle::Blink = style { break ; }
+        if let Style::Blink = style { break ; }
     }
     ncd.styles_off_all()?;
     ncd.putstr(0, "]")?;
@@ -64,8 +64,8 @@ fn main() -> Result<(), NcError> {
 
     // TODO: more tests with styles_set & bold+italic
     //
-    //ncd.styles_off(NcStyle::Bold)?;
-    //ncd.styles_on(NcStyle::Italic)?;
+    //ncd.styles_off(Style::Bold)?;
+    //ncd.styles_on(Style::Italic)?;
 
     // COLORS & TEXT (WIP)
 

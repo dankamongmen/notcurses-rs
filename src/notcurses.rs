@@ -51,9 +51,9 @@ use libnotcurses_sys as nc;
 use enumflags2::BitFlags;
 use strum::IntoEnumIterator;
 
-use crate::error::NcError;
-use crate::plane::NcPlane;
-use crate::types::NcStyle;
+use crate::error::Error;
+use crate::plane::Plane;
+use crate::types::Style;
 
 /// Log levels
 ///
@@ -61,7 +61,7 @@ use crate::types::NcStyle;
 /// Progressively higher log levels result in more logging to stderr:
 #[repr(u32)] // = ncloglevel_e
 #[derive(Debug, Copy, Clone, PartialEq)]
-pub enum NcLogLevel {
+pub enum LogLevel {
     Silent = nc::ncloglevel_e_NCLOGLEVEL_SILENT as nc::ncloglevel_e,
     Panic = nc::ncloglevel_e_NCLOGLEVEL_PANIC as nc::ncloglevel_e,
     Fatal = nc::ncloglevel_e_NCLOGLEVEL_FATAL as nc::ncloglevel_e,
@@ -76,7 +76,7 @@ pub enum NcLogLevel {
 ///
 #[repr(u64)]
 #[derive(BitFlags, Copy, Clone, Debug, PartialEq)]
-pub enum NcOptionFlag {
+pub enum OptionFlag {
     InhibitSetlocale = nc::NCOPTION_INHIBIT_SETLOCALE as u64,
     VerifySixel = nc::NCOPTION_VERIFY_SIXEL as u64,
     NoWinchSighandler = nc::NCOPTION_NO_WINCH_SIGHANDLER as u64,
@@ -87,8 +87,8 @@ pub enum NcOptionFlag {
     NoFontChange = nc::NCOPTION_NO_FONT_CHANGES as u64, // Don't change the font
 }
 // NOTE: This doesn't work right now, waiting for the next release of enumflags2 with const support
-// impl NcOptionFlag {
-//     pub const EMPTY: BitFlags<NcOptionFlag> = BitFlags::empty();
+// impl OptionFlag {
+//     pub const EMPTY: BitFlags<OptionFlag> = BitFlags::empty();
 // }
 
 /// A safe wrapper over notcurses_options
@@ -96,19 +96,19 @@ pub enum NcOptionFlag {
 /// notcurses_init accepts a struct notcurses_options allowing fine-grained control of notcurses behavior,
 /// including signal handlers, alternative screens, and overriding the TERM environment variable.
 /// A terminfo entry appropriate for the actual terminal must be available
-pub struct NcOptions {
+pub struct Options {
     pub(crate) data: nc::notcurses_options,
 }
 
-impl NcOptions {
+impl Options {
     /// Returns a new options structure with no logging and no empty flags
     pub fn new_default() -> Self {
-        Self::new(NcLogLevel::Silent, BitFlags::empty())
+        Self::new(LogLevel::Silent, BitFlags::empty())
     }
 
     ///
-    pub fn new(loglevel: NcLogLevel, flags: impl Into<BitFlags<NcOptionFlag>>) -> Self {
-        NcOptions {
+    pub fn new(loglevel: LogLevel, flags: impl Into<BitFlags<OptionFlag>>) -> Self {
+        Options {
             data: nc::notcurses_options {
                 // Progressively higher log levels result in more logging to stderr. By
                 // default, nothing is printed to stderr once fullscreen service begins.
@@ -165,10 +165,10 @@ impl NotCurses {
     // TODO:
     // (1) always call setlocale as the first thing you do, using LC_ALL, "" as arguments.
     // document that users of your crate ought have LANG properly defined.
-    // (2) pass the NcOptionFlag::InhibitSetlocale once you're doing so
+    // (2) pass the OptionFlag::InhibitSetlocale once you're doing so
     // [link](https://github.com/dankamongmen/notcurses/issues/866#issuecomment-672921476)
     //
-    pub fn new(options: NcOptions) -> Result<Self, NcError> {
+    pub fn new(options: Options) -> Result<Self, Error> {
         unsafe {
             // Before calling into notcurses be sure to call setlocale with an appropriate UTF-8 LC_ALL locale. It is
             // appropriate to use setlocale(LC_ALL, ""), relying on the user to set the LANG environment variable.
@@ -199,14 +199,14 @@ impl NotCurses {
     }
 
     /// Returns a NotCurses instance perfect for unit tests
-    pub(crate) fn new_default_test() -> Result<Self, NcError> {
-        Self::new(NcOptions::new(
-            NcLogLevel::Silent,
-            NcOptionFlag::InhibitSetlocale
-                | NcOptionFlag::SuppressBanners
-                | NcOptionFlag::NoAlternateScreen
-                | NcOptionFlag::NoWinchSighandler
-                | NcOptionFlag::NoQuitSighandlers,
+    pub(crate) fn new_default_test() -> Result<Self, Error> {
+        Self::new(Options::new(
+            LogLevel::Silent,
+            OptionFlag::InhibitSetlocale
+                | OptionFlag::SuppressBanners
+                | OptionFlag::NoAlternateScreen
+                | OptionFlag::NoWinchSighandler
+                | OptionFlag::NoQuitSighandlers,
         ))
     }
 
@@ -292,14 +292,14 @@ impl NotCurses {
         }
     }
 
-    /// Returns the standard NcPlane for the current context
+    /// Returns the standard Plane for the current context
     ///
     // [man notcurses_stdplane](https://nick-black.com/notcurses/notcurses_stdplane.3.html)
     // It is an error to call ncplane_destroy, ncplane_resize, or ncplane_move
     // on the standard plane, but it can be freely moved along the z-axis.
     //
-    pub fn stdplane(&mut self) -> NcPlane {
-        unsafe { NcPlane::new_from(nc::notcurses_stdplane(self.data)) }
+    pub fn stdplane(&mut self) -> Plane {
+        unsafe { Plane::new_from(nc::notcurses_stdplane(self.data)) }
     }
 
     /// Returns a flag that indicates the supported styles for the current terminal
@@ -314,7 +314,7 @@ impl NotCurses {
         let sf = self.supported_styles();
         let mut sstr = String::new();
 
-        for s in NcStyle::iter() {
+        for s in Style::iter() {
             if s as u32 & sf != 0 {
                 sstr = format! {"{} {:?}", sstr, s};
             }
@@ -345,29 +345,29 @@ mod test {
 
     /* MODEL
     #[test]
-    fn () -> Result<(), NcError> {
+    fn () -> Result<(), Error> {
         let mut nc = NotCurses::new_default_test();
-        let plane = NcPlane::new(&mut nc, 50, 100, 0, 0);
+        let plane = Plane::new(&mut nc, 50, 100, 0, 0);
         assert_eq!(, );
     }
     Ok(())
     */
 
     #[test]
-    fn new() -> Result<(), NcError> {
-        let o = NcOptions::new(NcLogLevel::Silent, NcOptionFlag::SuppressBanners);
+    fn new() -> Result<(), Error> {
+        let o = Options::new(LogLevel::Silent, OptionFlag::SuppressBanners);
         let _ = NotCurses::new(o)?;
         Ok(())
     }
 
     #[test]
-    fn new_default_test() -> Result<(), NcError> {
+    fn new_default_test() -> Result<(), Error> {
         let _ = NotCurses::new_default_test()?;
         Ok(())
     }
 
     #[test]
-    fn stdplane() -> Result<(), NcError> {
+    fn stdplane() -> Result<(), Error> {
         let mut nc = NotCurses::new_default_test()?;
         let _p = nc.stdplane();
         Ok(())

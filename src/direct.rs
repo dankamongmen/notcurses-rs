@@ -50,9 +50,9 @@ use enumflags2::BitFlags;
 
 use libnotcurses_sys as nc;
 
-use crate::error::{NcError, NcVisualError};
-use crate::types::{ChannelPair, NcStyle, Rgb};
-use crate::visual::{NcAlign, NcBlitter, NcScale};
+use crate::error::{Error, NcVisualError};
+use crate::types::{ChannelPair, Style, Rgb};
+use crate::visual::{Align, Blitter, Scale};
 
 extern "C" {
     fn libc_stdout() -> *mut nc::_IO_FILE;
@@ -67,11 +67,11 @@ extern "C" {
 //
 // All other functions return 0 on success, and non-zero on error.
 //
-pub struct NcDirect {
+pub struct Direct {
     data: *mut nc::ncdirect,
 }
 
-impl NcDirect {
+impl Direct {
     // CONSTRUCTORS: new() -----------------------------------------------------
 
     /// Return a Direct Mode instance
@@ -85,12 +85,12 @@ impl NcDirect {
     /// text in the standard output paradigm. Returns NULL on error,
     /// including any failure initializing terminfo.
     ///
-    pub fn new() -> Result<Self, NcError> {
+    pub fn new() -> Result<Self, Error> {
         unsafe {
             let _ = libc::setlocale(libc::LC_ALL, std::ffi::CString::new("").unwrap().as_ptr());
         }
 
-        Ok(NcDirect {
+        Ok(Direct {
             data: unsafe { nc::ncdirect_init(null(), libc_stdout()) },
         })
     }
@@ -100,10 +100,10 @@ impl NcDirect {
     /// Set the background color
     ///
     // TODO: TEST
-    pub fn bg(&mut self, rgb: Rgb) -> Result<(), NcError> {
+    pub fn bg(&mut self, rgb: Rgb) -> Result<(), Error> {
         unsafe {
             if nc::ncdirect_bg(self.data, rgb) < 0 {
-                return Err(NcError::GenericError);
+                return Err(Error::Generic);
             }
         }
         Ok(())
@@ -112,10 +112,10 @@ impl NcDirect {
     /// Set the default background color
     ///
     // TODO: TEST
-    pub fn bg_default(&mut self) -> Result<(), NcError> {
+    pub fn bg_default(&mut self) -> Result<(), Error> {
         unsafe {
             if nc::ncdirect_bg_default(self.data) < 0 {
-                return Err(NcError::GenericError);
+                return Err(Error::Generic);
             }
         }
         Ok(())
@@ -135,10 +135,10 @@ impl NcDirect {
 
     /// Clear the screen
     // TODO: TEST
-    pub fn clear(&mut self) -> Result<(), NcError> {
+    pub fn clear(&mut self) -> Result<(), Error> {
         unsafe {
             if nc::ncdirect_clear(self.data) < 0 {
-                return Err(NcError::Clear);
+                return Err(Error::Clear);
             }
         }
         Ok(())
@@ -148,10 +148,10 @@ impl NcDirect {
     ///
     /// -1 to retain current location on that axis
     // TODO: TEST
-    pub fn cursor_disable(&mut self) -> Result<(), NcError> {
+    pub fn cursor_disable(&mut self) -> Result<(), Error> {
         unsafe {
             if nc::ncdirect_cursor_disable(self.data) < 0 {
-                return Err(NcError::Cursor);
+                return Err(Error::Cursor);
             }
         }
         Ok(())
@@ -161,10 +161,10 @@ impl NcDirect {
     ///
     /// -1 to retain current location on that axis
     // TODO: TEST
-    pub fn cursor_enable(&mut self) -> Result<(), NcError> {
+    pub fn cursor_enable(&mut self) -> Result<(), Error> {
         unsafe {
             if nc::ncdirect_cursor_enable(self.data) < 0 {
-                return Err(NcError::Cursor);
+                return Err(Error::Cursor);
             }
         }
         Ok(())
@@ -175,12 +175,12 @@ impl NcDirect {
     /// Get the cursor position, when supported. This requires writing to the
     /// terminal, and then reading from it. If the terminal doesn't reply, or
     /// doesn't reply in a way we understand, the results might be deleterious.
-    pub fn cursor_yx(&mut self) -> Result<(i32, i32), NcError> {
+    pub fn cursor_yx(&mut self) -> Result<(i32, i32), Error> {
         let mut y = 0;
         let mut x = 0;
         unsafe {
             if nc::ncdirect_cursor_yx(self.data, &mut y, &mut x) < 0 {
-                return Err(NcError::Cursor);
+                return Err(Error::Cursor);
             }
         }
         Ok((y, x))
@@ -189,10 +189,10 @@ impl NcDirect {
     /// Moves the cursor to the provided coordinates (rows, cols)
     ///
     /// -1 to retain current location on that axis
-    pub fn cursor_move_yx(&mut self, y: i32, x: i32) -> Result<(), NcError> {
+    pub fn cursor_move_yx(&mut self, y: i32, x: i32) -> Result<(), Error> {
         unsafe {
             if nc::ncdirect_cursor_move_yx(self.data, y, x) < 0 {
-                return Err(NcError::Cursor);
+                return Err(Error::Cursor);
             }
         }
         Ok(())
@@ -202,10 +202,10 @@ impl NcDirect {
     ///
     /// -1 to retain current location on that axis
     // TODO: TEST
-    pub fn cursor_down(&mut self, rows: i32) -> Result<(), NcError> {
+    pub fn cursor_down(&mut self, rows: i32) -> Result<(), Error> {
         unsafe {
             if nc::ncdirect_cursor_down(self.data, rows) < 0 {
-                return Err(NcError::Cursor);
+                return Err(Error::Cursor);
             }
         }
         Ok(())
@@ -215,10 +215,10 @@ impl NcDirect {
     ///
     /// -1 to retain current location on that axis
     // TODO: TEST
-    pub fn cursor_left(&mut self, cols: i32) -> Result<(), NcError> {
+    pub fn cursor_left(&mut self, cols: i32) -> Result<(), Error> {
         unsafe {
             if nc::ncdirect_cursor_left(self.data, cols) < 0 {
-                return Err(NcError::Cursor);
+                return Err(Error::Cursor);
             }
         }
         Ok(())
@@ -226,10 +226,10 @@ impl NcDirect {
 
     /// Pop the cursor location to the terminal's stack. The depth of this
     /// stack, and indeed its existence, is terminal-dependent.
-    pub fn cursor_pop(&mut self) -> Result<(), NcError> {
+    pub fn cursor_pop(&mut self) -> Result<(), Error> {
         unsafe {
             if nc::ncdirect_cursor_pop(self.data) < 0 {
-                return Err(NcError::Cursor);
+                return Err(Error::Cursor);
             }
         }
         Ok(())
@@ -237,10 +237,10 @@ impl NcDirect {
 
     /// Pop the cursor location to the terminal's stack. The depth of this
     /// stack, and indeed its existence, is terminal-dependent.
-    pub fn cursor_push(&mut self) -> Result<(), NcError> {
+    pub fn cursor_push(&mut self) -> Result<(), Error> {
         unsafe {
             if nc::ncdirect_cursor_push(self.data) < 0 {
-                return Err(NcError::Cursor);
+                return Err(Error::Cursor);
             }
         }
         Ok(())
@@ -250,10 +250,10 @@ impl NcDirect {
     ///
     /// -1 to retain current location on that axis
     // TODO: TEST
-    pub fn cursor_right(&mut self, cols: i32) -> Result<(), NcError> {
+    pub fn cursor_right(&mut self, cols: i32) -> Result<(), Error> {
         unsafe {
             if nc::ncdirect_cursor_right(self.data, cols) < 0 {
-                return Err(NcError::Cursor);
+                return Err(Error::Cursor);
             }
         }
         Ok(())
@@ -263,10 +263,10 @@ impl NcDirect {
     ///
     /// -1 to retain current location on that axis
     // TODO: TEST
-    pub fn cursor_up(&mut self, rows: i32) -> Result<(), NcError> {
+    pub fn cursor_up(&mut self, rows: i32) -> Result<(), Error> {
         unsafe {
             if nc::ncdirect_cursor_up(self.data, rows) < 0 {
-                return Err(NcError::Cursor);
+                return Err(Error::Cursor);
             }
         }
         Ok(())
@@ -287,10 +287,10 @@ impl NcDirect {
     /// Set the foreground color
     ///
     // TODO: TEST
-    pub fn fg(&mut self, rgb: Rgb) -> Result<(), NcError> {
+    pub fn fg(&mut self, rgb: Rgb) -> Result<(), Error> {
         unsafe {
             if nc::ncdirect_fg(self.data, rgb) < 0 {
-                return Err(NcError::GenericError);
+                return Err(Error::Generic);
             }
         }
         Ok(())
@@ -299,10 +299,10 @@ impl NcDirect {
     /// Set the default foreground color
     ///
     // TODO: TEST
-    pub fn fg_default(&mut self) -> Result<(), NcError> {
+    pub fn fg_default(&mut self) -> Result<(), Error> {
         unsafe {
             if nc::ncdirect_fg_default(self.data) < 0 {
-                return Err(NcError::GenericError);
+                return Err(Error::Generic);
             }
         }
         Ok(())
@@ -316,7 +316,7 @@ impl NcDirect {
     ///
     // TODO: TEST
     // FIXME: TYPES
-    pub fn hline_interp(&mut self, egc: &str, len: i32, h1: u64, h2: u64) -> Result<(), NcError> {
+    pub fn hline_interp(&mut self, egc: &str, len: i32, h1: u64, h2: u64) -> Result<(), Error> {
         unsafe {
             if nc::ncdirect_hline_interp(
                 self.data,
@@ -326,7 +326,7 @@ impl NcDirect {
                 h2,
             ) < 0
             {
-                return Err(NcError::GenericError);
+                return Err(Error::Generic);
             }
         }
         Ok(())
@@ -340,7 +340,7 @@ impl NcDirect {
     ///
     // TODO: TEST
     // FIXME: TYPES
-    pub fn vline_interp(&mut self, egc: &str, len: i32, h1: u64, h2: u64) -> Result<(), NcError> {
+    pub fn vline_interp(&mut self, egc: &str, len: i32, h1: u64, h2: u64) -> Result<(), Error> {
         unsafe {
             if nc::ncdirect_vline_interp(
                 self.data,
@@ -350,7 +350,7 @@ impl NcDirect {
                 h2,
             ) < 0
             {
-                return Err(NcError::GenericError);
+                return Err(Error::Generic);
             }
         }
         Ok(())
@@ -367,10 +367,10 @@ impl NcDirect {
 
 
     // TODO: TEST
-    pub fn putstr(&mut self, channels: ChannelPair, utf8: &str) -> Result<(), NcError> {
+    pub fn putstr(&mut self, channels: ChannelPair, utf8: &str) -> Result<(), Error> {
         unsafe {
             if nc::ncdirect_putstr(self.data, channels, CString::new(utf8).unwrap().as_ptr()) < 0 {
-                return Err(NcError::GenericError);
+                return Err(Error::Generic);
             }
         }
         Ok(())
@@ -384,10 +384,10 @@ impl NcDirect {
     pub fn render_image(
         &mut self,
         filename: &str,
-        align: NcAlign,
-        blitter: NcBlitter,
-        scale: NcScale,
-    ) -> Result<(), NcError> {
+        align: Align,
+        blitter: Blitter,
+        scale: Scale,
+    ) -> Result<(), Error> {
         unsafe {
             if nc::ncdirect_render_image(
                 self.data,
@@ -397,7 +397,7 @@ impl NcDirect {
                 scale as nc::ncscale_e,
             ) != 0
             {
-                return Err(NcError::ImageRender);
+                return Err(Error::ImageRender);
             }
         }
         Ok(())
@@ -405,47 +405,47 @@ impl NcDirect {
 
 
     /// Turn off the indicated styles
-    pub fn styles_off(&mut self, style: impl Into<BitFlags<NcStyle>>) -> Result<(), NcError> {
+    pub fn styles_off(&mut self, style: impl Into<BitFlags<Style>>) -> Result<(), Error> {
         unsafe {
             if nc::ncdirect_styles_off(self.data, style.into().bits()) < 0 {
-                return Err(NcError::GenericError);
+                return Err(Error::Generic);
             }
         }
         Ok(())
     }
 
     /// Turn off all the styling
-    pub fn styles_off_all(&mut self) -> Result<(), NcError> {
+    pub fn styles_off_all(&mut self) -> Result<(), Error> {
         unsafe {
             if nc::ncdirect_styles_off(self.data, nc::NCSTYLE_MASK) < 0 {
-                return Err(NcError::GenericError);
+                return Err(Error::Generic);
             }
         }
         Ok(())
     }
 
     /// Turn on the indicated styles
-    pub fn styles_on(&mut self, style: impl Into<BitFlags<NcStyle>>) -> Result<(), NcError> {
+    pub fn styles_on(&mut self, style: impl Into<BitFlags<Style>>) -> Result<(), Error> {
         unsafe {
             if nc::ncdirect_styles_on(self.data, style.into().bits()) < 0 {
-                return Err(NcError::GenericError);
+                return Err(Error::Generic);
             }
         }
         Ok(())
     }
 
     /// Turn on just the indicated styles, and off the rest
-    pub fn styles_set(&mut self, style: impl Into<BitFlags<NcStyle>>) -> Result<(), NcError> {
+    pub fn styles_set(&mut self, style: impl Into<BitFlags<Style>>) -> Result<(), Error> {
         unsafe {
             if nc::ncdirect_styles_set(self.data, style.into().bits()) < 0 {
-                return Err(NcError::GenericError);
+                return Err(Error::Generic);
             }
         }
         Ok(())
     }
 }
 
-impl Drop for NcDirect {
+impl Drop for Direct {
     fn drop(&mut self) {
         // It is important to reset the terminal before exiting, whether terminating due to intended operation
         // or a received signal. This is usually accomplished by explicitly calling notcurses_stop.
@@ -467,48 +467,48 @@ mod test {
 
     /*
     #[test]
-    fn () -> Result<(), NcError> {
-        let mut nc = NcDirect::new()?;
+    fn () -> Result<(), Error> {
+        let mut nc = Direct::new()?;
         //assert_eq!(, );
         Ok(())
     }
     */
 
     #[test]
-    fn clear() -> Result<(), NcError> {
-        let mut _nc = NcDirect::new()?;
+    fn clear() -> Result<(), Error> {
+        let mut _nc = Direct::new()?;
         // NOTE: commented out bc when the screen gets cleared the previous output is lost.
         //nc.clear()?;
         Ok(())
     }
 
     #[test]
-    fn cursor_yx() -> Result<(), NcError> {
-        let mut nc = NcDirect::new()?;
+    fn cursor_yx() -> Result<(), Error> {
+        let mut nc = Direct::new()?;
         let _yx = nc.cursor_yx()?;
         print!("cursor_yx={:?} ", _yx);
         Ok(())
     }
 
     #[test]
-    fn dim_x() -> Result<(), NcError> {
-        let nc = NcDirect::new()?;
+    fn dim_x() -> Result<(), Error> {
+        let nc = Direct::new()?;
         let _x = nc.dim_x();
         print!("dim_x={} ", _x);
         Ok(())
     }
 
     #[test]
-    fn dim_y() -> Result<(), NcError> {
-        let nc = NcDirect::new()?;
+    fn dim_y() -> Result<(), Error> {
+        let nc = Direct::new()?;
         let _y = nc.dim_y();
         print!("dim_y={} ", _y);
         Ok(())
     }
 
     #[test]
-    fn move_cursor_yx() -> Result<(), NcError> {
-        let mut nc = NcDirect::new()?;
+    fn move_cursor_yx() -> Result<(), Error> {
+        let mut nc = Direct::new()?;
         let _yx_a = nc.cursor_yx()?;
         print!("cursor_yx A={:?} ", _yx_a);
 
@@ -528,14 +528,14 @@ mod test {
     }
 
     #[test]
-    fn new() -> Result<(), NcError> {
-        let _nc = NcDirect::new()?;
+    fn new() -> Result<(), Error> {
+        let _nc = Direct::new()?;
         Ok(())
     }
 
     #[test]
-    fn palette_size() -> Result<(), NcError> {
-        let mut _nc = NcDirect::new()?;
+    fn palette_size() -> Result<(), Error> {
+        let mut _nc = Direct::new()?;
         assert!(_nc.palette_size() > 0);
         Ok(())
     }
