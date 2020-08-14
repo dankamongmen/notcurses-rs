@@ -1,14 +1,14 @@
 // total functions: 35
 // ------------------------------------------ (done / wont / remaining)
-// - implemented: 24 / … / 11
+// - implemented: 29 / … /  6
 // - +unit tests:  7 / … / 28
 // ------------------------- ↓ from bindgen: 35
 //+ncdirect_bg
 //+ncdirect_bg_default
-// ncdirect_bg_palindex        ?
+// ncdirect_bg_palindex        // ?
 // ncdirect_box
-//+ncdirect_canopen_images
-//+ncdirect_canutf8
+//+ncdirect_canopen_images     // as: can_open_images()
+//+ncdirect_canutf8            // as: can_utf8()
 //#ncdirect_clear
 //+ncdirect_cursor_disable
 //+ncdirect_cursor_down
@@ -25,27 +25,33 @@
 // ncdirect_double_box
 //+ncdirect_fg
 //+ncdirect_fg_default
-// ncdirect_fg_palindex        ?
-//+ncdirect_hline_interp
+// ncdirect_fg_palindex        // ?
+//+ncdirect_hline_interp       // WIP
 //#ncdirect_init               // inside new()
 //#ncdirect_palette_size
-// ncdirect_printf_aligned
-// ncdirect_putstr
+//+ncdirect_printf_aligned
+//+ncdirect_putstr
 //+ncdirect_render_image
 // ncdirect_rounded_box
-//+ncdirect_stop               // in Drop Trait
-// ncdirect_styles_off
-// ncdirect_styles_on
-// ncdirect_styles_set
-//+ncdirect_vline_interp
+//+ncdirect_stop               // inside Drop Trait
+//+ncdirect_styles_off
+//+ncdirect_styles_on
+//+ncdirect_styles_set
+//+ncdirect_vline_interp       // WIP
+//
+// ------------------------- ↓ extra functions
+//
+// .styles_off_all             // BUG: makes text italic
 
 use std::ffi::CString;
 use std::ptr::{null, null_mut};
 
+use enumflags2::BitFlags;
+
 use libnotcurses_sys as nc;
 
 use crate::error::{NcError, NcVisualError};
-use crate::types::Rgb;
+use crate::types::{ChannelPair, NcStyle, Rgb};
 use crate::visual::{NcAlign, NcBlitter, NcScale};
 
 extern "C" {
@@ -117,13 +123,13 @@ impl NcDirect {
 
     ///
     // TODO: TEST
-    pub fn canopen_images(&self) -> bool {
+    pub fn can_open_images(&self) -> bool {
         unsafe { nc::ncdirect_canopen_images(self.data) }
     }
 
     ///
     // TODO: TEST
-    pub fn canutf8(&self) -> bool {
+    pub fn can_utf8(&self) -> bool {
         unsafe { nc::ncdirect_canutf8(self.data) }
     }
 
@@ -359,6 +365,17 @@ impl NcDirect {
         unsafe { nc::ncdirect_palette_size(self.data) }
     }
 
+
+    // TODO: TEST
+    pub fn putstr(&mut self, channels: ChannelPair, utf8: &str) -> Result<(), NcError> {
+        unsafe {
+            if nc::ncdirect_putstr(self.data, channels, CString::new(utf8).unwrap().as_ptr()) < 0 {
+                return Err(NcError::GenericError);
+            }
+        }
+        Ok(())
+    }
+
     /// Display an image using the specified blitter and scaling. The image may
     /// be arbitrarily many rows -- the output will scroll -- but will only occupy
     /// the column of the cursor, and those to the right.
@@ -381,6 +398,46 @@ impl NcDirect {
             ) != 0
             {
                 return Err(NcError::ImageRender);
+            }
+        }
+        Ok(())
+    }
+
+
+    /// Turns off the indicated styles
+    pub fn styles_off(&mut self, style: impl Into<BitFlags<NcStyle>>) -> Result<(), NcError> {
+        unsafe {
+            if nc::ncdirect_styles_off(self.data, style.into().bits()) < 0 {
+                return Err(NcError::GenericError);
+            }
+        }
+        Ok(())
+    }
+
+    /// Turns off all the styling
+    pub fn styles_off_all(&mut self) -> Result<(), NcError> {
+        unsafe {
+            if nc::ncdirect_styles_off(self.data, nc::NCSTYLE_MASK) < 0 {
+                return Err(NcError::GenericError);
+            }
+        }
+        Ok(())
+    }
+
+    /// Turns on the indicated styles
+    pub fn styles_on(&mut self, style: impl Into<BitFlags<NcStyle>>) -> Result<(), NcError> {
+        unsafe {
+            if nc::ncdirect_styles_on(self.data, style.into().bits()) < 0 {
+                return Err(NcError::GenericError);
+            }
+        }
+        Ok(())
+    }
+
+    pub fn styles_set(&mut self, style: impl Into<BitFlags<NcStyle>>) -> Result<(), NcError> {
+        unsafe {
+            if nc::ncdirect_styles_set(self.data, style.into().bits()) < 0 {
+                return Err(NcError::GenericError);
             }
         }
         Ok(())
