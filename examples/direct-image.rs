@@ -23,13 +23,13 @@ fn main() -> Result<(), NcError> {
     //
     // NOTE: NcBlitter::_1x1x4 & NcBlitter::_4x1 are still unimplemented,
     // they both ought be falling back to 1x1 with a top half.
-    ncd.render_image(&img, NcAlign::Left, NcBlitter::_1x1, NcScale::None)?;
-    ncd.render_image(&img, NcAlign::Left, NcBlitter::_1x1x4, NcScale::None)?;
-    ncd.render_image(&img, NcAlign::Left, NcBlitter::_2x1, NcScale::None)?;
-    ncd.render_image(&img, NcAlign::Left, NcBlitter::_2x2, NcScale::None)?;
-    ncd.render_image(&img, NcAlign::Left, NcBlitter::_4x1, NcScale::None)?;
-    ncd.render_image(&img, NcAlign::Left, NcBlitter::_8x1, NcScale::None)?;
-    ncd.render_image(&img, NcAlign::Left, NcBlitter::Braille, NcScale::None)?;
+    ncd.render_image(&img, NcAlign::Center, NcBlitter::_1x1, NcScale::None)?;
+    ncd.render_image(&img, NcAlign::Center, NcBlitter::_1x1x4, NcScale::None)?;
+    ncd.render_image(&img, NcAlign::Center, NcBlitter::_2x1, NcScale::None)?;
+    ncd.render_image(&img, NcAlign::Center, NcBlitter::_2x2, NcScale::None)?;
+    ncd.render_image(&img, NcAlign::Center, NcBlitter::_4x1, NcScale::None)?;
+    ncd.render_image(&img, NcAlign::Center, NcBlitter::_8x1, NcScale::None)?;
+    ncd.render_image(&img, NcAlign::Center, NcBlitter::Braille, NcScale::None)?;
 
     Ok(())
 }
