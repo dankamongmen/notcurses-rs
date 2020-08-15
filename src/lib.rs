@@ -24,5 +24,5 @@ mod visual;
 pub use crate::notcurses::{LogLevel, OptionFlag, Options, NotCurses};
 pub use direct::Direct;
 pub use error::{Error};
-pub use types::{Rgb, ChannelPair, Style};
-pub use visual::{Align, Blitter, Scale, Visual, VisualOptions};
+pub use types::{Align, Blitter, Scale, Rgb, ChannelPair, Style};
+pub use visual::{Visual, VisualOptions};

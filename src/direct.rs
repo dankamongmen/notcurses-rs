@@ -1,6 +1,6 @@
 // total functions: 35
 // ------------------------------------------ (done / wont / remaining)
-// - implemented: 29 / … /  6
+// - implemented: 30 / … /  5
 // - +unit tests:  7 / … / 28
 // ------------------------- ↓ from bindgen: 35
 //+ncdirect_bg
@@ -30,8 +30,8 @@
 //#ncdirect_init               // inside new()
 //#ncdirect_palette_size
 //+ncdirect_printf_aligned
-//+ncdirect_putstr
-//+ncdirect_render_image
+//+ncdirect_putstr             // as print_colored()
+//+ncdirect_render_image       // as print_aligned()
 // ncdirect_rounded_box
 //+ncdirect_stop               // inside Drop Trait
 //+ncdirect_styles_off
@@ -41,7 +41,7 @@
 //
 // ------------------------- ↓ extra functions
 //
-// .styles_off_all             // BUG: makes text italic
+// .styles_off_all
 
 use std::ffi::CString;
 use std::ptr::{null, null_mut};
@@ -51,27 +51,77 @@ use enumflags2::BitFlags;
 use libnotcurses_sys as nc;
 
 use crate::error::{Error};
-use crate::types::{ChannelPair, Style, Rgb};
-use crate::visual::{Align, Blitter, Scale};
+use crate::types::{ChannelPair, Style, Rgb, Align, Blitter, Scale};
 
 extern "C" {
     fn libc_stdout() -> *mut nc::_IO_FILE;
 }
 
+/// Direct Mode context
+///
+/// Can be used to manipulate the habitual output to the terminal
+///
+/// ## List of methods
+///
+/// ```text
+/// .new()?→               // new direct mode instance
+///
+/// .can_open_images()→    // image support, bool
+/// .can_utf8()→           // UTF-8 support, bool
+/// .palette_size()→       // get the palette size (256)
+/// .cols()→               // get number of columns
+/// .rows()→               // get number of rows
+///
+/// .clear()?              // clear the screen
+/// .bg(…)?                // set the background color
+/// .fg(…)?                // set the foreground color
+/// .bg_default()?         // set the default background color
+/// .fg_default()?         // set the default foreground color
+///
+/// .cursor_enable()?      // enable the cursor
+/// .cursor_disable()?     // disable the cursor
+///
+/// .cursor_yx()?→         // get cursor coordinates
+/// .cursor_move_yx(…)?    // move the cursor to coordinates
+/// .cursor_pop()?         // pop cursor location to stack
+/// .cursor_push()?        // push cursor location to stack
+///
+/// .cursor_up(…)?         // move the cursor up
+/// .cursor_down(…)?       // move the cursor down
+/// .cursor_left(…)?       // move the cursor left
+/// .cursor_right(…)?      // move the cursor right
+///
+/// .hline_interp(…)?      // draw horizontal lines interpolating 2 colors
+/// .vline_interp(…)?      // draw vertical lines interpolating 2 colors
+///
+/// .styles_on(…)?         // turns on the provided style(s)
+/// .styles_off(…)?        // turns off the provided style(s)
+/// .styles_off_all()?     // turns off all styles
+/// .styles_set(…)?        // turns on the provided styles & off the rest
+///
+/// .putstr(…)?            //
+/// .printf_aligned(…)?    //
+///
+/// .render_image(…)?      //
+///
+/// // ----------------------------------------------- legend:
+/// .function()            // function
+/// .function()→           // returns some value
+/// .function()?           // returns a Result<(), Error>
+/// .function()?→          // returns a Result<value, Error>
+/// .function(…)           // with argument(s)
+/// ```
 ///
 /// ## Links
-/// - [man notcurses_directmode](https://nick-black.com/notcurses/notcurses_directmode.3.html)
-//
-// ncdirect_init returns NULL on failure. Otherwise, the return value points to a valid struct
-// ncdirect, which can be used until it is provided to ncdirect_stop.
-//
-// All other functions return 0 on success, and non-zero on error.
-//
+///
+/// - [man notcurses_directmode(3)](https://nick-black.com/notcurses/notcurses_directmode.3.html)
+///
 pub struct Direct {
     data: *mut nc::ncdirect,
 }
 
 impl Direct {
+
     // CONSTRUCTORS: new() -----------------------------------------------------
 
     /// Return a Direct Mode instance
@@ -89,7 +139,8 @@ impl Direct {
         unsafe {
             let _ = libc::setlocale(libc::LC_ALL, std::ffi::CString::new("").unwrap().as_ptr());
         }
-
+        // TODO: ncdirect_init() returns NULL on failure. Otherwise, the return value points
+        // to a valid struct ncdirect, which can be used until it is provided to ncdirect_stop().
         Ok(Direct {
             data: unsafe { nc::ncdirect_init(null(), libc_stdout()) },
         })
@@ -144,6 +195,12 @@ impl Direct {
         Ok(())
     }
 
+    /// Get the current number of columns
+    ///
+    pub fn cols(&self) -> i32 {
+        unsafe { nc::ncdirect_dim_x(self.data) }
+    }
+
     /// Disables the cursor
     ///
     /// -1 to retain current location on that axis
@@ -170,7 +227,7 @@ impl Direct {
         Ok(())
     }
 
-    /// Returns the position of the cursor as a tuple of (rows, cols)
+    /// Return the position of the cursor as a tuple of (rows, cols)
     ///
     /// Get the cursor position, when supported. This requires writing to the
     /// terminal, and then reading from it. If the terminal doesn't reply, or
@@ -235,7 +292,7 @@ impl Direct {
         Ok(())
     }
 
-    /// Pop the cursor location to the terminal's stack. The depth of this
+    /// Push the cursor location to the terminal's stack. The depth of this
     /// stack, and indeed its existence, is terminal-dependent.
     pub fn cursor_push(&mut self) -> Result<(), Error> {
         unsafe {
@@ -270,18 +327,6 @@ impl Direct {
             }
         }
         Ok(())
-    }
-
-    /// Get the current number of columns
-    ///
-    pub fn dim_x(&self) -> i32 {
-        unsafe { nc::ncdirect_dim_x(self.data) }
-    }
-
-    /// Get the current number of rows
-    ///
-    pub fn dim_y(&self) -> i32 {
-        unsafe { nc::ncdirect_dim_y(self.data) }
     }
 
     /// Set the foreground color
@@ -332,6 +377,12 @@ impl Direct {
         Ok(())
     }
 
+    /// Get the current number of rows
+    ///
+    pub fn rows(&self) -> i32 {
+        unsafe { nc::ncdirect_dim_y(self.data) }
+    }
+
     /// Draw vertical lines using the specified channels, interpolating between
     /// them as we go. The EGC may not use more than one column.
     ///
@@ -365,9 +416,23 @@ impl Direct {
         unsafe { nc::ncdirect_palette_size(self.data) }
     }
 
+    ///
+    ///
+    ///
+    // NOTE: once println!() works, this wont have much utility
+    pub fn print_aligned(&mut self, y: i32, align: Align, fmt: &str) -> Result<(), Error> {
+        unsafe {
+            if nc::ncdirect_printf_aligned(self.data, y, align as nc::ncalign_e,
+                CString::new(fmt).unwrap().as_ptr()) < 0 {
+                return Err(Error::Generic);
+            }
+        }
+        Ok(())
+    }
 
-    // TODO: TEST
-    pub fn putstr(&mut self, channels: ChannelPair, utf8: &str) -> Result<(), Error> {
+    ///
+    ///
+    pub fn print_colored(&mut self, channels: ChannelPair, utf8: &str) -> Result<(), Error> {
         unsafe {
             if nc::ncdirect_putstr(self.data, channels, CString::new(utf8).unwrap().as_ptr()) < 0 {
                 return Err(Error::Generic);
@@ -380,7 +445,7 @@ impl Direct {
     /// be arbitrarily many rows -- the output will scroll -- but will only occupy
     /// the column of the cursor, and those to the right.
     ///
-    // TODO: TEST
+    // TODO: would like an alternative that accepts a buffer instead of a filename
     pub fn render_image(
         &mut self,
         filename: &str,
@@ -491,18 +556,18 @@ mod test {
     }
 
     #[test]
-    fn dim_x() -> Result<(), Error> {
+    fn cols() -> Result<(), Error> {
         let nc = Direct::new()?;
-        let _x = nc.dim_x();
-        print!("dim_x={} ", _x);
+        let _x = nc.cols();
+        print!("cols={} ", _x);
         Ok(())
     }
 
     #[test]
-    fn dim_y() -> Result<(), Error> {
+    fn rows() -> Result<(), Error> {
         let nc = Direct::new()?;
-        let _y = nc.dim_y();
-        print!("dim_y={} ", _y);
+        let _y = nc.rows();
+        print!("rows={} ", _y);
         Ok(())
     }
 
