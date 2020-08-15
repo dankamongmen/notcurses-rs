@@ -50,7 +50,7 @@ use enumflags2::BitFlags;
 
 use libnotcurses_sys as nc;
 
-use crate::error::{Error, NcVisualError};
+use crate::error::{Error};
 use crate::types::{ChannelPair, Style, Rgb};
 use crate::visual::{Align, Blitter, Scale};
 
