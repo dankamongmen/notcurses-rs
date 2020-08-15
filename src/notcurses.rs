@@ -102,39 +102,10 @@ pub struct Options {
 
 impl Options {
 
-    // CONSTRUCTORS new() new_custom()
-
-    /// Return a default Options structure
-    ///
-    /// - uses alternate mode
-    /// - doesn't show the info banners
-    ///
-    pub fn new() -> Self {
-        Self::new_custom(LogLevel::Silent, OptionFlag::SuppressBanners)
-    }
-
-    /// Return a new Options structure
-    ///
-    /// - uses alternate mode
-    /// - shows the info banners
-    ///
-    pub fn with_banners() -> Self {
-        Self::new_custom(LogLevel::Silent, BitFlags::empty())
-    }
-
-
-    /// Return a new Options structure
-    ///
-    /// - doesn't use alternate mode
-    /// - doesn't show the info banners
-    ///
-    pub fn without_altmode() -> Self {
-        Self::new_custom(LogLevel::Silent, OptionFlag::NoAlternateScreen | OptionFlag::SuppressBanners)
-
-    }
+    // CONSTRUCTORS new()
 
     /// Return a new customized Options structure
-    pub fn new_custom(loglevel: LogLevel, flags: impl Into<BitFlags<OptionFlag>>) -> Self {
+    pub fn new(loglevel: LogLevel, flags: impl Into<BitFlags<OptionFlag>>) -> Self {
         Options {
             data: nc::notcurses_options {
                 // Progressively higher log levels result in more logging to stderr. By
@@ -185,17 +156,28 @@ pub struct NotCurses {
 }
 
 impl NotCurses {
-    // CONSTRUCTORS: new(), new_default_test() ---------------------------------
+    // CONSTRUCTORS: new(), for_testing() with_banners() with_options() without_altmode()---------------------------------
 
-    /// Returns a NotCurses instance
+    /// Return a NotCurses instance that:
     ///
+    /// - uses the alternate mode
+    /// - doesn't show the info banners
+    ///
+    pub fn new() -> Result<Self, Error> {
+        Self::with_options(Options::new(LogLevel::Silent, OptionFlag::SuppressBanners))
+    }
+
+
+    /// Return a NotCurses instance with custom options
+    ///
+    // TODO: move constructors from options to here (without_altmode, etc.)
     // TODO:
     // (1) always call setlocale as the first thing you do, using LC_ALL, "" as arguments.
     // document that users of your crate ought have LANG properly defined.
     // (2) pass the OptionFlag::InhibitSetlocale once you're doing so
     // [link](https://github.com/dankamongmen/notcurses/issues/866#issuecomment-672921476)
     //
-    pub fn new(options: Options) -> Result<Self, Error> {
+    pub fn with_options(options: Options) -> Result<Self, Error> {
         unsafe {
             // Before calling into notcurses be sure to call setlocale with an appropriate UTF-8 LC_ALL locale. It is
             // appropriate to use setlocale(LC_ALL, ""), relying on the user to set the LANG environment variable.
@@ -225,9 +207,29 @@ impl NotCurses {
         })
     }
 
-    /// Returns a NotCurses instance perfect for unit tests
-    pub(crate) fn new_default_test() -> Result<Self, Error> {
-        Self::new(Options::new_custom(
+    /// Return a NotCurses instance that:
+    ///
+    /// - uses the alternate mode
+    /// - shows the info banners
+    ///
+    pub fn with_banners() -> Result<Self, Error> {
+        Self::with_options(Options::new(LogLevel::Silent, BitFlags::empty()))
+    }
+
+    /// Return a NotCurses instance that:
+    ///
+    /// - doesn't use the alternate mode
+    /// - doesn't show the info banners
+    ///
+    pub fn without_altmode() -> Result<Self, Error> {
+        Self::with_options(Options::new(LogLevel::Silent,
+             OptionFlag::NoAlternateScreen | OptionFlag::SuppressBanners))
+
+    }
+
+    /// Return a NotCurses instance perfect for unit tests
+    pub(crate) fn for_testing() -> Result<Self, Error> {
+        Self::with_options(Options::new(
             LogLevel::Silent,
             OptionFlag::InhibitSetlocale
                 | OptionFlag::SuppressBanners
@@ -373,7 +375,7 @@ mod test {
     /* MODEL
     #[test]
     fn () -> Result<(), Error> {
-        let mut nc = NotCurses::new_default_test();
+        let mut nc = NotCurses::for_testing();
         let plane = Plane::new(&mut nc, 50, 100, 0, 0);
         assert_eq!(, );
     }
@@ -382,20 +384,19 @@ mod test {
 
     #[test]
     fn new() -> Result<(), Error> {
-        let o = Options::new_custom(LogLevel::Silent, OptionFlag::SuppressBanners);
-        let _ = NotCurses::new(o)?;
+        let _ = NotCurses::new()?;
         Ok(())
     }
 
     #[test]
-    fn new_default_test() -> Result<(), Error> {
-        let _ = NotCurses::new_default_test()?;
+    fn for_testing() -> Result<(), Error> {
+        let _ = NotCurses::for_testing()?;
         Ok(())
     }
 
     #[test]
     fn stdplane() -> Result<(), Error> {
-        let mut nc = NotCurses::new_default_test()?;
+        let mut nc = NotCurses::for_testing()?;
         let _p = nc.stdplane();
         Ok(())
     }

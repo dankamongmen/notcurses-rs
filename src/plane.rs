@@ -346,7 +346,7 @@ mod test {
     /*
     #[test]
     fn () -> Result<(), Error> {
-        let mut nc = NotCurses::new_default_test()?;
+        let mut nc = NotCurses::for_testing()?;
         let plane = Plane::new(&mut nc, 50, 100, 0, 0)?;
         assert_eq!(, );
         Ok()
@@ -355,14 +355,14 @@ mod test {
 
     #[test]
     fn new() -> Result<(), Error> {
-        let mut nc = NotCurses::new_default_test()?;
+        let mut nc = NotCurses::for_testing()?;
         Plane::new(&mut nc, 50, 100, 0, 0)?;
         Ok(())
     }
 
     #[test]
     fn dim_x() -> Result<(), Error> {
-        let mut nc = NotCurses::new_default_test()?;
+        let mut nc = NotCurses::for_testing()?;
         let plane = Plane::new(&mut nc, 50, 100, 0, 0)?;
         assert_eq!(100, plane.dim_x());
         Ok(())
@@ -370,7 +370,7 @@ mod test {
 
     #[test]
     fn dim_y() -> Result<(), Error> {
-        let mut nc = NotCurses::new_default_test()?;
+        let mut nc = NotCurses::for_testing()?;
         let plane = Plane::new(&mut nc, 50, 100, 0, 0)?;
         assert_eq!(50, plane.dim_y());
         Ok(())
@@ -378,7 +378,7 @@ mod test {
 
     #[test]
     fn dim_yx() -> Result<(), Error> {
-        let mut nc = NotCurses::new_default_test()?;
+        let mut nc = NotCurses::for_testing()?;
         let plane = Plane::new(&mut nc, 50, 100, 0, 0)?;
         assert_eq!((50, 100), plane.dim_yx());
         Ok(())
