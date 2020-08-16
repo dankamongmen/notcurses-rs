@@ -8,7 +8,7 @@ fn main() -> Result<(), Error> {
         std::process::exit(1);
     }
 
-    let img = examples_path("res/image-16x16.png");
+    let img = abspath("examples/res/image-16x16.png");
 
     // Alignment
     ncd.render_image(&img, Align::Left, Blitter::_1x1, Scale::None)?;
@@ -34,17 +34,14 @@ fn main() -> Result<(), Error> {
     Ok(())
 }
 
-
-/// Return an absolute path to a file, relative to the examples folder
-/// 
-/// file = the relative path to the file (from the examples folder)
-fn examples_path(file: &str) -> String {
+/// Return an absolute path to a file
+///
+/// file = the relative path from the root
+pub fn abspath(file: &str) -> String {
     let mut dir = std::env::current_exe().unwrap().to_path_buf();
     for _ in 0..4 {
         dir.pop();
     }
-    dir.push("examples");
     dir.push(file);
     format!("{}", dir.display())
 }
-

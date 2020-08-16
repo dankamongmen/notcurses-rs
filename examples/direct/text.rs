@@ -6,10 +6,11 @@ use libnotcurses_sys as nc;
 fn main() -> Result<(), Error> {
     let mut ncd = Direct::new()?;
 
-
     // INFO
 
-    println!("Terminal rows={0}, cols={1}", ncd.rows(), ncd.cols());
+    let t_rows = ncd.rows();
+    let t_cols = ncd.cols();
+    println!("Terminal rows={0}, cols={1}", t_rows, t_cols);
 
     println!("Can open images: {0}\nCan UTF-8: {1}",
         ncd.can_open_images(), ncd.can_utf8());
@@ -93,4 +94,3 @@ fn main() -> Result<(), Error> {
 
     Ok(())
 }
-

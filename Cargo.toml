@@ -18,10 +18,12 @@ categories = [
 keywords = ["tui", "cli", "terminal", "ncurses"]
 include = ["src/", "LICENSE-*", "README.md"]
 
+
 [dependencies]
-#libnotcurses-sys = "^1.7" # ← waiting for the upcoming release
-libnotcurses-sys = {git="https://github.com/dankamongmen/notcurses"}
-#libnotcurses-sys = {path="../notcurses/rust/"}
+# https://github.com/dankamongmen/notcurses/releases/tag/v1.6.15
+libnotcurses-sys = "^1.6.15"
+# libnotcurses-sys = {git="https://github.com/dankamongmen/notcurses"}
+# libnotcurses-sys = {path="../notcurses/rust/"}
 
 libc = "^0.2.66"
 
@@ -32,13 +34,17 @@ enumflags2 = "0.7.0-preview1"
 
 
 [dev-dependencies]
-unicode-normalization = "0.1.13"
-unicode-segmentation = "1.6.0"
-
+rand = "0.7.3"
+#unicode-normalization = "0.1.13"
+#unicode-segmentation = "1.6.0"
 
 [[example]]
 name = "d-text"
 path = "examples/direct/text.rs"
+
+[[example]]
+name = "d-color"
+path = "examples/direct/color.rs"
 
 [[example]]
 name = "d-image"
@@ -47,6 +53,5 @@ path = "examples/direct/image.rs"
 [[example]]
 name = "f-text"
 path = "examples/fullscreen/text.rs"
-
 
 # https://doc.rust-lang.org/cargo/reference/manifest.html
