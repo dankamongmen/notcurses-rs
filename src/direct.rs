@@ -412,7 +412,7 @@ impl Direct {
     /// more colors than they actually support, downsampling internally.
     // TODO: TEST
     // CHECK: probably should be unsigned
-    pub fn palette_size(&self) -> i32 {
+    pub fn palette_size(&self) -> u32 {
         unsafe { nc::ncdirect_palette_size(self.data) }
     }
 
