@@ -272,12 +272,12 @@ impl Plane {
 
     /// Returns the plane dimension x
     pub fn dim_x(&self) -> i32 {
-        nc::ncplane_dim_x(self.data)
+        unsafe {nc::ncplane_dim_x(&*self.data)}
     }
 
     /// Returns the plane dimension y
     pub fn dim_y(&self) -> i32 {
-        nc::ncplane_dim_y(self.data)
+        unsafe {nc::ncplane_dim_y(&*self.data)}
     }
 
     /// Returns a tuple with the plane dimensions (y,x)

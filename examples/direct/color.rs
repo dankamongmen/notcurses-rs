@@ -3,7 +3,7 @@
 #![allow(unused_variables)]
 
 use rand::seq::IteratorRandom;
-use rand::{thread_rng, Rng};
+use rand::Rng;
 
 use notcurses::{Direct, Error};
 use libnotcurses_sys as nc; // TEMP
