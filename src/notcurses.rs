@@ -151,14 +151,14 @@ extern "C" {
 ///
 /// ## Links
 /// - [man notcurses](https://nick-black.com/notcurses/notcurses.3.html)
-pub struct NotCurses {
+pub struct Notcurses {
     pub(crate) data: *mut nc::notcurses,
 }
 
-impl NotCurses {
+impl Notcurses {
     // CONSTRUCTORS: new(), for_testing() with_banners() with_options() without_altmode()---------------------------------
 
-    /// Return a NotCurses instance that:
+    /// Return a Notcurses instance that:
     ///
     /// - uses the alternate mode
     /// - doesn't show the info banners
@@ -168,7 +168,7 @@ impl NotCurses {
     }
 
 
-    /// Return a NotCurses instance with custom options
+    /// Return a Notcurses instance with custom options
     ///
     // TODO: move constructors from options to here (without_altmode, etc.)
     // TODO:
@@ -187,7 +187,7 @@ impl NotCurses {
             let _ = libc::setlocale(libc::LC_ALL, std::ffi::CString::new("").unwrap().as_ptr());
         }
 
-        Ok(NotCurses {
+        Ok(Notcurses {
             // notcurses_init prepares the terminal for cursor-addressable (multiline) mode.
             //
             // notcurses_init accepts a struct notcurses_options allowing fine-grained control of notcurses behavior,
@@ -207,7 +207,7 @@ impl NotCurses {
         })
     }
 
-    /// Return a NotCurses instance that:
+    /// Return a Notcurses instance that:
     ///
     /// - uses the alternate mode
     /// - shows the info banners
@@ -216,7 +216,7 @@ impl NotCurses {
         Self::with_options(Options::new(LogLevel::Silent, BitFlags::empty()))
     }
 
-    /// Return a NotCurses instance that:
+    /// Return a Notcurses instance that:
     ///
     /// - doesn't use the alternate mode
     /// - doesn't show the info banners
@@ -227,7 +227,7 @@ impl NotCurses {
 
     }
 
-    /// Return a NotCurses instance perfect for unit tests
+    /// Return a Notcurses instance perfect for unit tests
     pub(crate) fn for_testing() -> Result<Self, Error> {
         Self::with_options(Options::new(
             LogLevel::Silent,
@@ -352,7 +352,7 @@ impl NotCurses {
     }
 }
 
-impl Drop for NotCurses {
+impl Drop for Notcurses {
     fn drop(&mut self) {
         // It is important to reset the terminal before exiting, whether terminating due to intended operation
         // or a received signal. This is usually accomplished by explicitly calling notcurses_stop.
@@ -375,7 +375,7 @@ mod test {
     /* MODEL
     #[test]
     fn () -> Result<(), Error> {
-        let mut nc = NotCurses::for_testing();
+        let mut nc = Notcurses::for_testing();
         let plane = Plane::new(&mut nc, 50, 100, 0, 0);
         assert_eq!(, );
     }
@@ -384,19 +384,19 @@ mod test {
 
     #[test]
     fn new() -> Result<(), Error> {
-        let _ = NotCurses::new()?;
+        let _ = Notcurses::new()?;
         Ok(())
     }
 
     #[test]
     fn for_testing() -> Result<(), Error> {
-        let _ = NotCurses::for_testing()?;
+        let _ = Notcurses::for_testing()?;
         Ok(())
     }
 
     #[test]
     fn stdplane() -> Result<(), Error> {
-        let mut nc = NotCurses::for_testing()?;
+        let mut nc = Notcurses::for_testing()?;
         let _p = nc.stdplane();
         Ok(())
     }

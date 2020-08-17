@@ -21,7 +21,7 @@ mod plane;
 mod types;
 mod visual;
 
-pub use crate::notcurses::{LogLevel, OptionFlag, Options, NotCurses};
+pub use crate::notcurses::{LogLevel, OptionFlag, Options, Notcurses};
 pub use direct::Direct;
 pub use error::{Error};
 pub use types::{Align, Blitter, Scale, Rgb, ChannelPair, Style};

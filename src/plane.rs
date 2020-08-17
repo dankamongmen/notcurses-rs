@@ -137,7 +137,7 @@ use libnotcurses_sys as nc;
 use std::ptr::{null, null_mut};
 
 use crate::error::Error;
-use crate::notcurses::NotCurses;
+use crate::notcurses::Notcurses;
 
 /// Alignment within a plane or terminal. Left/right-justified, or centered.
 ///
@@ -246,7 +246,7 @@ impl Plane {
 
     /// Creates a new plane
     pub fn new(
-        notcurses: &mut NotCurses,
+        notcurses: &mut Notcurses,
         rows: i32,
         cols: i32,
         yoff: i32,
@@ -346,7 +346,7 @@ mod test {
     /*
     #[test]
     fn () -> Result<(), Error> {
-        let mut nc = NotCurses::for_testing()?;
+        let mut nc = Notcurses::for_testing()?;
         let plane = Plane::new(&mut nc, 50, 100, 0, 0)?;
         assert_eq!(, );
         Ok()
@@ -355,14 +355,14 @@ mod test {
 
     #[test]
     fn new() -> Result<(), Error> {
-        let mut nc = NotCurses::for_testing()?;
+        let mut nc = Notcurses::for_testing()?;
         Plane::new(&mut nc, 50, 100, 0, 0)?;
         Ok(())
     }
 
     #[test]
     fn dim_x() -> Result<(), Error> {
-        let mut nc = NotCurses::for_testing()?;
+        let mut nc = Notcurses::for_testing()?;
         let plane = Plane::new(&mut nc, 50, 100, 0, 0)?;
         assert_eq!(100, plane.dim_x());
         Ok(())
@@ -370,7 +370,7 @@ mod test {
 
     #[test]
     fn dim_y() -> Result<(), Error> {
-        let mut nc = NotCurses::for_testing()?;
+        let mut nc = Notcurses::for_testing()?;
         let plane = Plane::new(&mut nc, 50, 100, 0, 0)?;
         assert_eq!(50, plane.dim_y());
         Ok(())
@@ -378,7 +378,7 @@ mod test {
 
     #[test]
     fn dim_yx() -> Result<(), Error> {
-        let mut nc = NotCurses::for_testing()?;
+        let mut nc = Notcurses::for_testing()?;
         let plane = Plane::new(&mut nc, 50, 100, 0, 0)?;
         assert_eq!((50, 100), plane.dim_yx());
         Ok(())
