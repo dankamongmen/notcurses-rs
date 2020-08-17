@@ -11,6 +11,9 @@
 #![allow(unused_imports)]
 #![allow(dead_code)]
 
+#![allow(clippy::declare_interior_mutable_const)]
+#![allow(clippy::temporary_cstring_as_ptr)]
+
 #[macro_use]
 extern crate strum_macros;
 

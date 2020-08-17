@@ -319,6 +319,7 @@ impl Plane {
     ///
     /// NOTE: Errors when called on the standard plane
     // [C source](https://nick-black.com/notcurses/html/notcurses_8c.html#a0f66685d25b59f0e9ab3726076041f24)
+    #[allow(clippy::too_many_arguments)]
     pub fn resize(
         &mut self,
         keepy: i32,
