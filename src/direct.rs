@@ -1,61 +1,56 @@
-// total functions: 35
-// ------------------------------------------ (done / wont / remaining)
-// - implemented: 30 / … /  5
-// - +unit tests:  7 / … / 28
-// ------------------------- ↓ from bindgen: 35
-//+ncdirect_bg
-//+ncdirect_bg_default
-// ncdirect_bg_palindex        // ?
-// ncdirect_box
-//+ncdirect_canopen_images     // as: can_open_images()
-//+ncdirect_canutf8            // as: can_utf8()
-//#ncdirect_clear
-//+ncdirect_cursor_disable
-//+ncdirect_cursor_down
-//+ncdirect_cursor_enable
-//+ncdirect_cursor_left
-//#ncdirect_cursor_move_yx
-//+ncdirect_cursor_pop
-//+ncdirect_cursor_push
-//+ncdirect_cursor_right
-//+ncdirect_cursor_up
-//#ncdirect_cursor_yx
-//#ncdirect_dim_x
-//#ncdirect_dim_y
-// ncdirect_double_box
-//+ncdirect_fg
-//+ncdirect_fg_default
-// ncdirect_fg_palindex        // ?
-//+ncdirect_hline_interp       // WIP
-//#ncdirect_init               // inside new()
-//#ncdirect_palette_size
-//+ncdirect_printf_aligned
-//+ncdirect_putstr             // as print_colored()
-//+ncdirect_render_image       // as print_aligned()
-// ncdirect_rounded_box
-//+ncdirect_stop               // inside Drop Trait
-//+ncdirect_styles_off
-//+ncdirect_styles_on
-//+ncdirect_styles_set
-//+ncdirect_vline_interp       // WIP
+// total functions: 37
+// ------------------------------------------ (done / remaining)
+// - done: 30 /  6
+// - test:  7 / 30
+// ------------------------- ↓ from bindgen: 37
+//+ ncdirect_bg_default
+//  ncdirect_bg_palindex        // ?
+//+ ncdirect_bg_rgb
+//  ncdirect_box
+//+ ncdirect_canopen_images     // as: can_open_images()
+//+ ncdirect_canutf8            // as: can_utf8()
+//# ncdirect_clear
+//+ ncdirect_cursor_disable
+//+ ncdirect_cursor_down
+//+ ncdirect_cursor_enable
+//+ ncdirect_cursor_left
+//# ncdirect_cursor_move_yx
+//+ ncdirect_cursor_pop
+//+ ncdirect_cursor_push
+//+ ncdirect_cursor_right
+//+ ncdirect_cursor_up
+//# ncdirect_cursor_yx
+//# ncdirect_dim_x
+//# ncdirect_dim_y
+//  ncdirect_double_box
+//+ ncdirect_fg_default
+//  ncdirect_fg_palindex        // ?
+//+ ncdirect_fg_rgb
+//  ncdirect_flush
+//  ncdirect_getc
+//+ ncdirect_hline_interp       // WIP
+//# ncdirect_init               // inside new()
+//# ncdirect_palette_size
+//+ ncdirect_printf_aligned
+//+ ncdirect_putstr             // as print_colored()
+//+ ncdirect_render_image       // as print_aligned()
+//  ncdirect_rounded_box
+//+ ncdirect_stop               // inside Drop Trait
+//+ ncdirect_styles_off
+//+ ncdirect_styles_on
+//+ ncdirect_styles_set
+//+ ncdirect_vline_interp       // WIP
 //
 // ------------------------- ↓ extra functions
 //
 // .styles_off_all
 
-use std::ffi::CString;
-use std::ptr::{null, null_mut};
+use core::ptr::{null, null_mut};
+use cstr_core::CString;
 
 use enumflags2::BitFlags;
 
-use libnotcurses_sys as nc;
-
-use crate::error::{Error};
-use crate::types::{ChannelPair, Style, Rgb, Align, Blitter, Scale};
-
-extern "C" {
-    fn libc_stdout() -> *mut nc::_IO_FILE;
-}
+use crate::{sys, Align, Blitter, Channels, Error, Rgb, Scale, Style};
 
 /// Direct Mode context
 ///
@@ -105,11 +100,11 @@ extern "C" {
 /// .render_image(…)?      //
 ///
 /// // ----------------------------------------------- legend:
-/// .function()            // function
-/// .function()→           // returns some value
-/// .function()?           // returns a Result<(), Error>
-/// .function()?→          // returns a Result<value, Error>
-/// .function(…)           // with argument(s)
+/// .function()            //
+/// .function()→           // returns value
+/// .function()?           // returns Result<(), Error>
+/// .function()?→          // returns Result<value, Error>
+/// .function(…)           // has argument(s)
 /// ```
 ///
 /// ## Links
@@ -117,11 +112,10 @@ extern "C" {
 /// - [man notcurses_directmode(3)](https://nick-black.com/notcurses/notcurses_directmode.3.html)
 ///
 pub struct Direct {
-    data: *mut nc::ncdirect,
+    data: *mut sys::NcDirect,
 }
 
 impl Direct {
-
     // CONSTRUCTORS: new() -----------------------------------------------------
 
     /// Return a Direct Mode instance
@@ -129,20 +123,24 @@ impl Direct {
     /// Initialize a direct-mode notcurses context on the connected terminal,
     /// which must be a tty. You'll usually want stdout.
     ///
-    /// Direct mode supportes a limited subset of notcurses routines which
+    /// Direct mode supports a limited subset of notcurses routines which
     /// directly affect the terminal, and neither supports nor requires
-    /// `notcurses_render()`.  This can be used to add color and styling to
-    /// text in the standard output paradigm. Returns NULL on error,
-    /// including any failure initializing terminfo.
+    /// `notcurses_render()`. This can be used to add color and styling to
+    /// text in the standard output paradigm.
+    ///
+    /// `flags` is a bitmask over `NCDIRECT_OPTION_*`.
+    ///
+    /// Returns NULL on error, including any failure initializing terminfo.
     ///
     pub fn new() -> Result<Self, Error> {
-        unsafe {
-            let _ = libc::setlocale(libc::LC_ALL, std::ffi::CString::new("").unwrap().as_ptr());
-        }
+        // unsafe {
+        //     let _ = libc::setlocale(libc::LC_ALL, std::ffi::CString::new("").unwrap().as_ptr());
+        // }
+
         // TODO: ncdirect_init() returns NULL on failure. Otherwise, the return value points
         // to a valid struct ncdirect, which can be used until it is provided to ncdirect_stop().
         Ok(Direct {
-            data: unsafe { nc::ncdirect_init(null(), libc_stdout()) },
+            data: unsafe { sys::ncdirect_init(null(), null_mut(), 0) },
         })
     }
 
@@ -153,7 +151,7 @@ impl Direct {
     // TODO: TEST
     pub fn bg(&mut self, rgb: Rgb) -> Result<(), Error> {
         unsafe {
-            if nc::ncdirect_bg(self.data, rgb) < 0 {
+            if sys::ncdirect_bg_rgb(self.data, rgb) < 0 {
                 return Err(Error::Generic);
             }
         }
@@ -165,30 +163,56 @@ impl Direct {
     // TODO: TEST
     pub fn bg_default(&mut self) -> Result<(), Error> {
         unsafe {
-            if nc::ncdirect_bg_default(self.data) < 0 {
+            if sys::ncdirect_bg_default(self.data) < 0 {
                 return Err(Error::Generic);
             }
         }
         Ok(())
     }
 
+    /// Draw a box with its upper-left corner at the current cursor position,
+    /// having dimensions |ylen|x|xlen|. See Plane.box() for more information.
+    /// The minimum box size is 2x2, and it cannot be drawn off-screen.
+    /// |wchars| is an array of 6 wide characters: UL, UR, LL, LR, HL, VL.
+    ///
+    // TODO: understand how this works, and then simplify it
+    // TODO: TEST
+    #[allow(clippy::too_many_arguments)]
+    pub fn box1(
+        &mut self,
+        ul: u64,
+        ur: u64,
+        dl: u64,
+        dr: u64,
+        wchars: i32,
+        ylen: i32,
+        xlen: i32,
+        ctrlword: u32,
+    ) -> Result<(), Error> {
+        unsafe {
+            if sys::ncdirect_box(self.data, ul, ur, dl, dr, &wchars, ylen, xlen, ctrlword) < 0 {
+                return Err(Error::Generic);
+            }
+        }
+        Ok(())
+    }
     /// Return true if terminal can open images
     // TODO: TEST
     pub fn can_open_images(&self) -> bool {
-        unsafe { nc::ncdirect_canopen_images(self.data) }
+        unsafe { sys::ncdirect_canopen_images(self.data) }
     }
 
     /// Return true if terminal can display UTF-8 characters
     // TODO: TEST
     pub fn can_utf8(&self) -> bool {
-        unsafe { nc::ncdirect_canutf8(self.data) }
+        unsafe { sys::ncdirect_canutf8(self.data) }
     }
 
     /// Clear the screen
     // TODO: TEST
     pub fn clear(&mut self) -> Result<(), Error> {
         unsafe {
-            if nc::ncdirect_clear(self.data) < 0 {
+            if sys::ncdirect_clear(self.data) < 0 {
                 return Err(Error::Clear);
             }
         }
@@ -198,7 +222,7 @@ impl Direct {
     /// Get the current number of columns
     ///
     pub fn cols(&self) -> i32 {
-        unsafe { nc::ncdirect_dim_x(self.data) }
+        unsafe { sys::ncdirect_dim_x(self.data) }
     }
 
     /// Disables the cursor
@@ -207,7 +231,7 @@ impl Direct {
     // TODO: TEST
     pub fn cursor_disable(&mut self) -> Result<(), Error> {
         unsafe {
-            if nc::ncdirect_cursor_disable(self.data) < 0 {
+            if sys::ncdirect_cursor_disable(self.data) < 0 {
                 return Err(Error::Cursor);
             }
         }
@@ -220,7 +244,7 @@ impl Direct {
     // TODO: TEST
     pub fn cursor_enable(&mut self) -> Result<(), Error> {
         unsafe {
-            if nc::ncdirect_cursor_enable(self.data) < 0 {
+            if sys::ncdirect_cursor_enable(self.data) < 0 {
                 return Err(Error::Cursor);
             }
         }
@@ -236,7 +260,7 @@ impl Direct {
         let mut y = 0;
         let mut x = 0;
         unsafe {
-            if nc::ncdirect_cursor_yx(self.data, &mut y, &mut x) < 0 {
+            if sys::ncdirect_cursor_yx(self.data, &mut y, &mut x) < 0 {
                 return Err(Error::Cursor);
             }
         }
@@ -248,7 +272,7 @@ impl Direct {
     /// -1 to retain current location on that axis
     pub fn cursor_move_yx(&mut self, y: i32, x: i32) -> Result<(), Error> {
         unsafe {
-            if nc::ncdirect_cursor_move_yx(self.data, y, x) < 0 {
+            if sys::ncdirect_cursor_move_yx(self.data, y, x) < 0 {
                 return Err(Error::Cursor);
             }
         }
@@ -261,7 +285,7 @@ impl Direct {
     // TODO: TEST
     pub fn cursor_down(&mut self, rows: i32) -> Result<(), Error> {
         unsafe {
-            if nc::ncdirect_cursor_down(self.data, rows) < 0 {
+            if sys::ncdirect_cursor_down(self.data, rows) < 0 {
                 return Err(Error::Cursor);
             }
         }
@@ -274,7 +298,7 @@ impl Direct {
     // TODO: TEST
     pub fn cursor_left(&mut self, cols: i32) -> Result<(), Error> {
         unsafe {
-            if nc::ncdirect_cursor_left(self.data, cols) < 0 {
+            if sys::ncdirect_cursor_left(self.data, cols) < 0 {
                 return Err(Error::Cursor);
             }
         }
@@ -285,7 +309,7 @@ impl Direct {
     /// stack, and indeed its existence, is terminal-dependent.
     pub fn cursor_pop(&mut self) -> Result<(), Error> {
         unsafe {
-            if nc::ncdirect_cursor_pop(self.data) < 0 {
+            if sys::ncdirect_cursor_pop(self.data) < 0 {
                 return Err(Error::Cursor);
             }
         }
@@ -296,7 +320,7 @@ impl Direct {
     /// stack, and indeed its existence, is terminal-dependent.
     pub fn cursor_push(&mut self) -> Result<(), Error> {
         unsafe {
-            if nc::ncdirect_cursor_push(self.data) < 0 {
+            if sys::ncdirect_cursor_push(self.data) < 0 {
                 return Err(Error::Cursor);
             }
         }
@@ -309,7 +333,7 @@ impl Direct {
     // TODO: TEST
     pub fn cursor_right(&mut self, cols: i32) -> Result<(), Error> {
         unsafe {
-            if nc::ncdirect_cursor_right(self.data, cols) < 0 {
+            if sys::ncdirect_cursor_right(self.data, cols) < 0 {
                 return Err(Error::Cursor);
             }
         }
@@ -322,7 +346,7 @@ impl Direct {
     // TODO: TEST
     pub fn cursor_up(&mut self, rows: i32) -> Result<(), Error> {
         unsafe {
-            if nc::ncdirect_cursor_up(self.data, rows) < 0 {
+            if sys::ncdirect_cursor_up(self.data, rows) < 0 {
                 return Err(Error::Cursor);
             }
         }
@@ -334,7 +358,7 @@ impl Direct {
     // TODO: TEST
     pub fn fg(&mut self, rgb: Rgb) -> Result<(), Error> {
         unsafe {
-            if nc::ncdirect_fg(self.data, rgb) < 0 {
+            if sys::ncdirect_fg_rgb(self.data, rgb) < 0 {
                 return Err(Error::Generic);
             }
         }
@@ -346,12 +370,17 @@ impl Direct {
     // TODO: TEST
     pub fn fg_default(&mut self) -> Result<(), Error> {
         unsafe {
-            if nc::ncdirect_fg_default(self.data) < 0 {
+            if sys::ncdirect_fg_default(self.data) < 0 {
                 return Err(Error::Generic);
             }
         }
         Ok(())
     }
+
+    ///
+    // TODO: TEST
+    #[inline]
+    pub fn flush() {}
 
     /// Draw horizontal lines using the specified channels, interpolating
     /// between them as we go. The EGC may not use more than one column.
@@ -363,37 +392,7 @@ impl Direct {
     // FIXME: TYPES
     pub fn hline_interp(&mut self, egc: &str, len: i32, h1: u64, h2: u64) -> Result<(), Error> {
         unsafe {
-            if nc::ncdirect_hline_interp(
-                self.data,
-                CString::new(egc).unwrap().as_ptr(),
-                len,
-                h1,
-                h2,
-            ) < 0
-            {
-                return Err(Error::Generic);
-            }
-        }
-        Ok(())
-    }
-
-    /// Get the current number of rows
-    ///
-    pub fn rows(&self) -> i32 {
-        unsafe { nc::ncdirect_dim_y(self.data) }
-    }
-
-    /// Draw vertical lines using the specified channels, interpolating between
-    /// them as we go. The EGC may not use more than one column.
-    ///
-    /// For a vertical line, |len| may be as long as you'd like; the screen
-    /// will scroll as necessary. All lines start at the current cursor position.
-    ///
-    // TODO: TEST
-    // FIXME: TYPES
-    pub fn vline_interp(&mut self, egc: &str, len: i32, h1: u64, h2: u64) -> Result<(), Error> {
-        unsafe {
-            if nc::ncdirect_vline_interp(
+            if sys::ncdirect_hline_interp(
                 self.data,
                 CString::new(egc).unwrap().as_ptr(),
                 len,
@@ -413,17 +412,23 @@ impl Direct {
     // TODO: TEST
     // CHECK: probably should be unsigned
     pub fn palette_size(&self) -> u32 {
-        unsafe { nc::ncdirect_palette_size(self.data) }
+        unsafe { sys::ncdirect_palette_size(self.data) }
     }
 
     ///
     ///
     ///
     // NOTE: once println!() works, this wont have much utility
+    // TODO: TEST
     pub fn print_aligned(&mut self, y: i32, align: Align, fmt: &str) -> Result<(), Error> {
         unsafe {
-            if nc::ncdirect_printf_aligned(self.data, y, align as nc::ncalign_e,
-                CString::new(fmt).unwrap().as_ptr()) < 0 {
+            if sys::ncdirect_printf_aligned(
+                self.data,
+                y,
+                align as sys::NcAlign,
+                CString::new(fmt).unwrap().as_ptr(),
+            ) < 0
+            {
                 return Err(Error::Generic);
             }
         }
@@ -432,9 +437,10 @@ impl Direct {
 
     ///
     ///
-    pub fn print_colored(&mut self, channels: ChannelPair, utf8: &str) -> Result<(), Error> {
+    // TODO: TEST
+    pub fn print_colored(&mut self, channels: Channels, utf8: &str) -> Result<(), Error> {
         unsafe {
-            if nc::ncdirect_putstr(self.data, channels, CString::new(utf8).unwrap().as_ptr()) < 0 {
+            if sys::ncdirect_putstr(self.data, channels, CString::new(utf8).unwrap().as_ptr()) < 0 {
                 return Err(Error::Generic);
             }
         }
@@ -444,8 +450,6 @@ impl Direct {
     /// Display an image using the specified blitter and scaling. The image may
     /// be arbitrarily many rows -- the output will scroll -- but will only occupy
     /// the column of the cursor, and those to the right.
-    ///
-    // TODO: would like an alternative that accepts a buffer instead of a filename
     pub fn render_image(
         &mut self,
         filename: &str,
@@ -454,12 +458,12 @@ impl Direct {
         scale: Scale,
     ) -> Result<(), Error> {
         unsafe {
-            if nc::ncdirect_render_image(
+            if sys::ncdirect_render_image(
                 self.data,
                 CString::new(filename).expect("err filename").as_ptr(),
-                align as nc::ncalign_e,
-                blitter as nc::ncblitter_e,
-                scale as nc::ncscale_e,
+                align as sys::NcAlign,
+                blitter as sys::NcBlitter,
+                scale as sys::NcScale,
             ) != 0
             {
                 return Err(Error::ImageRender);
@@ -468,11 +472,16 @@ impl Direct {
         Ok(())
     }
 
+    /// Get the current number of rows
+    ///
+    pub fn rows(&self) -> i32 {
+        unsafe { sys::ncdirect_dim_y(self.data) }
+    }
 
     /// Turn off the indicated styles
     pub fn styles_off(&mut self, style: impl Into<BitFlags<Style>>) -> Result<(), Error> {
         unsafe {
-            if nc::ncdirect_styles_off(self.data, style.into().bits()) < 0 {
+            if sys::ncdirect_styles_off(self.data, style.into().bits()) < 0 {
                 return Err(Error::Generic);
             }
         }
@@ -480,9 +489,10 @@ impl Direct {
     }
 
     /// Turn off all the styling
+    ///
     pub fn styles_off_all(&mut self) -> Result<(), Error> {
         unsafe {
-            if nc::ncdirect_styles_off(self.data, nc::NCSTYLE_MASK) < 0 {
+            if sys::ncdirect_styles_off(self.data, sys::NCSTYLE_MASK) < 0 {
                 return Err(Error::Generic);
             }
         }
@@ -490,9 +500,10 @@ impl Direct {
     }
 
     /// Turn on the indicated styles
+    ///
     pub fn styles_on(&mut self, style: impl Into<BitFlags<Style>>) -> Result<(), Error> {
         unsafe {
-            if nc::ncdirect_styles_on(self.data, style.into().bits()) < 0 {
+            if sys::ncdirect_styles_on(self.data, style.into().bits()) < 0 {
                 return Err(Error::Generic);
             }
         }
@@ -502,7 +513,31 @@ impl Direct {
     /// Turn on just the indicated styles, and off the rest
     pub fn styles_set(&mut self, style: impl Into<BitFlags<Style>>) -> Result<(), Error> {
         unsafe {
-            if nc::ncdirect_styles_set(self.data, style.into().bits()) < 0 {
+            if sys::ncdirect_styles_set(self.data, style.into().bits()) < 0 {
+                return Err(Error::Generic);
+            }
+        }
+        Ok(())
+    }
+
+    /// Draw vertical lines using the specified channels, interpolating between
+    /// them as we go. The EGC may not use more than one column.
+    ///
+    /// For a vertical line, |len| may be as long as you'd like; the screen
+    /// will scroll as necessary. All lines start at the current cursor position.
+    ///
+    // TODO: TEST
+    // FIXME: TYPES
+    pub fn vline_interp(&mut self, egc: &str, len: i32, h1: u64, h2: u64) -> Result<(), Error> {
+        unsafe {
+            if sys::ncdirect_vline_interp(
+                self.data,
+                CString::new(egc).unwrap().as_ptr(),
+                len,
+                h1,
+                h2,
+            ) < 0
+            {
                 return Err(Error::Generic);
             }
         }
@@ -514,14 +549,21 @@ impl Drop for Direct {
     fn drop(&mut self) {
         // It is important to reset the terminal before exiting, whether terminating due to intended operation
         // or a received signal. This is usually accomplished by explicitly calling notcurses_stop.
+        //
         // For convenience, notcurses by default installs signal handlers for various signals typically resulting
         // in process termination (see signal(7)). These signal handlers call notcurses_stop for each struct notcurses
         // in the process, and then propagate the signal to any previously-configured handler.
         // These handlers are disabled upon entry to notcurses_stop
         //
+        //
+        // notcurses in full or direct mode is always supposed to leave you with:
+        // - palette reset (oc terminfo)
+        // - cursor visible (cnorm terminfo)
+        // - all styles reset (sgr0 terminfo)
+        //
         // [API](https://nick-black.com/notcurses/notcurses_directmode.3.html#description)
         unsafe {
-            nc::ncdirect_stop(self.data);
+            sys::ncdirect_stop(self.data);
         }
     }
 }

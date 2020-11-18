@@ -8,11 +8,15 @@
 //! - [The Book Guide (pdf)](https://nick-black.com/htp-notcurses.pdf)
 //! - [USAGE.md](https://github.com/dankamongmen/notcurses/blob/master/USAGE.md)
 //!
-#![allow(unused_imports)]
-#![allow(dead_code)]
+#![allow(unused_imports, dead_code)]
+#![allow(
+    clippy::declare_interior_mutable_const,
+    clippy::temporary_cstring_as_ptr
+)]
 
-#![allow(clippy::declare_interior_mutable_const)]
-#![allow(clippy::temporary_cstring_as_ptr)]
+pub mod sys {
+    pub use libnotcurses_sys::*;
+}
 
 #[macro_use]
 extern crate strum_macros;
@@ -24,8 +28,9 @@ mod plane;
 mod types;
 mod visual;
 
-pub use crate::notcurses::{LogLevel, OptionFlag, Options, Notcurses};
+pub use crate::notcurses::{Notcurses, OptionFlag, Options};
 pub use direct::Direct;
-pub use error::{Error};
-pub use types::{Align, Blitter, Scale, Rgb, ChannelPair, Style};
+pub use error::Error;
+pub use plane::{Plane, PlaneOptions};
+pub use types::{Align, Blitter, Channels, DirectModeOptions, LogLevel, Rgb, Scale, Style};
 pub use visual::{Visual, VisualOptions};

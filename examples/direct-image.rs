@@ -8,7 +8,7 @@ fn main() -> Result<(), Error> {
         std::process::exit(1);
     }
 
-    let img = abspath("examples/res/image-16x16.png");
+    let img = env!("CARGO_MANIFEST_DIR").to_string() + "/examples/res/image-16x16.png";
 
     // Alignment
     ncd.render_image(&img, Align::Left, Blitter::_1x1, Scale::None)?;
@@ -24,7 +24,6 @@ fn main() -> Result<(), Error> {
     // NOTE: Blitter::_1x1x4 & Blitter::_4x1 are still unimplemented,
     // they both ought be falling back to 1x1 with a top half.
     ncd.render_image(&img, Align::Center, Blitter::_1x1, Scale::None)?;
-    ncd.render_image(&img, Align::Center, Blitter::_1x1x4, Scale::None)?;  // WIP
     ncd.render_image(&img, Align::Center, Blitter::_2x1, Scale::None)?; 
     ncd.render_image(&img, Align::Center, Blitter::_2x2, Scale::None)?;
     ncd.render_image(&img, Align::Center, Blitter::_4x1, Scale::None)?;    // WIP
@@ -32,16 +31,4 @@ fn main() -> Result<(), Error> {
     ncd.render_image(&img, Align::Center, Blitter::Braille, Scale::None)?;
 
     Ok(())
-}
-
-/// Return an absolute path to a file
-///
-/// file = the relative path from the root
-pub fn abspath(file: &str) -> String {
-    let mut dir = std::env::current_exe().unwrap().to_path_buf();
-    for _ in 0..4 {
-        dir.pop();
-    }
-    dir.push(file);
-    format!("{}", dir.display())
 }

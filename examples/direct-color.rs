@@ -57,8 +57,8 @@ fn fill_screen(ncd: &mut Direct, s: &str) -> Result<(), Error> {
             br = modcolor(col_count, cols, true, 1.);
             bg = modcolor(col_count, cols, true, 1.);
 
-            nc::channel_set_rgb(&mut fcolor, fr, fg, fb);
-            nc::channel_set_rgb(&mut bcolor, br, bg, bb);
+            nc::channel_set_rgb8(&mut fcolor, fr, fg, fb);
+            nc::channel_set_rgb8(&mut bcolor, br, bg, bb);
             color = nc::channels_combine(fcolor, bcolor);
 
             ncd.cursor_move_yx(row, col)?;
@@ -87,7 +87,7 @@ fn rngcolors() -> u64 {
     let mut rng = rand::thread_rng();
 
     let (mut fcolor, mut bcolor) = (0, 0);
-    nc::channel_set_rgb(&mut fcolor, rng.gen_range(0,255), rng.gen_range(0,255), rng.gen_range(0,255));
-    nc::channel_set_rgb(&mut bcolor, rng.gen_range(0,255), rng.gen_range(0,255), rng.gen_range(0,255));
+    nc::channel_set_rgb8(&mut fcolor, rng.gen_range(0,255), rng.gen_range(0,255), rng.gen_range(0,255));
+    nc::channel_set_rgb8(&mut bcolor, rng.gen_range(0,255), rng.gen_range(0,255), rng.gen_range(0,255));
     nc::channels_combine(fcolor, bcolor)
 }

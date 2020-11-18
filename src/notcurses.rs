@@ -1,113 +1,98 @@
 // methods: 39
-// ------------------------------------------ (done / wont / remaining)
-// (+) implemented: 11 / … / 28
-// (#) +unit tests:  0 / … / 39
+// ------------------------------------------ (done / remaining)
+// (+) done: 12 / 27
+// (#) test:  0 / 39
 // ------------------------- ↓ from bindgen
-// notcurses_at_yx
-//+notcurses_canchangecolor
-//+notcurses_canfade
-//+notcurses_canopen_images
-//+notcurses_canopen_videos
-//+notcurses_cansixel
-//+notcurses_cantruecolor
-//+notcurses_canutf8
-//+notcurses_cursor_disable
-//+notcurses_cursor_enable
-// notcurses_debug
-//+notcurses_drop_planes
-// notcurses_getc
-//+notcurses_init             // inside new()
-// notcurses_inputready_fd
-// notcurses_lex_blitter
-// notcurses_lex_margins
-// notcurses_lex_scalemode
-// notcurses_mouse_disable
-// notcurses_mouse_enable
-// notcurses_palette_size
-// notcurses_refresh
-// notcurses_render
-// notcurses_render_to_file
-// notcurses_reset_stats
-// notcurses_stats
-// notcurses_stdplane
-// notcurses_stdplane_const
-//xnotcurses_stop             // in Drop Trait
-// notcurses_str_blitter
-// notcurses_str_scalemode
-// notcurses_supported_styles
-// notcurses_top
-// notcurses_version
-// notcurses_version_components
+//  notcurses_at_yx
+//+ notcurses_canchangecolor
+//+ notcurses_canfade
+//+ notcurses_canopen_images
+//+ notcurses_canopen_videos
+//+ notcurses_cansixel
+//+ notcurses_cantruecolor
+//+ notcurses_canutf8
+//+ notcurses_cursor_disable
+//+ notcurses_cursor_enable
+//  notcurses_debug
+//+ notcurses_drop_planes
+//  notcurses_getc
+//+ notcurses_init             // inside new() and the other constructors
+//  notcurses_inputready_fd
+//  notcurses_lex_blitter
+//  notcurses_lex_margins
+//  notcurses_lex_scalemode
+//  notcurses_mouse_disable
+//  notcurses_mouse_enable
+//  notcurses_palette_size
+//  notcurses_refresh
+//  notcurses_render
+//  notcurses_render_to_file
+//  notcurses_reset_stats
+//  notcurses_stats
+//+ notcurses_stdplane
+//  notcurses_stdplane_const
+//x notcurses_stop             // in Drop Trait
+//  notcurses_str_blitter
+//  notcurses_str_scalemode
+//  notcurses_supported_styles
+//  notcurses_top
+//  notcurses_version
+//  notcurses_version_components
 // ------------------------- ↓ static inlines reimplemented
-// notcurses_getc_blocking
-// notcurses_getc_nblock
-// notcurses_stddim_yx
-// notcurses_term_dim_yx
+//  notcurses_getc_blocking
+//  notcurses_getc_nblock
+//  notcurses_stddim_yx
+//  notcurses_term_dim_yx
 
-use std::ptr::{null, null_mut};
-
-use libnotcurses_sys as nc;
+use core::ptr::{null, null_mut};
 
 use enumflags2::BitFlags;
 use strum::IntoEnumIterator;
 
-use crate::error::Error;
-use crate::plane::Plane;
-use crate::types::Style;
-
-/// Log levels
-///
-/// By default, nothing is printed to stderr once fullscreen service begins.
-/// Progressively higher log levels result in more logging to stderr:
-#[repr(u32)] // = ncloglevel_e
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub enum LogLevel {
-    Silent = nc::ncloglevel_e_NCLOGLEVEL_SILENT as nc::ncloglevel_e,
-    Panic = nc::ncloglevel_e_NCLOGLEVEL_PANIC as nc::ncloglevel_e,
-    Fatal = nc::ncloglevel_e_NCLOGLEVEL_FATAL as nc::ncloglevel_e,
-    Error = nc::ncloglevel_e_NCLOGLEVEL_ERROR as nc::ncloglevel_e,
-    Warning = nc::ncloglevel_e_NCLOGLEVEL_WARNING as nc::ncloglevel_e,
-    Info = nc::ncloglevel_e_NCLOGLEVEL_INFO as nc::ncloglevel_e,
-    Debug = nc::ncloglevel_e_NCLOGLEVEL_DEBUG as nc::ncloglevel_e,
-    Trace = nc::ncloglevel_e_NCLOGLEVEL_TRACE as nc::ncloglevel_e,
-}
+use crate::{sys, Error, LogLevel, Plane, Style};
 
 /// Option Flags
 ///
 #[repr(u64)]
 #[derive(BitFlags, Copy, Clone, Debug, PartialEq)]
 pub enum OptionFlag {
-    InhibitSetlocale = nc::NCOPTION_INHIBIT_SETLOCALE as u64,
-    VerifySixel = nc::NCOPTION_VERIFY_SIXEL as u64,
-    NoWinchSighandler = nc::NCOPTION_NO_WINCH_SIGHANDLER as u64,
-    NoQuitSighandlers = nc::NCOPTION_NO_QUIT_SIGHANDLERS as u64,
-    RetainCursor = nc::NCOPTION_RETAIN_CURSOR as u64, // Don't hide the cursor
-    SuppressBanners = nc::NCOPTION_SUPPRESS_BANNERS as u64, // Remove the startup diagnostics
-    NoAlternateScreen = nc::NCOPTION_NO_ALTERNATE_SCREEN as u64, // Don't use the alternate screen
-    NoFontChange = nc::NCOPTION_NO_FONT_CHANGES as u64, // Don't change the font
+    InhibitSetlocale = sys::types::NCOPTION_INHIBIT_SETLOCALE as u64,
+    VerifySixel = sys::types::NCOPTION_VERIFY_SIXEL as u64,
+    NoWinchSighandler = sys::types::NCOPTION_NO_WINCH_SIGHANDLER as u64,
+    NoQuitSighandlers = sys::types::NCOPTION_NO_QUIT_SIGHANDLERS as u64,
+    /// Remove the startup diagnostics
+    SuppressBanners = sys::types::NCOPTION_SUPPRESS_BANNERS as u64,
+    /// Don't use the alternate screen
+    NoAlternateScreen = sys::types::NCOPTION_NO_ALTERNATE_SCREEN as u64,
+    /// Don't change the font
+    NoFontChange = sys::types::NCOPTION_NO_FONT_CHANGES as u64,
 }
-// NOTE: This doesn't work right now, waiting for the next release of enumflags2 with const support
+// NOTE: This doesn't work right now, waiting for the next release of enumflags2
+// with const support:
+// ```
 // impl OptionFlag {
 //     pub const EMPTY: BitFlags<OptionFlag> = BitFlags::empty();
 // }
+// ```
 
 /// A safe wrapper over notcurses_options
 ///
-/// notcurses_init accepts a struct notcurses_options allowing fine-grained control of notcurses behavior,
-/// including signal handlers, alternative screens, and overriding the TERM environment variable.
+/// notcurses_init accepts a struct notcurses_options allowing fine-grained
+/// control of notcurses behavior, including signal handlers, alternative
+/// screens, and overriding the TERM environment variable.
+///
 /// A terminfo entry appropriate for the actual terminal must be available
 pub struct Options {
-    pub(crate) data: nc::notcurses_options,
+    pub(crate) data: sys::NotcursesOptions,
 }
 
 impl Options {
-
     // CONSTRUCTORS new()
 
     /// Return a new customized Options structure
     pub fn new(loglevel: LogLevel, flags: impl Into<BitFlags<OptionFlag>>) -> Self {
         Options {
-            data: nc::notcurses_options {
+            data: sys::NotcursesOptions {
                 // Progressively higher log levels result in more logging to stderr. By
                 // default, nothing is printed to stderr once fullscreen service begins.
                 loglevel: loglevel as u32,
@@ -122,7 +107,7 @@ impl Options {
                 // definition will result in failure to initialize notcurses.
                 //
                 // BUG: see /examples/error-1.rs
-                // termtype: std::ffi::CString::new("xterm-256color").unwrap().as_ptr(), // DEBUG it doesn't work
+                // termtype: std::ffi::CString::new("xterm-256color").unwrap().as_ptr(), // DEBUG doesn't work
                 termtype: null(),
 
                 // If non-NULL, notcurses_render() will write each rendered frame to
@@ -141,22 +126,17 @@ impl Options {
     }
 }
 
-
-extern "C" {
-    // Needed for notcurses_init()
-    fn libc_stdout() -> *mut nc::_IO_FILE;
-}
-
 /// A safe wrapper over a notcurses context
 ///
 /// ## Links
 /// - [man notcurses](https://nick-black.com/notcurses/notcurses.3.html)
 pub struct Notcurses {
-    pub(crate) data: *mut nc::notcurses,
+    //pub(crate) data: *mut Notcurses, // < using this I have to cast everywhere
+    pub(crate) data: *mut sys::bindgen::notcurses,
 }
 
 impl Notcurses {
-    // CONSTRUCTORS: new(), for_testing() with_banners() with_options() without_altmode()---------------------------------
+    // CONSTRUCTORS: new(), for_testing() with_banners() with_options() without_altmode()
 
     /// Return a Notcurses instance that:
     ///
@@ -167,6 +147,26 @@ impl Notcurses {
         Self::with_options(Options::new(LogLevel::Silent, OptionFlag::SuppressBanners))
     }
 
+    /// Return a Notcurses instance perfect for unit tests
+    pub(crate) fn for_testing() -> Result<Self, Error> {
+        Self::with_options(Options::new(
+            LogLevel::Silent,
+            OptionFlag::InhibitSetlocale
+                | OptionFlag::SuppressBanners
+                | OptionFlag::NoAlternateScreen
+                | OptionFlag::NoWinchSighandler
+                | OptionFlag::NoQuitSighandlers,
+        ))
+    }
+
+    /// Return a Notcurses instance that:
+    ///
+    /// - uses the alternate mode
+    /// - shows the info banners
+    ///
+    pub fn with_banners() -> Result<Self, Error> {
+        Self::with_options(Options::new(LogLevel::Silent, BitFlags::empty()))
+    }
 
     /// Return a Notcurses instance with custom options
     ///
@@ -203,17 +203,8 @@ impl Notcurses {
             //
             // - [man notcurses_init](https://nick-black.com/notcurses/notcurses_init.3.html)
             //
-            data: unsafe { nc::notcurses_init(&options.data, libc_stdout()) },
+            data: unsafe { sys::notcurses_init(&options.data, null_mut()) },
         })
-    }
-
-    /// Return a Notcurses instance that:
-    ///
-    /// - uses the alternate mode
-    /// - shows the info banners
-    ///
-    pub fn with_banners() -> Result<Self, Error> {
-        Self::with_options(Options::new(LogLevel::Silent, BitFlags::empty()))
     }
 
     /// Return a Notcurses instance that:
@@ -222,20 +213,9 @@ impl Notcurses {
     /// - doesn't show the info banners
     ///
     pub fn without_altmode() -> Result<Self, Error> {
-        Self::with_options(Options::new(LogLevel::Silent,
-             OptionFlag::NoAlternateScreen | OptionFlag::SuppressBanners))
-
-    }
-
-    /// Return a Notcurses instance perfect for unit tests
-    pub(crate) fn for_testing() -> Result<Self, Error> {
         Self::with_options(Options::new(
             LogLevel::Silent,
-            OptionFlag::InhibitSetlocale
-                | OptionFlag::SuppressBanners
-                | OptionFlag::NoAlternateScreen
-                | OptionFlag::NoWinchSighandler
-                | OptionFlag::NoQuitSighandlers,
+            OptionFlag::NoAlternateScreen | OptionFlag::SuppressBanners,
         ))
     }
 
@@ -248,7 +228,7 @@ impl Notcurses {
     /// Requires the "ccc" terminfo capability.
     // TODO: TEST
     pub fn can_change_color(&self) -> bool {
-        unsafe { nc::notcurses_canchangecolor(self.data) }
+        unsafe { sys::notcurses_canchangecolor(self.data) }
     }
 
     /// Can we fade?
@@ -256,7 +236,7 @@ impl Notcurses {
     /// Requires either the "rgb" or "ccc" terminfo capability.
     // TODO: TEST
     pub fn can_fade(&self) -> bool {
-        unsafe { nc::notcurses_canfade(self.data) }
+        unsafe { sys::notcurses_canfade(self.data) }
     }
 
     /// Can we load images?
@@ -264,7 +244,7 @@ impl Notcurses {
     /// Requires being built against FFmpeg/OIIO.
     // TODO: TEST
     pub fn can_open_images(&self) -> bool {
-        unsafe { nc::notcurses_canopen_images(self.data) }
+        unsafe { sys::notcurses_canopen_images(self.data) }
     }
 
     /// Can we load videos?
@@ -272,13 +252,13 @@ impl Notcurses {
     /// Requires being built against FFmpeg.
     // TODO: TEST
     pub fn can_open_videos(&self) -> bool {
-        unsafe { nc::notcurses_canopen_videos(self.data) }
+        unsafe { sys::notcurses_canopen_videos(self.data) }
     }
 
     /// Can we blit to Sixel?
     // TODO: TEST
     pub fn can_sixel(&self) -> bool {
-        unsafe { nc::notcurses_cansixel(self.data) }
+        unsafe { sys::notcurses_cansixel(self.data) }
     }
 
     /// Can we directly specify RGB values per cell?
@@ -286,7 +266,7 @@ impl Notcurses {
     /// If not, we can only use palettes.
     // TODO: TEST
     pub fn can_truecolor(&self) -> bool {
-        unsafe { nc::notcurses_cantruecolor(self.data) }
+        unsafe { sys::notcurses_cantruecolor(self.data) }
     }
 
     /// Is our encoding UTF-8?
@@ -294,22 +274,22 @@ impl Notcurses {
     /// Requires LANG being set to a UTF8 locale.
     // TODO: TEST
     pub fn can_utf8(&self) -> bool {
-        unsafe { nc::notcurses_canutf8(self.data) }
+        unsafe { sys::notcurses_canutf8(self.data) }
     }
 
     /// Disables the cursor
     // TODO: TEST
     pub fn cursor_disable(&mut self) {
         unsafe {
-            nc::notcurses_cursor_disable(self.data);
+            sys::notcurses_cursor_disable(self.data);
         }
     }
 
     /// Enables the cursor
     // TODO: TEST
-    pub fn cursor_enable(&mut self) {
+    pub fn cursor_enable(&mut self, y: i32, x: i32) {
         unsafe {
-            nc::notcurses_cursor_enable(self.data);
+            sys::notcurses_cursor_enable(self.data, y, x);
         }
     }
 
@@ -317,24 +297,26 @@ impl Notcurses {
     // TODO: TEST
     pub fn drop_planes(&mut self) {
         unsafe {
-            nc::notcurses_drop_planes(self.data);
+            sys::notcurses_drop_planes(self.data);
         }
     }
 
     /// Returns the standard Plane for the current context
     ///
-    // [man notcurses_stdplane](https://nick-black.com/notcurses/notcurses_stdplane.3.html)
-    // It is an error to call ncplane_destroy, ncplane_resize, or ncplane_move
-    // on the standard plane, but it can be freely moved along the z-axis.
-    //
+    ///
+    /// NOTE: It is an error to call ncplane_destroy, ncplane_resize, or ncplane_move
+    /// on the standard plane, but it can be freely moved along the z-axis.
+    ///
+    /// [man notcurses_stdplane](https://nick-black.com/notcurses/notcurses_stdplane.3.html)
+    ///
     pub fn stdplane(&mut self) -> Plane {
-        unsafe { Plane::new_from(nc::notcurses_stdplane(self.data)) }
+        unsafe { Plane::new_from(sys::notcurses_stdplane(self.data)) }
     }
 
     /// Returns a flag that indicates the supported styles for the current terminal
     // TODO: TEST
     pub fn supported_styles(&self) -> u32 {
-        unsafe { nc::notcurses_supported_styles(self.data) }
+        unsafe { sys::notcurses_supported_styles(self.data) }
     }
 
     /// Returns the name of the flags supported
@@ -354,16 +336,25 @@ impl Notcurses {
 
 impl Drop for Notcurses {
     fn drop(&mut self) {
-        // It is important to reset the terminal before exiting, whether terminating due to intended operation
-        // or a received signal. This is usually accomplished by explicitly calling notcurses_stop.
-        // For convenience, notcurses by default installs signal handlers for various signals typically resulting
-        // in process termination (see signal(7)). These signal handlers call notcurses_stop for each struct notcurses
-        // in the process, and then propagate the signal to any previously-configured handler.
-        // These handlers are disabled upon entry to notcurses_stop
+        // It is important to reset the terminal before exiting, whether
+        // terminating due to intended operation or a received signal.
+        // This is usually accomplished by explicitly calling notcurses_stop.
+        //
+        // For convenience, notcurses by default installs signal handlers for
+        // various signals typically resulting in process termination.
+        // These signal handlers call notcurses_stop for each struct notcurses
+        // in the process, and then propagate the signal to any previously-
+        // configured handler.
+        // These handlers are disabled upon entry to notcurses_stop.
+        //
+        // notcurses in full or direct mode is always supposed to leave you with:
+        // - palette reset (oc terminfo)
+        // - cursor visible (cnorm terminfo)
+        // - all styles reset (sgr0 terminfo)
         //
         // [API](https://nick-black.com/notcurses/notcurses_stop.3.html)
         unsafe {
-            nc::notcurses_stop(self.data);
+            sys::notcurses_stop(self.data);
         }
     }
 }
