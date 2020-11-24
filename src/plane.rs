@@ -150,7 +150,7 @@
 use cstr_core::CString;
 use std::ptr::{null, null_mut};
 
-use crate::{sys, Error, Notcurses};
+use crate::{sys, Error, Notcurses, Align};
 
 /// NCPLANE
 ///
@@ -211,22 +211,23 @@ impl PlaneOptions {
     //
     // TODO: add additional constructors for:
     // -name (&str) used for debuging
-    // - align
-    // with callback
-    pub fn new(y: i32, x: i32, rows: i32, cols: i32, flags: u64) -> Self {
-        let horiz = sys::NcPlaneOptionHoriz { x: x };
-
+    // - callback
+    // - userptr
+    pub fn new(y: i32, x: i32, rows: u32, cols: u32) -> Self {
         Self {
-            data: &mut sys::bindgen::ncplane_options {
-                y,
-                horiz,
-                rows,
-                cols,
-                userptr: null_mut(),
-                name: null(),
-                flags,
-                resizecb: None,
-            },
+            data: &mut sys::NcPlaneOptions::new(y, x, rows, cols),
+        }
+    }
+
+    pub fn new_halign(y: i32, align: Align, rows: u32, cols: u32) -> Self {
+        Self {
+            data: &mut sys::NcPlaneOptions::new_halign(y, align as sys::NcAlign, rows, cols),
+        }
+    }
+
+    pub fn with_flags(y: i32, x: i32, rows: u32, cols: u32, flags: u64) -> Self {
+        Self {
+            data: &mut sys::NcPlaneOptions::with_flags(y, x, rows, cols, flags),
         }
     }
 }
@@ -290,15 +291,31 @@ impl Plane {
         bplane: &mut Plane,
         y: i32,
         x: i32,
-        cols: i32,
-        rows: i32,
-        flags: u64,
+        cols: u32,
+        rows: u32,
     ) -> Result<Self, Error> {
-        let options = PlaneOptions::new(y, x, cols, rows, flags);
+        let options = PlaneOptions::new(y, x, cols, rows);
         Ok(Self {
             data: unsafe { sys::ncplane_create(bplane.data, options.data) },
         })
     }
+
+    /// Creates a new plane (with flags), bound to another plane
+    // NOTE unnecessary duplication?
+    pub fn with_flags(
+        bplane: &mut Plane,
+        y: i32,
+        x: i32,
+        cols: u32,
+        rows: u32,
+        flags: u64,
+    ) -> Result<Self, Error> {
+        let options = PlaneOptions::with_flags(y, x, cols, rows, flags);
+        Ok(Self {
+            data: unsafe { sys::ncplane_create(bplane.data, options.data) },
+        })
+    }
+
 
     // DEPRECATED
     /*
@@ -443,7 +460,7 @@ mod test {
     #[ignore]
     fn new() -> Result<(), Error> {
         let mut nc = Notcurses::for_testing()?;
-        Plane::new(&mut nc.stdplane(), 50, 100, 0, 0, 0)?;
+        Plane::new(&mut nc.stdplane(), 50, 100, 0, 0)?;
         Ok(())
     }
     #[test]
@@ -451,7 +468,7 @@ mod test {
     fn dim_x() -> Result<(), Error> {
         let mut nc = Notcurses::for_testing()?;
 
-        let plane = Plane::new(&mut nc.stdplane(), 50, 100, 0, 0, 0)?;
+        let plane = Plane::new(&mut nc.stdplane(), 50, 100, 0, 0)?;
         println!("{:?}", plane.dim_y());
         assert_eq!(100, 100);
         Ok(())
@@ -461,7 +478,7 @@ mod test {
     #[ignore]
     fn dim_y() -> Result<(), Error> {
         let mut nc = Notcurses::for_testing()?;
-        let plane = Plane::new(&mut nc.stdplane(), 50, 100, 0, 0, 0)?;
+        let plane = Plane::new(&mut nc.stdplane(), 50, 100, 0, 0)?;
         assert_eq!(50, plane.dim_y());
         Ok(())
     }
@@ -470,7 +487,7 @@ mod test {
     #[ignore]
     fn dim_yx() -> Result<(), Error> {
         let mut nc = Notcurses::for_testing()?;
-        let plane = Plane::new(&mut nc.stdplane(), 50, 100, 0, 0, 0)?;
+        let plane = Plane::new(&mut nc.stdplane(), 50, 100, 0, 0)?;
         assert_eq!((50, 100), plane.dim_yx());
         Ok(())
     }
