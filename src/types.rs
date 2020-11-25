@@ -5,7 +5,7 @@ use crate::sys;
 // Reexports
 //
 // TODO: wrap them up in new types
-pub use sys::{Channels, Rgb};
+pub use sys::{NcChannels, NcRgb};
 
 /// Alignment within a plane or terminal. Left/right-justified, or centered.
 ///

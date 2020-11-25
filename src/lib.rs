@@ -32,5 +32,5 @@ pub use crate::notcurses::{Notcurses, OptionFlag, Options};
 pub use direct::Direct;
 pub use error::Error;
 pub use plane::{Plane, PlaneOptions};
-pub use types::{Align, Blitter, Channels, DirectModeOptions, LogLevel, Rgb, Scale, Style};
+pub use types::{Align, Blitter, NcChannels, DirectModeOptions, LogLevel, NcRgb, Scale, Style};
 pub use visual::{Visual, VisualOptions};

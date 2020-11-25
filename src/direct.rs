@@ -50,7 +50,7 @@ use cstr_core::CString;
 
 use enumflags2::BitFlags;
 
-use crate::{sys, Align, Blitter, Channels, Error, Rgb, Scale, Style};
+use crate::{sys, Align, Blitter, NcChannels, Error, NcRgb, Scale, Style};
 
 /// Direct Mode context
 ///
@@ -149,7 +149,7 @@ impl Direct {
     /// Set the background color
     ///
     // TODO: TEST
-    pub fn bg(&mut self, rgb: Rgb) -> Result<(), Error> {
+    pub fn bg(&mut self, rgb: NcRgb) -> Result<(), Error> {
         unsafe {
             if sys::ncdirect_bg_rgb(self.data, rgb) < 0 {
                 return Err(Error::Generic);
@@ -356,7 +356,7 @@ impl Direct {
     /// Set the foreground color
     ///
     // TODO: TEST
-    pub fn fg(&mut self, rgb: Rgb) -> Result<(), Error> {
+    pub fn fg(&mut self, rgb: NcRgb) -> Result<(), Error> {
         unsafe {
             if sys::ncdirect_fg_rgb(self.data, rgb) < 0 {
                 return Err(Error::Generic);
@@ -438,7 +438,7 @@ impl Direct {
     ///
     ///
     // TODO: TEST
-    pub fn print_colored(&mut self, channels: Channels, utf8: &str) -> Result<(), Error> {
+    pub fn print_colored(&mut self, channels: NcChannels, utf8: &str) -> Result<(), Error> {
         unsafe {
             if sys::ncdirect_putstr(self.data, channels, CString::new(utf8).unwrap().as_ptr()) < 0 {
                 return Err(Error::Generic);
