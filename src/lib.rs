@@ -1,12 +1,7 @@
-//! An ergonomic & safe wrapper for the notcurses C library
+//! A Rust idiomatic wrapper over the notcurses C library
 //!
-//! ### notcurses C API docs:
-//!
-//! - [Doxygen Documentation](https://nick-black.com/notcurses/html/index.html)
-//! - [API reference (man pages)](https://nick-black.com/notcurses/)
-//! - [Wiki](https://nick-black.com/dankwiki/index.php/Notcurses)
-//! - [The Book Guide (pdf)](https://nick-black.com/htp-notcurses.pdf)
-//! - [USAGE.md](https://github.com/dankamongmen/notcurses/blob/master/USAGE.md)
+//! If you prefer a unsafe wrapper with an API closer to the original one,
+//! you can use [libnotcurses-sys](https://crates.io/crates/libnotcurses-sys)
 //!
 #![allow(unused_imports, dead_code)]
 #![allow(
@@ -15,6 +10,8 @@
 )]
 
 pub mod sys {
+    //! `libnotcurses-sys`
+    //! low-level & unsafe Rust bindings for the notcurses C library
     pub use libnotcurses_sys::*;
 }
 
@@ -28,9 +25,9 @@ mod plane;
 mod types;
 mod visual;
 
-pub use crate::notcurses::{Notcurses, OptionFlag, Options};
+pub use crate::notcurses::{FullMode, FullModeFlag, FullModeOptions};
 pub use direct::Direct;
 pub use error::Error;
 pub use plane::{Plane, PlaneOptions};
-pub use types::{Align, Blitter, NcChannels, DirectModeOptions, LogLevel, NcRgb, Scale, Style};
+pub use types::{Align, Blitter, DirectModeOptions, LogLevel, NcChannels, NcRgb, Scale, Style};
 pub use visual::{Visual, VisualOptions};

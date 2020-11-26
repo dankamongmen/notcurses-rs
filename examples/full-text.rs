@@ -1,8 +1,8 @@
-use notcurses::{Error, Notcurses};
+use notcurses::{Error, FullMode};
 
 fn main() -> Result<(), Error> {
 
-    let mut nc = Notcurses::without_altmode()?;
+    let mut nc = FullMode::without_altmode()?;
 
     println!("dim_yx={:?}", nc.stdplane().dim_yx());
     println!("supported_styles: {:#b}", nc.supported_styles());

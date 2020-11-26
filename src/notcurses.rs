@@ -51,11 +51,11 @@ use strum::IntoEnumIterator;
 
 use crate::{sys, Error, LogLevel, Plane, Style};
 
-/// Option Flags
+/// [`FullMode`] Option Flags
 ///
 #[repr(u64)]
 #[derive(BitFlags, Copy, Clone, Debug, PartialEq)]
-pub enum OptionFlag {
+pub enum FullModeFlag {
     InhibitSetlocale = sys::types::NCOPTION_INHIBIT_SETLOCALE as u64,
     VerifySixel = sys::types::NCOPTION_VERIFY_SIXEL as u64,
     NoWinchSighandler = sys::types::NCOPTION_NO_WINCH_SIGHANDLER as u64,
@@ -70,8 +70,8 @@ pub enum OptionFlag {
 // NOTE: This doesn't work right now, waiting for the next release of enumflags2
 // with const support:
 // ```
-// impl OptionFlag {
-//     pub const EMPTY: BitFlags<OptionFlag> = BitFlags::empty();
+// impl FullModeFlag {
+//     pub const EMPTY: BitFlags<FullModeFlag> = BitFlags::empty();
 // }
 // ```
 
@@ -82,16 +82,16 @@ pub enum OptionFlag {
 /// screens, and overriding the TERM environment variable.
 ///
 /// A terminfo entry appropriate for the actual terminal must be available
-pub struct Options {
+pub struct FullModeOptions {
     pub(crate) data: sys::NotcursesOptions,
 }
 
-impl Options {
+impl FullModeOptions {
     // CONSTRUCTORS new()
 
-    /// Return a new customized Options structure
-    pub fn new(loglevel: LogLevel, flags: impl Into<BitFlags<OptionFlag>>) -> Self {
-        Options {
+    /// Return a new customized FullModeOptions structure
+    pub fn new(loglevel: LogLevel, flags: impl Into<BitFlags<FullModeFlag>>) -> Self {
+        FullModeOptions {
             data: sys::NotcursesOptions {
                 // Progressively higher log levels result in more logging to stderr. By
                 // default, nothing is printed to stderr once fullscreen service begins.
@@ -126,58 +126,65 @@ impl Options {
     }
 }
 
-/// A safe wrapper over a notcurses context
+/// Wraps over a notcurses context
 ///
 /// ## Links
 /// - [man notcurses](https://nick-black.com/notcurses/notcurses.3.html)
-pub struct Notcurses {
-    //pub(crate) data: *mut Notcurses, // < using this I have to cast everywhere
+pub struct FullMode {
     pub(crate) data: *mut sys::bindgen::notcurses,
 }
 
-impl Notcurses {
-    // CONSTRUCTORS: new(), for_testing() with_banners() with_options() without_altmode()
+impl FullMode {
+    // CONSTRUCTORS:
+    // - new()
+    // - new_test() /*private*/           // the preferred format for unit tests
+    // - with_banners()
+    // - with_options()
+    // - without_altmode()
 
-    /// Return a Notcurses instance that:
+    /// Return a [`FullMode`] instance that:
     ///
     /// - uses the alternate mode
     /// - doesn't show the info banners
     ///
     pub fn new() -> Result<Self, Error> {
-        Self::with_options(Options::new(LogLevel::Silent, OptionFlag::SuppressBanners))
-    }
-
-    /// Return a Notcurses instance perfect for unit tests
-    pub(crate) fn for_testing() -> Result<Self, Error> {
-        Self::with_options(Options::new(
+        Self::with_options(FullModeOptions::new(
             LogLevel::Silent,
-            OptionFlag::InhibitSetlocale
-                | OptionFlag::SuppressBanners
-                | OptionFlag::NoAlternateScreen
-                | OptionFlag::NoWinchSighandler
-                | OptionFlag::NoQuitSighandlers,
+            FullModeFlag::SuppressBanners,
         ))
     }
 
-    /// Return a Notcurses instance that:
+    /// Return a [`FullMode`] instance perfect for unit tests
+    pub(crate) fn new_test() -> Result<Self, Error> {
+        FullMode::with_options(FullModeOptions::new(
+            LogLevel::Silent,
+            FullModeFlag::InhibitSetlocale
+                | FullModeFlag::SuppressBanners
+                | FullModeFlag::NoAlternateScreen
+                | FullModeFlag::NoWinchSighandler
+                | FullModeFlag::NoQuitSighandlers,
+        ))
+    }
+
+    /// Return a [`FullMode`] instance that:
     ///
     /// - uses the alternate mode
     /// - shows the info banners
     ///
     pub fn with_banners() -> Result<Self, Error> {
-        Self::with_options(Options::new(LogLevel::Silent, BitFlags::empty()))
+        Self::with_options(FullModeOptions::new(LogLevel::Silent, BitFlags::empty()))
     }
 
-    /// Return a Notcurses instance with custom options
+    /// Return a [`FullMode`] instance with custom options
     ///
     // TODO: move constructors from options to here (without_altmode, etc.)
     // TODO:
     // (1) always call setlocale as the first thing you do, using LC_ALL, "" as arguments.
     // document that users of your crate ought have LANG properly defined.
-    // (2) pass the OptionFlag::InhibitSetlocale once you're doing so
+    // (2) pass the FullModeFlag::InhibitSetlocale once you're doing so
     // [link](https://github.com/dankamongmen/notcurses/issues/866#issuecomment-672921476)
     //
-    pub fn with_options(options: Options) -> Result<Self, Error> {
+    pub fn with_options(options: FullModeOptions) -> Result<Self, Error> {
         unsafe {
             // Before calling into notcurses be sure to call setlocale with an appropriate UTF-8 LC_ALL locale. It is
             // appropriate to use setlocale(LC_ALL, ""), relying on the user to set the LANG environment variable.
@@ -187,7 +194,7 @@ impl Notcurses {
             let _ = libc::setlocale(libc::LC_ALL, std::ffi::CString::new("").unwrap().as_ptr());
         }
 
-        Ok(Notcurses {
+        Ok(FullMode {
             // notcurses_init prepares the terminal for cursor-addressable (multiline) mode.
             //
             // notcurses_init accepts a struct notcurses_options allowing fine-grained control of notcurses behavior,
@@ -207,15 +214,15 @@ impl Notcurses {
         })
     }
 
-    /// Return a Notcurses instance that:
+    /// Return a [`FullMode`] instance that:
     ///
     /// - doesn't use the alternate mode
     /// - doesn't show the info banners
     ///
     pub fn without_altmode() -> Result<Self, Error> {
-        Self::with_options(Options::new(
+        Self::with_options(FullModeOptions::new(
             LogLevel::Silent,
-            OptionFlag::NoAlternateScreen | OptionFlag::SuppressBanners,
+            FullModeFlag::NoAlternateScreen | FullModeFlag::SuppressBanners,
         ))
     }
 
@@ -226,7 +233,6 @@ impl Notcurses {
     /// Can we set the "hardware" palette?
     ///
     /// Requires the "ccc" terminfo capability.
-    // TODO: TEST
     pub fn can_change_color(&self) -> bool {
         unsafe { sys::notcurses_canchangecolor(self.data) }
     }
@@ -234,7 +240,6 @@ impl Notcurses {
     /// Can we fade?
     ///
     /// Requires either the "rgb" or "ccc" terminfo capability.
-    // TODO: TEST
     pub fn can_fade(&self) -> bool {
         unsafe { sys::notcurses_canfade(self.data) }
     }
@@ -242,7 +247,6 @@ impl Notcurses {
     /// Can we load images?
     ///
     /// Requires being built against FFmpeg/OIIO.
-    // TODO: TEST
     pub fn can_open_images(&self) -> bool {
         unsafe { sys::notcurses_canopen_images(self.data) }
     }
@@ -250,13 +254,11 @@ impl Notcurses {
     /// Can we load videos?
     ///
     /// Requires being built against FFmpeg.
-    // TODO: TEST
     pub fn can_open_videos(&self) -> bool {
         unsafe { sys::notcurses_canopen_videos(self.data) }
     }
 
     /// Can we blit to Sixel?
-    // TODO: TEST
     pub fn can_sixel(&self) -> bool {
         unsafe { sys::notcurses_cansixel(self.data) }
     }
@@ -264,7 +266,6 @@ impl Notcurses {
     /// Can we directly specify RGB values per cell?
     ///
     /// If not, we can only use palettes.
-    // TODO: TEST
     pub fn can_truecolor(&self) -> bool {
         unsafe { sys::notcurses_cantruecolor(self.data) }
     }
@@ -272,13 +273,11 @@ impl Notcurses {
     /// Is our encoding UTF-8?
     ///
     /// Requires LANG being set to a UTF8 locale.
-    // TODO: TEST
     pub fn can_utf8(&self) -> bool {
         unsafe { sys::notcurses_canutf8(self.data) }
     }
 
     /// Disables the cursor
-    // TODO: TEST
     pub fn cursor_disable(&mut self) {
         unsafe {
             sys::notcurses_cursor_disable(self.data);
@@ -286,7 +285,6 @@ impl Notcurses {
     }
 
     /// Enables the cursor
-    // TODO: TEST
     pub fn cursor_enable(&mut self, y: i32, x: i32) {
         unsafe {
             sys::notcurses_cursor_enable(self.data, y, x);
@@ -294,7 +292,6 @@ impl Notcurses {
     }
 
     /// Destroy all ncplanes other than the stdplane.
-    // TODO: TEST
     pub fn drop_planes(&mut self) {
         unsafe {
             sys::notcurses_drop_planes(self.data);
@@ -314,27 +311,25 @@ impl Notcurses {
     }
 
     /// Returns a flag that indicates the supported styles for the current terminal
-    // TODO: TEST
     pub fn supported_styles(&self) -> u32 {
         unsafe { sys::notcurses_supported_styles(self.data) }
     }
 
     /// Returns the name of the flags supported
-    // TODO: TEST
     pub fn supported_styles_str(&self) -> String {
         let sf = self.supported_styles();
         let mut sstr = String::new();
 
         for s in Style::iter() {
             if s as u32 & sf != 0 {
-                sstr = format! {"{} {:?}", sstr, s};
+                sstr += &format! {" {:?}", s};
             }
         }
         sstr.trim().to_owned()
     }
 }
 
-impl Drop for Notcurses {
+impl Drop for FullMode {
     fn drop(&mut self) {
         // It is important to reset the terminal before exiting, whether
         // terminating due to intended operation or a received signal.
@@ -366,7 +361,7 @@ mod test {
     /* MODEL
     #[test]
     fn () -> Result<(), Error> {
-        let mut nc = Notcurses::for_testing();
+        let mut nc = FullMode::for_testing();
         let plane = Plane::new(&mut nc, 50, 100, 0, 0);
         assert_eq!(, );
     }
@@ -375,19 +370,19 @@ mod test {
 
     #[test]
     fn new() -> Result<(), Error> {
-        let _ = Notcurses::new()?;
+        let _ = FullMode::new()?;
         Ok(())
     }
 
     #[test]
     fn for_testing() -> Result<(), Error> {
-        let _ = Notcurses::for_testing()?;
+        let _ = FullMode::new_test()?;
         Ok(())
     }
 
     #[test]
     fn stdplane() -> Result<(), Error> {
-        let mut nc = Notcurses::for_testing()?;
+        let mut nc = FullMode::new_test()?;
         let _p = nc.stdplane();
         Ok(())
     }

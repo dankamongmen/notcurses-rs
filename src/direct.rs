@@ -50,7 +50,7 @@ use cstr_core::CString;
 
 use enumflags2::BitFlags;
 
-use crate::{sys, Align, Blitter, NcChannels, Error, NcRgb, Scale, Style};
+use crate::{sys, Align, Blitter, Error, NcChannels, NcRgb, Scale, Style};
 
 /// Direct Mode context
 ///
@@ -148,7 +148,6 @@ impl Direct {
 
     /// Set the background color
     ///
-    // TODO: TEST
     pub fn bg(&mut self, rgb: NcRgb) -> Result<(), Error> {
         unsafe {
             if sys::ncdirect_bg_rgb(self.data, rgb) < 0 {
@@ -160,7 +159,6 @@ impl Direct {
 
     /// Set the default background color
     ///
-    // TODO: TEST
     pub fn bg_default(&mut self) -> Result<(), Error> {
         unsafe {
             if sys::ncdirect_bg_default(self.data) < 0 {
@@ -176,7 +174,6 @@ impl Direct {
     /// |wchars| is an array of 6 wide characters: UL, UR, LL, LR, HL, VL.
     ///
     // TODO: understand how this works, and then simplify it
-    // TODO: TEST
     #[allow(clippy::too_many_arguments)]
     pub fn box1(
         &mut self,
@@ -197,19 +194,16 @@ impl Direct {
         Ok(())
     }
     /// Return true if terminal can open images
-    // TODO: TEST
     pub fn can_open_images(&self) -> bool {
         unsafe { sys::ncdirect_canopen_images(self.data) }
     }
 
     /// Return true if terminal can display UTF-8 characters
-    // TODO: TEST
     pub fn can_utf8(&self) -> bool {
         unsafe { sys::ncdirect_canutf8(self.data) }
     }
 
     /// Clear the screen
-    // TODO: TEST
     pub fn clear(&mut self) -> Result<(), Error> {
         unsafe {
             if sys::ncdirect_clear(self.data) < 0 {
@@ -228,7 +222,6 @@ impl Direct {
     /// Disables the cursor
     ///
     /// -1 to retain current location on that axis
-    // TODO: TEST
     pub fn cursor_disable(&mut self) -> Result<(), Error> {
         unsafe {
             if sys::ncdirect_cursor_disable(self.data) < 0 {
@@ -241,7 +234,6 @@ impl Direct {
     /// Enables the cursor
     ///
     /// -1 to retain current location on that axis
-    // TODO: TEST
     pub fn cursor_enable(&mut self) -> Result<(), Error> {
         unsafe {
             if sys::ncdirect_cursor_enable(self.data) < 0 {
@@ -282,7 +274,6 @@ impl Direct {
     /// Moves the cursor the specified number of rows down
     ///
     /// -1 to retain current location on that axis
-    // TODO: TEST
     pub fn cursor_down(&mut self, rows: i32) -> Result<(), Error> {
         unsafe {
             if sys::ncdirect_cursor_down(self.data, rows) < 0 {
@@ -295,7 +286,6 @@ impl Direct {
     /// Moves the cursor the specified number of columns left
     ///
     /// -1 to retain current location on that axis
-    // TODO: TEST
     pub fn cursor_left(&mut self, cols: i32) -> Result<(), Error> {
         unsafe {
             if sys::ncdirect_cursor_left(self.data, cols) < 0 {
@@ -330,7 +320,6 @@ impl Direct {
     /// Moves the cursor the specified number of columns right
     ///
     /// -1 to retain current location on that axis
-    // TODO: TEST
     pub fn cursor_right(&mut self, cols: i32) -> Result<(), Error> {
         unsafe {
             if sys::ncdirect_cursor_right(self.data, cols) < 0 {
@@ -343,7 +332,6 @@ impl Direct {
     /// Moves the cursor the specified number of rows up
     ///
     /// -1 to retain current location on that axis
-    // TODO: TEST
     pub fn cursor_up(&mut self, rows: i32) -> Result<(), Error> {
         unsafe {
             if sys::ncdirect_cursor_up(self.data, rows) < 0 {
@@ -355,7 +343,6 @@ impl Direct {
 
     /// Set the foreground color
     ///
-    // TODO: TEST
     pub fn fg(&mut self, rgb: NcRgb) -> Result<(), Error> {
         unsafe {
             if sys::ncdirect_fg_rgb(self.data, rgb) < 0 {
@@ -367,7 +354,6 @@ impl Direct {
 
     /// Set the default foreground color
     ///
-    // TODO: TEST
     pub fn fg_default(&mut self) -> Result<(), Error> {
         unsafe {
             if sys::ncdirect_fg_default(self.data) < 0 {
@@ -378,7 +364,6 @@ impl Direct {
     }
 
     ///
-    // TODO: TEST
     #[inline]
     pub fn flush() {}
 
@@ -388,7 +373,6 @@ impl Direct {
     /// For a horizontal line, |len| cannot exceed the screen width minus the
     /// cursor's offset. All lines start at the current cursor position.
     ///
-    // TODO: TEST
     // FIXME: TYPES
     pub fn hline_interp(&mut self, egc: &str, len: i32, h1: u64, h2: u64) -> Result<(), Error> {
         unsafe {
@@ -409,7 +393,6 @@ impl Direct {
     /// Return the number of simultaneous colors claimed to be supported, or 1 if
     /// there is no color support. Note that several terminal emulators advertise
     /// more colors than they actually support, downsampling internally.
-    // TODO: TEST
     // CHECK: probably should be unsigned
     pub fn palette_size(&self) -> u32 {
         unsafe { sys::ncdirect_palette_size(self.data) }
@@ -419,7 +402,6 @@ impl Direct {
     ///
     ///
     // NOTE: once println!() works, this wont have much utility
-    // TODO: TEST
     pub fn print_aligned(&mut self, y: i32, align: Align, fmt: &str) -> Result<(), Error> {
         unsafe {
             if sys::ncdirect_printf_aligned(
@@ -437,7 +419,6 @@ impl Direct {
 
     ///
     ///
-    // TODO: TEST
     pub fn print_colored(&mut self, channels: NcChannels, utf8: &str) -> Result<(), Error> {
         unsafe {
             if sys::ncdirect_putstr(self.data, channels, CString::new(utf8).unwrap().as_ptr()) < 0 {
@@ -526,7 +507,6 @@ impl Direct {
     /// For a vertical line, |len| may be as long as you'd like; the screen
     /// will scroll as necessary. All lines start at the current cursor position.
     ///
-    // TODO: TEST
     // FIXME: TYPES
     pub fn vline_interp(&mut self, egc: &str, len: i32, h1: u64, h2: u64) -> Result<(), Error> {
         unsafe {

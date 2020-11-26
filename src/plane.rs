@@ -150,7 +150,7 @@
 use cstr_core::CString;
 use std::ptr::{null, null_mut};
 
-use crate::{sys, Error, Notcurses, Align};
+use crate::{sys, Align, Error, FullMode};
 
 /// NCPLANE
 ///
@@ -287,13 +287,7 @@ impl Plane {
     }
 
     /// Creates a new plane, bound to another plane
-    pub fn new(
-        bplane: &mut Plane,
-        y: i32,
-        x: i32,
-        cols: u32,
-        rows: u32,
-    ) -> Result<Self, Error> {
+    pub fn new(bplane: &mut Plane, y: i32, x: i32, cols: u32, rows: u32) -> Result<Self, Error> {
         let options = PlaneOptions::new(y, x, cols, rows);
         Ok(Self {
             data: unsafe { sys::ncplane_create(bplane.data, options.data) },
@@ -316,11 +310,10 @@ impl Plane {
         })
     }
 
-
     // DEPRECATED
     /*
     pub fn new_old(
-        notcurses: &mut Notcurses,
+        notcurses: &mut FullMode,
         rows: i32,
         cols: i32,
         yoff: i32,
@@ -449,7 +442,7 @@ mod test {
     /*
     #[test]
     fn () -> Result<(), Error> {
-        let mut nc = Notcurses::for_testing()?;
+        let mut nc = FullMode::new_test()?;
         let plane = Plane::new(&mut nc, 50, 100, 0, 0)?;
         assert_eq!(, );
         Ok()
@@ -459,14 +452,14 @@ mod test {
     #[test]
     #[ignore]
     fn new() -> Result<(), Error> {
-        let mut nc = Notcurses::for_testing()?;
+        let mut nc = FullMode::new_test()?;
         Plane::new(&mut nc.stdplane(), 50, 100, 0, 0)?;
         Ok(())
     }
     #[test]
     #[ignore]
     fn dim_x() -> Result<(), Error> {
-        let mut nc = Notcurses::for_testing()?;
+        let mut nc = FullMode::new_test()?;
 
         let plane = Plane::new(&mut nc.stdplane(), 50, 100, 0, 0)?;
         println!("{:?}", plane.dim_y());
@@ -477,7 +470,7 @@ mod test {
     #[test]
     #[ignore]
     fn dim_y() -> Result<(), Error> {
-        let mut nc = Notcurses::for_testing()?;
+        let mut nc = FullMode::new_test()?;
         let plane = Plane::new(&mut nc.stdplane(), 50, 100, 0, 0)?;
         assert_eq!(50, plane.dim_y());
         Ok(())
@@ -486,7 +479,7 @@ mod test {
     #[test]
     #[ignore]
     fn dim_yx() -> Result<(), Error> {
-        let mut nc = Notcurses::for_testing()?;
+        let mut nc = FullMode::new_test()?;
         let plane = Plane::new(&mut nc.stdplane(), 50, 100, 0, 0)?;
         assert_eq!((50, 100), plane.dim_yx());
         Ok(())
