@@ -56,25 +56,6 @@ pub enum Blitter {
     Sixel = sys::NCBLIT_SIXEL as sys::NcBlitter,
 }
 
-/// Direct Mode Options
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub enum DirectModeOptions {
-    None = 0,
-
-    /// Unless this flag is set, ncdirect_init will place the terminal into
-    /// cbreak mode (i.e. disabling echo and line buffering; see tcgetattr
-    InhibitCbreak = sys::types::NCDIRECT_OPTION_INHIBIT_CBREAK as u32,
-
-    /// Unless this flag is set, ncdirect_init will call setlocale(LC_ALL, NULL).
-    ///
-    /// If the result is either "C" or "POSIX", it will print a diagnostic to
-    /// stderr, and then call setlocale(LC_ALL, ""). This will attempt to set
-    /// the locale based off the LANG environment variable. Your program then
-    /// should call setlocale itself, usually as one of the first lines.
-    InhibitSetLocale = sys::types::NCDIRECT_OPTION_INHIBIT_SETLOCALE as u32,
-}
-
 /// Log levels
 ///
 /// By default, nothing is printed to stderr once fullscreen service begins.

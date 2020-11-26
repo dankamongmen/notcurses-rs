@@ -52,7 +52,26 @@ use enumflags2::BitFlags;
 
 use crate::{sys, Align, Blitter, Error, NcChannels, NcRgb, Scale, Style};
 
-/// Direct Mode context
+/// Direct Mode Options
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum DirectModeOptions {
+    None = 0,
+
+    /// Unless this flag is set, ncdirect_init will place the terminal into
+    /// cbreak mode (i.e. disabling echo and line buffering; see tcgetattr
+    InhibitCbreak = sys::types::NCDIRECT_OPTION_INHIBIT_CBREAK as u32,
+
+    /// Unless this flag is set, ncdirect_init will call setlocale(LC_ALL, NULL).
+    ///
+    /// If the result is either "C" or "POSIX", it will print a diagnostic to
+    /// stderr, and then call setlocale(LC_ALL, ""). This will attempt to set
+    /// the locale based off the LANG environment variable. Your program then
+    /// should call setlocale itself, usually as one of the first lines.
+    InhibitSetLocale = sys::types::NCDIRECT_OPTION_INHIBIT_SETLOCALE as u32,
+}
+
+/// DirectMode Mode context
 ///
 /// Can be used to manipulate the habitual output to the terminal
 ///
@@ -111,19 +130,19 @@ use crate::{sys, Align, Blitter, Error, NcChannels, NcRgb, Scale, Style};
 ///
 /// - [man notcurses_directmode(3)](https://nick-black.com/notcurses/notcurses_directmode.3.html)
 ///
-pub struct Direct {
+pub struct DirectMode {
     data: *mut sys::NcDirect,
 }
 
-impl Direct {
+impl DirectMode {
     // CONSTRUCTORS: new() -----------------------------------------------------
 
-    /// Return a Direct Mode instance
+    /// Return a DirectMode Mode instance
     ///
     /// Initialize a direct-mode notcurses context on the connected terminal,
     /// which must be a tty. You'll usually want stdout.
     ///
-    /// Direct mode supports a limited subset of notcurses routines which
+    /// DirectMode mode supports a limited subset of notcurses routines which
     /// directly affect the terminal, and neither supports nor requires
     /// `notcurses_render()`. This can be used to add color and styling to
     /// text in the standard output paradigm.
@@ -139,7 +158,7 @@ impl Direct {
 
         // TODO: ncdirect_init() returns NULL on failure. Otherwise, the return value points
         // to a valid struct ncdirect, which can be used until it is provided to ncdirect_stop().
-        Ok(Direct {
+        Ok(DirectMode {
             data: unsafe { sys::ncdirect_init(null(), null_mut(), 0) },
         })
     }
@@ -363,9 +382,16 @@ impl Direct {
         Ok(())
     }
 
-    ///
+    /// Force a flush
     #[inline]
-    pub fn flush() {}
+    pub fn flush(&self) -> Result<(), Error> {
+        unsafe {
+            if sys::ncdirect_flush(self.data) < 0 {
+                return Err(Error::Generic);
+            }
+        }
+        Ok(())
+    }
 
     /// Draw horizontal lines using the specified channels, interpolating
     /// between them as we go. The EGC may not use more than one column.
@@ -525,7 +551,7 @@ impl Direct {
     }
 }
 
-impl Drop for Direct {
+impl Drop for DirectMode {
     fn drop(&mut self) {
         // It is important to reset the terminal before exiting, whether terminating due to intended operation
         // or a received signal. This is usually accomplished by explicitly calling notcurses_stop.
@@ -555,7 +581,7 @@ mod test {
     /*
     #[test]
     fn () -> Result<(), Error> {
-        let mut nc = Direct::new()?;
+        let mut nc = DirectMode::new()?;
         //assert_eq!(, );
         Ok(())
     }
@@ -563,7 +589,7 @@ mod test {
 
     #[test]
     fn clear() -> Result<(), Error> {
-        let mut _nc = Direct::new()?;
+        let mut _nc = DirectMode::new()?;
         // NOTE: commented out bc when the screen gets cleared the previous output is lost.
         //nc.clear()?;
         Ok(())
@@ -571,7 +597,7 @@ mod test {
 
     #[test]
     fn cursor_yx() -> Result<(), Error> {
-        let mut nc = Direct::new()?;
+        let mut nc = DirectMode::new()?;
         let _yx = nc.cursor_yx()?;
         print!("cursor_yx={:?} ", _yx);
         Ok(())
@@ -579,7 +605,7 @@ mod test {
 
     #[test]
     fn cols() -> Result<(), Error> {
-        let nc = Direct::new()?;
+        let nc = DirectMode::new()?;
         let _x = nc.cols();
         print!("cols={} ", _x);
         Ok(())
@@ -587,7 +613,7 @@ mod test {
 
     #[test]
     fn rows() -> Result<(), Error> {
-        let nc = Direct::new()?;
+        let nc = DirectMode::new()?;
         let _y = nc.rows();
         print!("rows={} ", _y);
         Ok(())
@@ -595,7 +621,7 @@ mod test {
 
     #[test]
     fn move_cursor_yx() -> Result<(), Error> {
-        let mut nc = Direct::new()?;
+        let mut nc = DirectMode::new()?;
         let _yx_a = nc.cursor_yx()?;
         print!("cursor_yx A={:?} ", _yx_a);
 
@@ -616,13 +642,13 @@ mod test {
 
     #[test]
     fn new() -> Result<(), Error> {
-        let _nc = Direct::new()?;
+        let _nc = DirectMode::new()?;
         Ok(())
     }
 
     #[test]
     fn palette_size() -> Result<(), Error> {
-        let mut _nc = Direct::new()?;
+        let mut _nc = DirectMode::new()?;
         assert!(_nc.palette_size() > 0);
         Ok(())
     }

@@ -103,7 +103,7 @@
 //  ncplane_x
 //  ncplane_y
 //  ncplane_yx
-// ------------------------- ↓ static inlines reimplemented: 42
+// -------------------------
 // ncplane_align
 // ncplane_at_cursor_cell
 // ncplane_at_yx_cell
@@ -369,9 +369,6 @@ impl Plane {
     //
     //     Ok(())
     // }
-
-    // TODO
-    // !cell_char_initializer[]
 
     ///
     ///

@@ -1,10 +1,9 @@
 #![allow(unused_imports)]
 
-use notcurses::{Align, Direct, Error, Style};
-use libnotcurses_sys as nc;
+use notcurses::{sys, Align, DirectMode, Error, Style};
 
 fn main() -> Result<(), Error> {
-    let mut ncd = Direct::new()?;
+    let mut ncd = DirectMode::new()?;
 
     // INFO
 
@@ -12,11 +11,13 @@ fn main() -> Result<(), Error> {
     let t_cols = ncd.cols();
     println!("Terminal rows={0}, cols={1}", t_rows, t_cols);
 
-    println!("Can open images: {0}\nCan UTF-8: {1}",
-        ncd.can_open_images(), ncd.can_utf8());
+    println!(
+        "Can open images: {0}\nCan UTF-8: {1}",
+        ncd.can_open_images(),
+        ncd.can_utf8()
+    );
 
     println!("palette_size: {}", ncd.palette_size());
-
 
     // TEXT & STYLE
 
@@ -47,13 +48,22 @@ fn main() -> Result<(), Error> {
     ncd.print_colored(0, "[DEFAULT ")?;
     for (label, style) in stylesv.iter() {
         ncd.styles_on(*style)?;
-        ncd.print_colored(0, &label.chars().map(
-            |c| match c { '[' | ']' => ' ', _ => c }).collect::<String>())?;
-        if let Style::Blink = style { break ; }
+        ncd.print_colored(
+            0,
+            &label
+                .chars()
+                .map(|c| match c {
+                    '[' | ']' => ' ',
+                    _ => c,
+                })
+                .collect::<String>(),
+        )?;
+        if let Style::Blink = style {
+            break;
+        }
     }
     ncd.styles_off_all()?;
     ncd.print_colored(0, "]")?;
-
 
     // TEXT mixing Rust's print!() & println!() and notcurses' print_colored() & print()
     //
@@ -62,7 +72,6 @@ fn main() -> Result<(), Error> {
 
     ncd.print_colored(0, "\n\n1 \n")?;
     println!("2 < it does work (better) with a `\\n` after 1");
-
 
     // TODO: more tests with styles_set & bold+italic
     //
@@ -74,7 +83,10 @@ fn main() -> Result<(), Error> {
     ncd.bg(0x00FF00 as u32)?; // FIXME: colors don't seem to work
     ncd.fg(0xFF0000 as u32)?;
     println!("\nhello colors? (investigate)");
-    ncd.print_colored(nc::channels_combine(0xFF008800, 0xFFBB0099), "hello colors 2")?;
+    ncd.print_colored(
+        sys::channels_combine(0xFF008800, 0xFFBB0099),
+        "hello colors 2",
+    )?;
     ncd.print_colored(0, "...")?;
 
     // TODO: should be able to use print!() & println!()

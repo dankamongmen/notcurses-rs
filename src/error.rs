@@ -27,4 +27,8 @@ pub enum Error {
     /// Represents an error while clearing the screen
     #[error("Error clearing the screen.")]
     Clear,
+
+    /// Represents an error while trying to get a Cell
+    #[error("Error fetching the cell.")]
+    Cell,
 }

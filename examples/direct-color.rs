@@ -5,14 +5,12 @@
 use rand::seq::IteratorRandom;
 use rand::Rng;
 
-use notcurses::{Direct, Error};
-use libnotcurses_sys as nc; // TEMP
+use notcurses::{sys, DirectMode, Error};
 
 fn main() -> Result<(), Error> {
-
     let mut rng = rand::thread_rng();
 
-    let mut ncd = Direct::new()?;
+    let mut ncd = DirectMode::new()?;
 
     fill_screen(&mut ncd, " ░▒▓█")?;
     std::thread::sleep(std::time::Duration::new(2, 0));
@@ -20,7 +18,14 @@ fn main() -> Result<(), Error> {
     let (cols, rows) = (ncd.cols(), ncd.rows());
     for n in 0..(cols * rows * 3) {
         ncd.cursor_move_yx(rng.gen_range(0, rows), rng.gen_range(0, cols))?;
-        ncd.print_colored(rngcolors(), &"▗▐ ▖▀▟▌▙██▇▆▅▄▃▂▁".chars().choose(&mut rng).unwrap().to_string())?;
+        ncd.print_colored(
+            rngcolors(),
+            &"▗▐ ▖▀▟▌▙██▇▆▅▄▃▂▁"
+                .chars()
+                .choose(&mut rng)
+                .unwrap()
+                .to_string(),
+        )?;
     }
     ncd.cursor_move_yx(rows + 1, 1)?;
 
@@ -29,8 +34,7 @@ fn main() -> Result<(), Error> {
 
 /// Fill the screen with random characters from the ones provided
 ///
-fn fill_screen(ncd: &mut Direct, s: &str) -> Result<(), Error> {
-
+fn fill_screen(ncd: &mut DirectMode, s: &str) -> Result<(), Error> {
     let mut rng = rand::thread_rng();
 
     let (cols, rows) = (ncd.cols(), ncd.rows());
@@ -41,7 +45,6 @@ fn fill_screen(ncd: &mut Direct, s: &str) -> Result<(), Error> {
     ncd.clear()?;
 
     for row in 0..=rows {
-
         // foreground -blue -green
         fb = modcolor(row_count, rows, false, 1.2);
         fg = modcolor(row_count, rows, false, 0.8);
@@ -50,16 +53,15 @@ fn fill_screen(ncd: &mut Direct, s: &str) -> Result<(), Error> {
 
         col_count = 0;
         for col in 0..=cols {
-
             // foreground +red
             fr = modcolor(col_count, cols, false, 1.2);
             // background +red +green
             br = modcolor(col_count, cols, true, 1.);
             bg = modcolor(col_count, cols, true, 1.);
 
-            nc::channel_set_rgb8(&mut fcolor, fr, fg, fb);
-            nc::channel_set_rgb8(&mut bcolor, br, bg, bb);
-            color = nc::channels_combine(fcolor, bcolor);
+            sys::channel_set_rgb8(&mut fcolor, fr, fg, fb);
+            sys::channel_set_rgb8(&mut bcolor, br, bg, bb);
+            color = sys::channels_combine(fcolor, bcolor);
 
             ncd.cursor_move_yx(row, col)?;
             ncd.print_colored(color, &s.chars().choose(&mut rng).unwrap().to_string())?;
@@ -77,8 +79,8 @@ fn fill_screen(ncd: &mut Direct, s: &str) -> Result<(), Error> {
 fn modcolor(count: u16, total: i32, increase: bool, fraction: f32) -> u8 {
     let colorstep = 255. / total as f32;
 
-    ((count as f32 * colorstep ) / fraction * increase as u8 as f32) as u8
-    + ((255. - (count as f32 * colorstep)) / fraction * !increase as u8 as f32) as u8
+    ((count as f32 * colorstep) / fraction * increase as u8 as f32) as u8
+        + ((255. - (count as f32 * colorstep)) / fraction * !increase as u8 as f32) as u8
 }
 
 /// Get a random color pair
@@ -87,7 +89,17 @@ fn rngcolors() -> u64 {
     let mut rng = rand::thread_rng();
 
     let (mut fcolor, mut bcolor) = (0, 0);
-    nc::channel_set_rgb8(&mut fcolor, rng.gen_range(0,255), rng.gen_range(0,255), rng.gen_range(0,255));
-    nc::channel_set_rgb8(&mut bcolor, rng.gen_range(0,255), rng.gen_range(0,255), rng.gen_range(0,255));
-    nc::channels_combine(fcolor, bcolor)
+    sys::channel_set_rgb8(
+        &mut fcolor,
+        rng.gen_range(0, 255),
+        rng.gen_range(0, 255),
+        rng.gen_range(0, 255),
+    );
+    sys::channel_set_rgb8(
+        &mut bcolor,
+        rng.gen_range(0, 255),
+        rng.gen_range(0, 255),
+        rng.gen_range(0, 255),
+    );
+    sys::channels_combine(fcolor, bcolor)
 }

@@ -3,7 +3,7 @@
 // (+) done: 12 / 27
 // (#) test:  0 / 39
 // ------------------------- ↓ from bindgen
-//  notcurses_at_yx
+//± notcurses_at_yx
 //+ notcurses_canchangecolor
 //+ notcurses_canfade
 //+ notcurses_canopen_images
@@ -49,7 +49,7 @@ use core::ptr::{null, null_mut};
 use enumflags2::BitFlags;
 use strum::IntoEnumIterator;
 
-use crate::{sys, Error, LogLevel, Plane, Style};
+use crate::{sys, Cell, Error, LogLevel, Plane, Style};
 
 /// [`FullMode`] Option Flags
 ///
@@ -135,7 +135,7 @@ pub struct FullMode {
 }
 
 impl FullMode {
-    // CONSTRUCTORS:
+    // CONSTRUCTORS: -----------------------------------------------------------
     // - new()
     // - new_test() /*private*/           // the preferred format for unit tests
     // - with_banners()
@@ -228,7 +228,20 @@ impl FullMode {
 
     // ----------------------------------------------------------^ CONSTRUCTORS
 
-    // notcurses_at_yx
+    // TODO:
+    // /// Retrieve the [`Cell`] at  the specified coordinates as last rendered.
+    // ///
+    // // Returns the EGC or NULL on error. This EGC must be free()d by the caller. The stylemask and channels are written to 'stylemask' and 'channels', respectively.
+    // pub fn at_yx(&self, y: u32, x: u32) -> Result<Cell, Error> {
+    //     let (mut style, mut channels) = (0, 0);
+    //     let egc = unsafe {
+    //         sys::notcurses_at_yx(self.data, y as i32, x as i32, &mut style, &mut channels)
+    //     };
+    //     if egc.is_null() {
+    //         return Err(Error::Cell);
+    //     }
+    //     Ok(Cell::new_blank())
+    // }
 
     /// Can we set the "hardware" palette?
     ///
@@ -289,6 +302,18 @@ impl FullMode {
         unsafe {
             sys::notcurses_cursor_enable(self.data, y, x);
         }
+    }
+
+    /// Return the dimensions of the terminal as a tuple of (rows, cols)
+    //
+    // TODO: rename
+    pub fn dim_yx(&mut self) -> (i32, i32) {
+        let mut y = 0;
+        let mut x = 0;
+        unsafe {
+            sys::notcurses_term_dim_yx(&*self.data, &mut y, &mut x);
+        }
+        (y, x)
     }
 
     /// Destroy all ncplanes other than the stdplane.
