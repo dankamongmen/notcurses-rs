@@ -114,6 +114,7 @@ pub enum Style {
     Reverse = sys::NCSTYLE_REVERSE as u32,
     Standout = sys::NCSTYLE_STANDOUT as u32,
     Underline = sys::NCSTYLE_UNDERLINE as u32,
+    Struck = sys::NCSTYLE_STRUCK as u32,
     // Mask = sys::NCSTYLE_MASK as u32, // 16 first bits set
     // None = sys::NCSTYLE_NONE as u32, // Equals 0
 }

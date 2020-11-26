@@ -25,6 +25,7 @@ fn main() -> Result<(), Error> {
         ("[UNDERLINE]", Style::Underline),
         ("[ITALIC]", Style::Italic),
         ("[BOLD]", Style::Bold),
+        ("[STRUCK]", Style::Struck),
         ("[REVERSE]", Style::Reverse),
         ("[BLINK]", Style::Blink),
         ("[INVIS]", Style::Invis),
