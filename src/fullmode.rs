@@ -25,7 +25,7 @@
 //  notcurses_mouse_enable
 //  notcurses_palette_size
 //  notcurses_refresh
-//  notcurses_render
+//+ notcurses_render
 //  notcurses_render_to_file
 //  notcurses_reset_stats
 //  notcurses_stats
@@ -56,16 +56,16 @@ use crate::{sys, Cell, Error, LogLevel, Plane, Style};
 #[repr(u64)]
 #[derive(BitFlags, Copy, Clone, Debug, PartialEq)]
 pub enum FullModeFlag {
-    InhibitSetlocale = sys::types::NCOPTION_INHIBIT_SETLOCALE as u64,
-    VerifySixel = sys::types::NCOPTION_VERIFY_SIXEL as u64,
-    NoWinchSighandler = sys::types::NCOPTION_NO_WINCH_SIGHANDLER as u64,
-    NoQuitSighandlers = sys::types::NCOPTION_NO_QUIT_SIGHANDLERS as u64,
+    InhibitSetlocale = sys::NCOPTION_INHIBIT_SETLOCALE as u64,
+    VerifySixel = sys::NCOPTION_VERIFY_SIXEL as u64,
+    NoWinchSighandler = sys::NCOPTION_NO_WINCH_SIGHANDLER as u64,
+    NoQuitSighandlers = sys::NCOPTION_NO_QUIT_SIGHANDLERS as u64,
     /// Remove the startup diagnostics
-    SuppressBanners = sys::types::NCOPTION_SUPPRESS_BANNERS as u64,
+    SuppressBanners = sys::NCOPTION_SUPPRESS_BANNERS as u64,
     /// Don't use the alternate screen
-    NoAlternateScreen = sys::types::NCOPTION_NO_ALTERNATE_SCREEN as u64,
+    NoAlternateScreen = sys::NCOPTION_NO_ALTERNATE_SCREEN as u64,
     /// Don't change the font
-    NoFontChange = sys::types::NCOPTION_NO_FONT_CHANGES as u64,
+    NoFontChange = sys::NCOPTION_NO_FONT_CHANGES as u64,
 }
 // NOTE: This doesn't work right now, waiting for the next release of enumflags2
 // with const support:
@@ -75,7 +75,7 @@ pub enum FullModeFlag {
 // }
 // ```
 
-/// A safe wrapper over notcurses_options
+/// Options for [`FullMode`]
 ///
 /// notcurses_init accepts a struct notcurses_options allowing fine-grained
 /// control of notcurses behavior, including signal handlers, alternative
@@ -83,7 +83,7 @@ pub enum FullModeFlag {
 ///
 /// A terminfo entry appropriate for the actual terminal must be available
 pub struct FullModeOptions {
-    pub(crate) data: sys::NotcursesOptions,
+    pub data: sys::NotcursesOptions,
 }
 
 impl FullModeOptions {
@@ -126,14 +126,15 @@ impl FullModeOptions {
     }
 }
 
-/// Wraps over a notcurses context
+/// Full Mode `notcurses` Context
 ///
 /// ## Links
 /// - [man notcurses](https://nick-black.com/notcurses/notcurses.3.html)
 pub struct FullMode {
-    pub(crate) data: *mut sys::bindgen::notcurses,
+    pub data: *mut sys::bindgen::notcurses,
 }
 
+/// # `FullMode` Constructors
 impl FullMode {
     // CONSTRUCTORS: -----------------------------------------------------------
     // - new()
@@ -226,8 +227,14 @@ impl FullMode {
         ))
     }
 
-    // ----------------------------------------------------------^ CONSTRUCTORS
+    // /// Return
+    // pub fn raw_mut() -> *mut {
+    //    self.data
+    // }
+}
 
+/// # `FullMode` Methods
+impl FullMode {
     // TODO:
     // /// Retrieve the [`Cell`] at  the specified coordinates as last rendered.
     // ///
@@ -307,7 +314,7 @@ impl FullMode {
     /// Return the dimensions of the terminal as a tuple of (rows, cols)
     //
     // TODO: rename
-    pub fn dim_yx(&mut self) -> (i32, i32) {
+    pub fn dim_yx(&mut self) -> (u32, u32) {
         let mut y = 0;
         let mut x = 0;
         unsafe {
@@ -323,6 +330,12 @@ impl FullMode {
         }
     }
 
+    pub fn render(&mut self) {
+        unsafe {
+            sys::notcurses_render(self.data);
+        }
+    }
+
     /// Returns the standard Plane for the current context
     ///
     ///
@@ -332,12 +345,12 @@ impl FullMode {
     /// [man notcurses_stdplane](https://nick-black.com/notcurses/notcurses_stdplane.3.html)
     ///
     pub fn stdplane(&mut self) -> Plane {
-        unsafe { Plane::new_from(sys::notcurses_stdplane(self.data)) }
+        unsafe { Plane::from_ncplane(sys::notcurses_stdplane(self.data)) }
     }
 
     /// Returns a flag that indicates the supported styles for the current terminal
-    pub fn supported_styles(&self) -> u32 {
-        unsafe { sys::notcurses_supported_styles(self.data) }
+    pub fn supported_styles(&self) -> u16 {
+        unsafe { sys::notcurses_supported_styles(self.data) as u16 }
     }
 
     /// Returns the name of the flags supported
@@ -346,7 +359,7 @@ impl FullMode {
         let mut sstr = String::new();
 
         for s in Style::iter() {
-            if s as u32 & sf != 0 {
+            if s as u16 & sf != 0 {
                 sstr += &format! {" {:?}", s};
             }
         }
@@ -382,16 +395,6 @@ impl Drop for FullMode {
 #[cfg(test)]
 mod test {
     use super::*;
-
-    /* MODEL
-    #[test]
-    fn () -> Result<(), Error> {
-        let mut nc = FullMode::for_testing();
-        let plane = Plane::new(&mut nc, 50, 100, 0, 0);
-        assert_eq!(, );
-    }
-    Ok(())
-    */
 
     #[test]
     fn new() -> Result<(), Error> {

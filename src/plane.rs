@@ -199,15 +199,17 @@ use crate::{sys, Align, Error, FullMode};
 /// - [doxygen ncplane struct reference](https://nick-black.com/notcurses/html/structncplane.html)
 ///
 pub struct Plane {
-    data: *mut sys::NcPlane,
+    pub data: *mut sys::NcPlane,
 }
 
+/// Options for [Plane].
 pub struct PlaneOptions {
-    data: *mut sys::NcPlaneOptions,
+    pub data: *mut sys::NcPlaneOptions,
 }
 
+/// # `PlaneOptions` Constructors
 impl PlaneOptions {
-    /// PlaneOptions constructor
+    /// New PlaneOptions.
     //
     // TODO: add additional constructors for:
     // -name (&str) used for debuging
@@ -219,12 +221,14 @@ impl PlaneOptions {
         }
     }
 
+    ///
     pub fn new_halign(y: i32, align: Align, rows: u32, cols: u32) -> Self {
         Self {
             data: &mut sys::NcPlaneOptions::new_halign(y, align as sys::NcAlign, rows, cols),
         }
     }
 
+    ///
     pub fn with_flags(y: i32, x: i32, rows: u32, cols: u32, flags: u64) -> Self {
         Self {
             data: &mut sys::NcPlaneOptions::with_flags(y, x, rows, cols, flags),
@@ -232,7 +236,11 @@ impl PlaneOptions {
     }
 }
 
-// NOTE: it is an error to call ncplane_destroy, ncplane_resize, or ncplane_move on the standard plane.
+
+/// # `Plane` Constructors
+//
+// NOTE: It is an error to call ncplane_destroy, ncplane_resize, or
+// ncplane_move on the standard plane.
 //
 impl Plane {
     // CONSTRUCTORS: aligned(), bound(), dup(), new() --------------------------
@@ -279,14 +287,14 @@ impl Plane {
     }
     */
 
-    /// Duplicates a plane
+    /// Duplicates a plane.
     pub fn dup(&self) -> Result<Self, Error> {
         Ok(Plane {
             data: unsafe { sys::ncplane_dup(self.data, null_mut()) },
         })
     }
 
-    /// Creates a new plane, bound to another plane
+    /// Creates a new plane, bound to another plane.
     pub fn new(bplane: &mut Plane, y: i32, x: i32, cols: u32, rows: u32) -> Result<Self, Error> {
         let options = PlaneOptions::new(y, x, cols, rows);
         Ok(Self {
@@ -294,7 +302,7 @@ impl Plane {
         })
     }
 
-    /// Creates a new plane (with flags), bound to another plane
+    /// Creates a new Plane bound to another Plane, expects flags.
     // NOTE unnecessary duplication?
     pub fn with_flags(
         bplane: &mut Plane,
@@ -327,12 +335,15 @@ impl Plane {
     }
     */
 
-    /// Returns a new Plane struct from an existing notcurses_ncplane struct
-    pub(crate) fn new_from(ncplane: *mut sys::NcPlane) -> Self {
+    // Returns a new Plane struct from an existing notcurses_ncplane struct.
+    pub(crate) fn from_ncplane(ncplane: *mut sys::NcPlane) -> Self {
         Plane { data: ncplane }
     }
 
-    // ----------------------------------------------------------^ CONSTRUCTORS
+}
+
+/// # Plane Methods
+impl Plane {
 
     // TODO
     ///
@@ -375,7 +386,7 @@ impl Plane {
     pub fn putstr(&mut self, text: &str) {
         //let ptext = CString::new(text).unwrap().as_ptr();
         unsafe {
-            sys::ncplane_putstr(&mut *self.data, text.as_bytes());
+            sys::ncplane_putstr(&mut *self.data, text);
         }
     }
     /// convenience wrappers over ncplane_putnstr

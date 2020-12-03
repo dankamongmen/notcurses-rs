@@ -50,7 +50,7 @@ use cstr_core::CString;
 
 use enumflags2::BitFlags;
 
-use crate::{sys, Align, Blitter, Error, NcChannels, NcRgb, Scale, Style};
+use crate::{sys, Align, Blitter, ChannelPair, Error, Rgb, Scale, Style};
 
 /// Direct Mode Options
 #[repr(u32)]
@@ -60,7 +60,7 @@ pub enum DirectModeOptions {
 
     /// Unless this flag is set, ncdirect_init will place the terminal into
     /// cbreak mode (i.e. disabling echo and line buffering; see tcgetattr
-    InhibitCbreak = sys::types::NCDIRECT_OPTION_INHIBIT_CBREAK as u32,
+    InhibitCbreak = sys::NCDIRECT_OPTION_INHIBIT_CBREAK as u32,
 
     /// Unless this flag is set, ncdirect_init will call setlocale(LC_ALL, NULL).
     ///
@@ -68,10 +68,10 @@ pub enum DirectModeOptions {
     /// stderr, and then call setlocale(LC_ALL, ""). This will attempt to set
     /// the locale based off the LANG environment variable. Your program then
     /// should call setlocale itself, usually as one of the first lines.
-    InhibitSetLocale = sys::types::NCDIRECT_OPTION_INHIBIT_SETLOCALE as u32,
+    InhibitSetLocale = sys::NCDIRECT_OPTION_INHIBIT_SETLOCALE as u32,
 }
 
-/// DirectMode Mode context
+/// Direct Mode context
 ///
 /// Can be used to manipulate the habitual output to the terminal
 ///
@@ -167,7 +167,7 @@ impl DirectMode {
 
     /// Set the background color
     ///
-    pub fn bg(&mut self, rgb: NcRgb) -> Result<(), Error> {
+    pub fn bg(&mut self, rgb: Rgb) -> Result<(), Error> {
         unsafe {
             if sys::ncdirect_bg_rgb(self.data, rgb) < 0 {
                 return Err(Error::Generic);
@@ -362,7 +362,7 @@ impl DirectMode {
 
     /// Set the foreground color
     ///
-    pub fn fg(&mut self, rgb: NcRgb) -> Result<(), Error> {
+    pub fn fg(&mut self, rgb: Rgb) -> Result<(), Error> {
         unsafe {
             if sys::ncdirect_fg_rgb(self.data, rgb) < 0 {
                 return Err(Error::Generic);
@@ -445,7 +445,7 @@ impl DirectMode {
 
     ///
     ///
-    pub fn print_colored(&mut self, channels: NcChannels, utf8: &str) -> Result<(), Error> {
+    pub fn print_colored(&mut self, channels: ChannelPair, utf8: &str) -> Result<(), Error> {
         unsafe {
             if sys::ncdirect_putstr(self.data, channels, CString::new(utf8).unwrap().as_ptr()) < 0 {
                 return Err(Error::Generic);
@@ -488,7 +488,7 @@ impl DirectMode {
     /// Turn off the indicated styles
     pub fn styles_off(&mut self, style: impl Into<BitFlags<Style>>) -> Result<(), Error> {
         unsafe {
-            if sys::ncdirect_styles_off(self.data, style.into().bits()) < 0 {
+            if sys::ncdirect_styles_off(self.data, style.into().bits() as u32) < 0 {
                 return Err(Error::Generic);
             }
         }
@@ -499,7 +499,7 @@ impl DirectMode {
     ///
     pub fn styles_off_all(&mut self) -> Result<(), Error> {
         unsafe {
-            if sys::ncdirect_styles_off(self.data, sys::NCSTYLE_MASK) < 0 {
+            if sys::ncdirect_styles_off(self.data, sys::NCSTYLE_MASK as u32) < 0 {
                 return Err(Error::Generic);
             }
         }
@@ -510,7 +510,7 @@ impl DirectMode {
     ///
     pub fn styles_on(&mut self, style: impl Into<BitFlags<Style>>) -> Result<(), Error> {
         unsafe {
-            if sys::ncdirect_styles_on(self.data, style.into().bits()) < 0 {
+            if sys::ncdirect_styles_on(self.data, style.into().bits() as u32) < 0 {
                 return Err(Error::Generic);
             }
         }
@@ -520,7 +520,7 @@ impl DirectMode {
     /// Turn on just the indicated styles, and off the rest
     pub fn styles_set(&mut self, style: impl Into<BitFlags<Style>>) -> Result<(), Error> {
         unsafe {
-            if sys::ncdirect_styles_set(self.data, style.into().bits()) < 0 {
+            if sys::ncdirect_styles_set(self.data, style.into().bits() as u32) < 0 {
                 return Err(Error::Generic);
             }
         }

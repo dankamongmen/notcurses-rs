@@ -18,16 +18,23 @@ pub mod sys {
 #[macro_use]
 extern crate strum_macros;
 
-mod directmode;
-mod error;
-mod fullmode;
-mod plane;
-mod types;
-mod visual;
+mod cell;
+pub use cell::Cell;
 
+mod directmode;
 pub use directmode::{DirectMode, DirectModeOptions};
+
+mod error;
 pub use error::Error;
+
+mod fullmode;
 pub use fullmode::{FullMode, FullModeFlag, FullModeOptions};
+
+mod plane;
 pub use plane::{Plane, PlaneOptions};
-pub use types::{Align, Blitter, LogLevel, NcChannels, NcRgb, Scale, Style};
+
+mod types;
+pub use types::{Align, Blitter, Channel, ChannelPair, Char, LogLevel, Rgb, Scale, Style};
+
+mod visual;
 pub use visual::{Visual, VisualOptions};

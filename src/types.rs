@@ -2,11 +2,6 @@ use enumflags2::BitFlags;
 
 use crate::sys;
 
-// Reexports
-//
-// TODO: wrap them up in new types
-pub use sys::{NcChannels, NcRgb};
-
 /// Alignment within a plane or terminal. Left/right-justified, or centered.
 ///
 /// [C sourcecode](https://nick-black.com/notcurses/html/notcurses_8h_source.html#l00063)
@@ -83,19 +78,25 @@ pub enum Scale {
 }
 
 /// Style Flags
-#[repr(u32)]
+#[repr(u16)]
 #[derive(BitFlags, EnumIter, Copy, Clone, Debug, PartialEq)]
 pub enum Style {
-    Blink = sys::NCSTYLE_BLINK as u32,
-    Bold = sys::NCSTYLE_BOLD as u32,
-    Dim = sys::NCSTYLE_DIM as u32,
-    Invis = sys::NCSTYLE_INVIS as u32,
-    Italic = sys::NCSTYLE_ITALIC as u32,
-    Protect = sys::NCSTYLE_PROTECT as u32,
-    Reverse = sys::NCSTYLE_REVERSE as u32,
-    Standout = sys::NCSTYLE_STANDOUT as u32,
-    Underline = sys::NCSTYLE_UNDERLINE as u32,
-    Struck = sys::NCSTYLE_STRUCK as u32,
-    // Mask = sys::NCSTYLE_MASK as u32, // 16 first bits set
-    // None = sys::NCSTYLE_NONE as u32, // Equals 0
+    Blink = sys::NCSTYLE_BLINK as u16,
+    Bold = sys::NCSTYLE_BOLD as u16,
+    Dim = sys::NCSTYLE_DIM as u16,
+    Invis = sys::NCSTYLE_INVIS as u16,
+    Italic = sys::NCSTYLE_ITALIC as u16,
+    Protect = sys::NCSTYLE_PROTECT as u16,
+    Reverse = sys::NCSTYLE_REVERSE as u16,
+    Standout = sys::NCSTYLE_STANDOUT as u16,
+    Underline = sys::NCSTYLE_UNDERLINE as u16,
+    Struck = sys::NCSTYLE_STRUCK as u16,
+    // Mask = sys::NCSTYLE_MASK as u16, // 16 first bits set
+    // None = sys::NCSTYLE_NONE as u16, // Equals 0
+    // NOTE: https://github.com/NieDzejkob/enumflags2/issues/29
 }
+
+pub type Char = sys::NcChar;
+pub type Channel = sys::NcChannel;
+pub type ChannelPair = sys::NcChannelPair;
+pub type Rgb = sys::NcRgb;
