@@ -307,9 +307,9 @@ impl Notcurses {
 
     /// Enables the cursor
     // TODO: TEST
-    pub fn cursor_enable(&mut self) {
+    pub fn cursor_enable(&mut self, i32 y, i32 x) {
         unsafe {
-            nc::notcurses_cursor_enable(self.data);
+            nc::notcurses_cursor_enable(self.data, y, x);
         }
     }
 

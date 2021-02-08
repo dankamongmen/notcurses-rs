@@ -21,7 +21,7 @@ include = ["src/", "LICENSE-*", "README.md"]
 
 [dependencies]
 # https://github.com/dankamongmen/notcurses/releases/tag/v1.7.5
-libnotcurses-sys = "^1.7.5"
+libnotcurses-sys = "^2.2.0"
 # libnotcurses-sys = {git="https://github.com/dankamongmen/notcurses"}
 # libnotcurses-sys = {path="../notcurses/rust/"}
 

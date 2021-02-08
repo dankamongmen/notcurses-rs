@@ -142,7 +142,7 @@ impl Direct {
         // TODO: ncdirect_init() returns NULL on failure. Otherwise, the return value points
         // to a valid struct ncdirect, which can be used until it is provided to ncdirect_stop().
         Ok(Direct {
-            data: unsafe { nc::ncdirect_init(null(), libc_stdout()) },
+            data: unsafe { nc::ncdirect_init(null(), libc_stdout(), 0) },
         })
     }
 
