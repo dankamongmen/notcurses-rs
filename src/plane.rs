@@ -351,12 +351,12 @@ impl Plane {
     pub fn destroy(&mut self) {}
 
     /// Returns the plane dimension x
-    pub fn dim_x(&self) -> i32 {
+    pub fn dim_x(&self) -> u32 {
         unsafe { sys::ncplane_dim_x(&*self.data) }
     }
 
     /// Returns the plane dimension y
-    pub fn dim_y(&self) -> i32 {
+    pub fn dim_y(&self) -> u32 {
         unsafe { sys::ncplane_dim_y(&*self.data) }
     }
 

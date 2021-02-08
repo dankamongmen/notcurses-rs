@@ -169,7 +169,7 @@ impl DirectMode {
     ///
     pub fn bg(&mut self, rgb: Rgb) -> Result<(), Error> {
         unsafe {
-            if sys::ncdirect_bg_rgb(self.data, rgb) < 0 {
+            if sys::ncdirect_set_bg_rgb(self.data, rgb) < 0 {
                 return Err(Error::Generic);
             }
         }
@@ -180,7 +180,7 @@ impl DirectMode {
     ///
     pub fn bg_default(&mut self) -> Result<(), Error> {
         unsafe {
-            if sys::ncdirect_bg_default(self.data) < 0 {
+            if sys::ncdirect_set_bg_default(self.data) < 0 {
                 return Err(Error::Generic);
             }
         }
@@ -364,7 +364,7 @@ impl DirectMode {
     ///
     pub fn fg(&mut self, rgb: Rgb) -> Result<(), Error> {
         unsafe {
-            if sys::ncdirect_fg_rgb(self.data, rgb) < 0 {
+            if sys::ncdirect_set_fg_rgb(self.data, rgb) < 0 {
                 return Err(Error::Generic);
             }
         }
@@ -375,7 +375,7 @@ impl DirectMode {
     ///
     pub fn fg_default(&mut self) -> Result<(), Error> {
         unsafe {
-            if sys::ncdirect_fg_default(self.data) < 0 {
+            if sys::ncdirect_set_fg_default(self.data) < 0 {
                 return Err(Error::Generic);
             }
         }
@@ -488,7 +488,7 @@ impl DirectMode {
     /// Turn off the indicated styles
     pub fn styles_off(&mut self, style: impl Into<BitFlags<Style>>) -> Result<(), Error> {
         unsafe {
-            if sys::ncdirect_styles_off(self.data, style.into().bits() as u32) < 0 {
+            if sys::ncdirect_off_styles(self.data, style.into().bits() as u32) < 0 {
                 return Err(Error::Generic);
             }
         }
@@ -499,7 +499,7 @@ impl DirectMode {
     ///
     pub fn styles_off_all(&mut self) -> Result<(), Error> {
         unsafe {
-            if sys::ncdirect_styles_off(self.data, sys::NCSTYLE_MASK as u32) < 0 {
+            if sys::ncdirect_off_styles(self.data, sys::NCSTYLE_MASK as u32) < 0 {
                 return Err(Error::Generic);
             }
         }
@@ -510,7 +510,7 @@ impl DirectMode {
     ///
     pub fn styles_on(&mut self, style: impl Into<BitFlags<Style>>) -> Result<(), Error> {
         unsafe {
-            if sys::ncdirect_styles_on(self.data, style.into().bits() as u32) < 0 {
+            if sys::ncdirect_on_styles(self.data, style.into().bits() as u32) < 0 {
                 return Err(Error::Generic);
             }
         }
@@ -520,7 +520,7 @@ impl DirectMode {
     /// Turn on just the indicated styles, and off the rest
     pub fn styles_set(&mut self, style: impl Into<BitFlags<Style>>) -> Result<(), Error> {
         unsafe {
-            if sys::ncdirect_styles_set(self.data, style.into().bits() as u32) < 0 {
+            if sys::ncdirect_set_styles(self.data, style.into().bits() as u32) < 0 {
                 return Err(Error::Generic);
             }
         }
