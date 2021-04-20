@@ -1,6 +1,6 @@
 [package]
 name = "notcurses"
-version = "2.0.0-alpha2"
+version = "2.0.0"
 authors = ["José Luis Cruz <joseluis@andamira.net>", "nick black <dankamongmen@gmail.com>"]
 license = "MIT OR Apache-2.0"
 readme = "README.md"
@@ -19,19 +19,5 @@ keywords = ["tui", "cli", "terminal", "ncurses"]
 include = ["src/", "LICENSE-*", "README.md"]
 
 [dependencies]
-# libnotcurses-sys = "2.2.8"
-libnotcurses-sys = { path="../notcurses/rust/" }
-
-# libc = "^0.2.66"
-
-# thiserror = "^1.0.20"
-# strum = "^0.20"
-# strum_macros = "^0.20"
-# enumflags2 = "0.7.0-preview1"
-# cstr_core = "0.2.2"
-
-[dev-dependencies]
-# rand = "0.7.3" # TODO delete
-# nanorand = "0.4.4"
-# unicode-normalization = "0.1.13"
-# unicode-segmentation = "1.6.0"
+libnotcurses-sys = "2"
+# libnotcurses-sys = { path="../notcurses/rust/" }
