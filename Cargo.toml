@@ -1,10 +1,10 @@
 [package]
 name = "notcurses"
-version = "2.0.0-alpha.1"
+version = "2.0.0-alpha2"
 authors = ["José Luis Cruz <joseluis@andamira.net>", "nick black <dankamongmen@gmail.com>"]
 license = "MIT OR Apache-2.0"
 readme = "README.md"
-description = "A safe and ergonomic wrapper for the notcurses C library"
+description = "A higher level wrapper for the notcurses C library"
 repository = "https://github.com/dankamongmen/notcurses-rs"
 homepage = "https://nick-black.com/dankwiki/index.php/Notcurses"
 edition = "2018"
@@ -18,23 +18,20 @@ categories = [
 keywords = ["tui", "cli", "terminal", "ncurses"]
 include = ["src/", "LICENSE-*", "README.md"]
 
-
 [dependencies]
-# https://github.com/dankamongmen/notcurses/releases/tag/v2.0.7
-# libnotcurses-sys = "2.0.7"
-# libnotcurses-sys = {git="https://github.com/dankamongmen/notcurses"}
-libnotcurses-sys = {path="../notcurses/rust/"}
+# libnotcurses-sys = "2.2.8"
+libnotcurses-sys = { path="../notcurses/rust/" }
 
-libc = "^0.2.66"
+# libc = "^0.2.66"
 
-thiserror = "^1.0.20"
-strum = "^0.19"
-strum_macros = "^0.19"
-enumflags2 = "0.7.0-preview1"
-cstr_core = "0.2.2"
-
+# thiserror = "^1.0.20"
+# strum = "^0.20"
+# strum_macros = "^0.20"
+# enumflags2 = "0.7.0-preview1"
+# cstr_core = "0.2.2"
 
 [dev-dependencies]
-rand = "0.7.3"
-#unicode-normalization = "0.1.13"
-#unicode-segmentation = "1.6.0"
+# rand = "0.7.3" # TODO delete
+# nanorand = "0.4.4"
+# unicode-normalization = "0.1.13"
+# unicode-segmentation = "1.6.0"
