@@ -3,11 +3,12 @@
 use notcurses::sys::*;
 
 fn main() -> NcResult<()> {
-    let _nc = Nc::new();
+    let nc = Notcurses::new()?;
 
     println!("hello world");
 
     sleep![1];
 
+    nc.stop()?;
     Ok(())
 }
