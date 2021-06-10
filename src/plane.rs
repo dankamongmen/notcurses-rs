@@ -10,17 +10,9 @@ use crate::{
     Dimension, Error, Nc, Offset, Result, Style,
 };
 
-// TODO:DESIGN:
-// - create new plane, root of a new pile
-// - create a new plane attach to an existing pile
-//
-// CONSIDER:
-// - what happens with Visual? can a pile consist of both?
-//   - see: NcVisual::from_plane
-// - use options? use builder pattern?
-//
-
-/// The fundamental drawing surface.
+/// A plane is the fundamental drawing surface.
+///
+/// A wrapper around [`NcPlane`].
 pub struct Plane<'a> {
     pub(crate) raw: &'a mut NcPlane,
 }
@@ -48,11 +40,7 @@ impl<'a> Plane<'a> {
 
     /// Returns a [`PlaneBuilder`] used to customize a new `Plane`.
     pub fn build() -> PlaneBuilder {
-        PlaneBuilder {
-            rows: 1,
-            cols: 1,
-            ..Default::default()
-        }
+        PlaneBuilder::default()
     }
 
     /// Creates a `Plane` from an existing [`NcPlane`].
@@ -64,10 +52,6 @@ impl<'a> Plane<'a> {
     pub fn as_ncplane(&'a mut self) -> &'a mut NcPlane {
         self.raw
     }
-
-    // /// Creates a new Plane, in a new pile, having the same dimensions of the
-    // /// terminal.
-    // pub fn with_termsize() -> Self {}
 }
 
 /// # Methods
@@ -109,7 +93,6 @@ impl<'a> Plane<'a> {
 }
 
 /// A [`Plane`] builder.
-#[derive(Default)]
 pub struct PlaneBuilder {
     y: Offset,
     x: Offset,
@@ -119,11 +102,25 @@ pub struct PlaneBuilder {
     flags: u64,
     margin_b: Offset,
     margin_r: Offset,
-    /// A flag to indicate if the plane is horizontally aligned
-    is_horizontally_aligned: bool, // TBD
-    /// A flag to indicate whether the plane is bounded to another plane,
-    /// or will be the pile of it's
-    is_bounded: bool, // TBD
+    // /// A flag to indicate if the plane is horizontally aligned
+    // is_horizontally_aligned: bool, // TBD
+    // /// A flag to indicate whether the plane is bounded to another plane,
+    // /// or will be the pile of it's
+    // is_bounded: bool, // TBD
+}
+
+impl Default for PlaneBuilder {
+    fn default() -> Self {
+        Self {
+            rows: 1,
+            cols: 1,
+            x: 0,
+            y: 0,
+            flags: 0,
+            margin_b: 0,
+            margin_r: 0,
+        }
+    }
 }
 
 impl PlaneBuilder {

@@ -1,8 +1,6 @@
 //!
 //!
 
-#![allow(unused_imports, unused_variables, unused_mut)]
-
 use notcurses::sys::{NcChannelPairMethods}; // TEMP
 use notcurses::*;
 
