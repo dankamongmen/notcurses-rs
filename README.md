@@ -20,3 +20,22 @@ Currently the libnotcurses-sys API is being re-exported under the `sys` module.
 
 [1]:https://github.com/dankamongmen/notcurses
 [2]:https://crates.io/crates/libnotcurses-sys
+
+
+## differences with the notcurses C API
+
+This crate depends on libnotcurses-sys which wraps the C API very closely, but
+it itself offers a different approach to its public API.
+
+If you come from the C API, these are the main differences:
+
+- The concept of standard plane dissapears, and you only use Planes, which
+  internally are piles of planes.
+- You can use the builder pattern to construct types like `Plane`.
+- The types used for flags, like `Style`, are created with the bitflags macro.
+
+
+## Planes & Piles
+
+The Piles are made of planes in a list. The first of the list is called the root.
+They are rendered in order.

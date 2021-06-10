@@ -3,10 +3,10 @@ name = "notcurses"
 version = "2.0.0"
 authors = ["José Luis Cruz <joseluis@andamira.net>", "nick black <dankamongmen@gmail.com>"]
 license = "MIT OR Apache-2.0"
-readme = "README.md"
 description = "A higher level wrapper for the notcurses C library"
 repository = "https://github.com/dankamongmen/notcurses-rs"
 homepage = "https://nick-black.com/dankwiki/index.php/Notcurses"
+readme = "./README.md"
 edition = "2018"
 categories = [
 	"api-bindings",
@@ -19,5 +19,7 @@ keywords = ["tui", "cli", "terminal", "ncurses"]
 include = ["src/", "LICENSE-*", "README.md"]
 
 [dependencies]
-libnotcurses-sys = "2"
-# libnotcurses-sys = { path="../notcurses/rust/" }
+# libnotcurses-sys = "3"
+libnotcurses-sys = { path="_deps/notcurses/rust/" }
+
+bitflags = "1.2.1"

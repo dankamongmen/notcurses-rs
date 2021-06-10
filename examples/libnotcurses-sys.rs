@@ -1,4 +1,5 @@
-//!
+//! An example that demonstrates how you can use the
+//! libnotcurses-sys library directly.
 
 use notcurses::sys::*;
 

@@ -5,6 +5,9 @@ b = "build"
 br = "build --release"
 bq = "build --quiet"
 
+# CHECK
+cl = "clippy"
+
 # RUN
 r = "run"
 rr = "run --release"
@@ -14,8 +17,10 @@ rqe = "run --quiet --example"
 req = "rqe"
 
 # DOC
-d = "doc --no-deps"
-do = "doc --no-deps --open"
+d = "doc"
+do = "doc --open"
+# d = "doc --no-deps"
+# do = "doc --no-deps --open"
 
 # TEST
 # fix IO errors: https://github.com/dankamongmen/notcurses/issues/766
