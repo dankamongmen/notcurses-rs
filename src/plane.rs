@@ -2,7 +2,6 @@
 //!
 //!
 //!
-#![allow(dead_code)]
 
 use crate::{
     ncresult,
@@ -13,13 +12,13 @@ use crate::{
 /// A plane is the fundamental drawing surface.
 ///
 /// A wrapper around [`NcPlane`].
+#[derive(Debug)]
 pub struct Plane<'a> {
     pub(crate) raw: &'a mut NcPlane,
 }
 
 impl<'a> AsMut<NcPlane> for Plane<'a> {
     fn as_mut(&mut self) -> &mut NcPlane {
-        //self.raw.get_mut()
         self.raw
     }
 }
@@ -29,15 +28,12 @@ impl<'a> Drop for Plane<'a> {
     ///
     /// None of its contents will be visible after the next render call.
     fn drop(&mut self) {
-        // let _ = self.raw.get_mut().destroy();
         let _ = self.raw.destroy();
     }
 }
 
 /// # Constructors and translators
 impl<'a> Plane<'a> {
-    // # Constructors
-
     /// Returns a [`PlaneBuilder`] used to customize a new `Plane`.
     pub fn build() -> PlaneBuilder {
         PlaneBuilder::default()
@@ -56,8 +52,14 @@ impl<'a> Plane<'a> {
 
 /// # Methods
 impl<'a> Plane<'a> {
-    pub fn move_rel(&mut self, rows: Offset, cols: Offset) -> Result<()> {
+    /// Moves the plane relatively the provided `cols` & `rows`.
+    pub fn move_rel(&mut self, cols: Offset, rows: Offset) -> Result<()> {
         ncresult![self.raw.move_rel(rows, cols)]
+    }
+
+    /// Moves the plane to the absolute coordinates `x`, `y`.
+    pub fn move_abs(&mut self, x: Offset, y: Offset) -> Result<()> {
+        ncresult![self.raw.move_yx(y, x)]
     }
 
     /// Sets the base cell from its components.
@@ -94,8 +96,8 @@ impl<'a> Plane<'a> {
 
 /// A [`Plane`] builder.
 pub struct PlaneBuilder {
-    y: Offset,
     x: Offset,
+    y: Offset,
     rows: Dimension,
     cols: Dimension,
     // resizecb: Option<NcResizeCb>, // FUTURE
@@ -136,6 +138,13 @@ impl PlaneBuilder {
         self
     }
 
+    /// Sets the number of columns and rows (>= 1).
+    pub fn cols_rows(mut self, cols: Dimension, rows: Dimension) -> Self {
+        self.cols = cols;
+        self.rows = rows;
+        self
+    }
+
     /// Sets the vertical placement relative to the parent plane.
     pub fn y(mut self, y: Offset) -> Self {
         self.y = y;
@@ -145,6 +154,13 @@ impl PlaneBuilder {
     /// Sets the horizontal positioning of the Plane being built.
     pub fn x(mut self, x: Offset) -> Self {
         self.x = x;
+        self
+    }
+
+    /// Sets the horizontal and vertical positioning of the Plane being built.
+    pub fn xy(mut self, x: Offset, y: Offset) -> Self {
+        self.x = x;
+        self.y = y;
         self
     }
 
@@ -167,8 +183,8 @@ impl PlaneBuilder {
     }
 
     /// Sets the rows and columns to match the terminal size.
-    pub fn termsize(mut self, nc: &Nc) -> Self {
-        let (rows, cols) = nc.termsize();
+    pub fn term_size(mut self, nc: &Nc) -> Self {
+        let (rows, cols) = nc.term_size();
         self.rows = rows;
         self.cols = cols;
         self
@@ -181,8 +197,8 @@ impl PlaneBuilder {
     // TODO: horizontal alignment
     pub fn new_pile<'a>(self, nc: &mut Nc<'a>) -> Result<Plane<'a>> {
         let options = NcPlaneOptions::with_flags(
-            self.y,
             self.x,
+            self.y,
             self.rows,
             self.cols,
             None,       // TODO resizecb
@@ -200,8 +216,8 @@ impl PlaneBuilder {
     // TODO: horizontal alignment
     pub fn in_pile<'a>(self, plane: &mut Plane<'a>) -> Result<Plane<'a>> {
         let options = NcPlaneOptions::with_flags(
-            self.y,
             self.x,
+            self.y,
             self.rows,
             self.cols,
             None,       // TODO resizecb

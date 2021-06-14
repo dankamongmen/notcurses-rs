@@ -18,5 +18,4 @@ impl<'a> Drop for NcD<'a> {
 }
 
 /// # Constructors
-impl<'a> NcD<'a> {
-}
+impl<'a> NcD<'a> {}

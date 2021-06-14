@@ -16,7 +16,7 @@ fn main() -> Result<()> {
     rs![&mut p1, 0, 500];
 
     for _ in 0..10 {
-        p2.move_rel(1, 2)?;
+        p2.move_rel(1, 3)?;
         rs![&mut p1, 0, 50];
     }
     s![2];

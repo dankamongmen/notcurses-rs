@@ -29,12 +29,21 @@ pub use direct::NcD;
 pub use error::{Error, Result};
 pub use macros::*;
 pub use plane::{Plane, PlaneBuilder};
-pub use visual::Visual;
+pub use visual::{Blitter, Scale, Visual, VisualBuilder};
 
 // TODO: move to the appropriate modules:
 
 #[macro_use]
 extern crate bitflags;
+
+bitflags! {
+    pub struct Align: u32 {
+        const NCALIGN_LEFT = sys::NCALIGN_LEFT;
+        const NCALIGN_RIGHT = sys::NCALIGN_RIGHT;
+        const NCALIGN_CENTER = sys::NCALIGN_CENTER;
+        const NCALIGN_UNALIGNED = sys::NCALIGN_UNALIGNED;
+    }
+}
 
 bitflags! {
     pub struct Style: u16 {

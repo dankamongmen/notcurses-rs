@@ -16,10 +16,13 @@ categories = [
 	"rendering",
 	]
 keywords = ["tui", "cli", "terminal", "ncurses"]
-include = ["src/", "LICENSE-*", "README.md"]
+include = ["src/", "LICENSE-*", "README.md", "examples/"]
 
 [dependencies]
 # libnotcurses-sys = "3"
 libnotcurses-sys = { path="_deps/notcurses/rust/" }
 
 bitflags = "1.2.1"
+
+[dev-dependencies]
+rand = "0.8.3"
