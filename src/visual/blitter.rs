@@ -3,7 +3,7 @@
 use crate::sys;
 
 bitflags! {
-    /// Which blitter mode to use for rasterizing a [`Visual`].
+    /// Which blitter mode to use for rasterizing a [`Visual`][crate::Visual].
     ///
     /// There is a default mechanism of graceful degradation, that works as follows:
     /// - without braille support, BRAILLE decays to SEXTANT.

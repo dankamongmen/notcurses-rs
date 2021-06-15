@@ -25,11 +25,11 @@ mod plane;
 mod visual;
 
 // pub use self::notcurses::NcD;
+pub use self::notcurses::Nc;
 pub use capabilities::Capabilities;
 pub use direct::NcD;
 pub use error::{Error, Result};
 pub use macros::*;
-pub use self::notcurses::Nc;
 pub use plane::{Plane, PlaneBuilder};
 pub use visual::{Blitter, Scale, Visual, VisualBuilder};
 

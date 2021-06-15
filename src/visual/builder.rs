@@ -42,7 +42,8 @@ impl<'a, 'b> VisualBuilder<'a, 'b> {
 
     /// Prepares a `Visual` based off BGRA content in memory at `bgra`.
     ///
-    /// This is slower than [`from_rgba`][VisualBuilder#method.rgba].
+    /// This is slower than [`from_rgba`][VisualBuilder#method.rgba], since it
+    /// has to convert the pixels to the rgba format used internally.
     #[allow(clippy::wrong_self_convention)]
     pub fn from_bgra(mut self, bgra: &[u8], cols: Dimension, rows: Dimension) -> Result<Self> {
         self.ncvisual = Some(NcVisual::from_bgra(bgra, rows, cols * 4, cols)?);
@@ -54,7 +55,7 @@ impl<'a, 'b> VisualBuilder<'a, 'b> {
     ///
     /// You need to manually specify the x and y dimensions.
     ///
-    /// Needs notcurses compiled with multimedia capabilities.
+    /// It needs notcurses to be compiled with multimedia capabilities.
     #[allow(clippy::wrong_self_convention)]
     pub fn from_file(mut self, file: &str) -> Result<Self> {
         self.ncvisual = Some(NcVisual::from_file(file)?);

@@ -9,7 +9,7 @@ use crate::{
     Dimension, Error, Nc, Offset, Result, Style,
 };
 
-/// A plane is the fundamental drawing surface.
+/// The fundamental drawing surface.
 ///
 /// A wrapper around [`NcPlane`].
 #[derive(Debug)]

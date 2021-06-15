@@ -27,14 +27,11 @@ pub use scale::Scale;
 
 /// A virtual pixel framebuffer.
 ///
-/// A `Visual` wraps an [`NcVisual`] and [`NcVisualOptions`], since the options
-/// are only used by the [`geom`][Visual#method.geom],
+/// Internally, a `Visual` wraps an [`NcVisual`] and [`NcVisualOptions`], because
+/// the options are only used by the [`geom`][Visual#method.geom],
 /// [`render`][Visual#method.render] and
-/// [`simple_streamer`][Visual#simple_streamer] methods,
-/// and not for the creation of the `Visual` itself, like happens with `Plane`.
-///
-/// In order to enjoy a simpler API, with the builder pattern, the options are
-/// configured the first time while creating the `Visual` with [`VisualBuilder`],
+/// [`simple_streamer`][Visual#simple_streamer] methods, and not for the
+/// creation of the `Visual` itself.
 #[derive(Debug)]
 pub struct Visual<'a> {
     pub(crate) raw: &'a mut NcVisual,
@@ -66,7 +63,7 @@ impl<'a, 'b> Visual<'a> {
     //     }
     // }
 
-    /// Returns a mutable reference to the inner [`NcPlane`][sys::NcPlane].
+    /// Returns a mutable reference to the inner `NcVisual`.
     pub fn as_ncvisual(&'a mut self) -> &'a mut NcVisual {
         self.raw
     }

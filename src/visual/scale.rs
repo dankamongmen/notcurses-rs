@@ -3,7 +3,7 @@
 use crate::sys;
 
 bitflags! {
-    /// How to scale a [`Visual`] during rendering.
+    /// How to scale a [`Visual`][crate::Visual] during rendering.
     ///
     /// See also: [sys::NcScale].
     pub struct Scale: u32 {
