@@ -85,17 +85,32 @@ impl<'a, 'b> Visual<'a> {
         let _ = NcVisual::render(self.raw, nc.raw, &self.options)?;
         Ok(())
     }
+}
 
-    // POST-BUILDER METHODS
+/// # Post-Builder Configuration Methods
+///
+/// These methods allows to re-configure a `Visual` after it has been built
+/// via [`VisualBuilder`].
+impl<'a, 'b> Visual<'a> {
 
-    /// Sets whether the scaling should be done with interpolation or not.
-    ///
-    /// The default is to interpolate.
+    /// Sets the `Visual` based off RGBA content in memory at `rgba`.
     pub fn set_from_rgba(&mut self, rgba: &[u8], cols: Dimension, rows: Dimension) -> Result<()> {
         self.raw = NcVisual::from_rgba(rgba, rows, cols * 4, cols)?;
         Ok(())
     }
 
+    /// Sets the `Visual` based off BGRA content in memory at `bgra`.
+    pub fn set_from_bgra(&mut self, bgra: &[u8], cols: Dimension, rows: Dimension) -> Result<()> {
+        self.raw = NcVisual::from_bgra(bgra, rows, cols * 4, cols)?;
+        Ok(())
+    }
+
+    /// Sets the `Visual` from a `file`, extracts the codec and paramenters
+    /// and decodes the first image to memory.
+    pub fn set_from_file(&mut self, file: &str) -> Result<()> {
+        self.raw = NcVisual::from_file(file)?;
+        Ok(())
+    }
     /// Sets the blitter
     pub fn set_blitter(&mut self, blitter: Blitter) {
         self.options.blitter = blitter.bits();

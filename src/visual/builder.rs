@@ -53,8 +53,6 @@ impl<'a, 'b> VisualBuilder<'a, 'b> {
     /// Prepares a `Visual` from a `file`, extracts the codec and paramenters
     /// and decodes the first image to memory.
     ///
-    /// You need to manually specify the x and y dimensions.
-    ///
     /// It needs notcurses to be compiled with multimedia capabilities.
     #[allow(clippy::wrong_self_convention)]
     pub fn from_file(mut self, file: &str) -> Result<Self> {

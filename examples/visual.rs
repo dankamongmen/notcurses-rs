@@ -11,7 +11,7 @@ fn main() -> Result<()> {
     let mut nc = Nc::new()?;
 
     println!("terminal detected: {}", nc.term_name());
-    sleep![0, 500];
+    sleep![1];
 
     let mut buffer = Vec::<u8>::with_capacity((W * H * 4) as usize);
     fill_buffer_rand(&mut buffer);
@@ -24,15 +24,30 @@ fn main() -> Result<()> {
         .into_plane(&mut root_plane, Scale::SCALE)?;
     visual.render(&mut nc)?;
     root_plane.render_raster()?;
-    sleep![1];
+    sleep![0, 500];
 
-    for _ in 0..50 {
-        refill_buffer_rand(&mut buffer);
-        visual.set_from_rgba(&buffer, W, H)?;
-        visual.render(&mut nc)?;
-        root_plane.render_raster()?;
-        sleep![0, 25];
+    let mut rng_house = rand::thread_rng();
+    for n in 0..50 {
+        if n % 10 == 9 {
+            let random_house = rng_house.gen_range(0..=2);
+            match random_house {
+                0 => visual.set_from_file(&path("examples/img/house0.png"))?,
+                1 => visual.set_from_file(&path("examples/img/house1.png"))?,
+                2|_ => visual.set_from_file(&path("examples/img/house2.png"))?,
+            }
+
+            visual.render(&mut nc)?;
+            root_plane.render_raster()?;
+            sleep![0, 200];
+        } else {
+            refill_buffer_rand(&mut buffer);
+            visual.set_from_rgba(&buffer, W, H)?;
+            visual.render(&mut nc)?;
+            root_plane.render_raster()?;
+            sleep![0, 25];
+        }
     }
+    sleep![1];
     Ok(())
 }
 
@@ -58,4 +73,10 @@ fn refill_buffer_rand(buffer: &mut Vec<u8>) {
         chunk[2] = rng.sample(&range);
         chunk[3] = 255;
     }
+}
+
+fn path(relative: &str) -> String {
+    let mut path = project_root::get_project_root().unwrap();
+    path.push(relative);
+    path.to_str().unwrap().to_owned()
 }
