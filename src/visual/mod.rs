@@ -3,10 +3,18 @@
 
 #![allow(dead_code)]
 
-// TODO: NcRgba, NcVGeom...
-// TODO: allow changing the inner options after, with a safe interface
+// TODO
+// - NcRgba, NcVGeom...
+// - allow changing the inner options after, with a safe interface
+// - add alpha_color NCVISUAL_OPTION_ADDALPHA
+// - add halign & valign
+// - add blend NCVISUAL_OPTION_BLEND
+// - add nodegrade NCVISUAL_OPTION_NODEGRADE
+//
+// MAYBE
+// - offer the alternative of using a VisualOptions structure. (old: visual3)
 
-use crate::sys::{NcPlane, NcVisual, NcVisualOptions};
+use crate::sys::{self, NcVisual, NcVisualOptions};
 use crate::{ncresult, Dimension, Nc, Result};
 
 mod blitter;
@@ -73,8 +81,37 @@ impl<'a, 'b> Visual<'a> {
         ncresult![NcVisual::resize_noninterpolative(self.raw, y, x)]
     }
 
-    /// Renders the decoded frame to the configured [`Plane`].
-    pub fn render(&mut self, nc: &mut Nc) -> Result<&mut NcPlane> {
-        Ok(NcVisual::render(self.raw, nc.raw, &self.options)?)
+    /// Renders the decoded frame to the configured [`Plane`][crate::Plane].
+    //
+    // Here render doesn't return the plane.
+    pub fn render(&mut self, nc: &mut Nc) -> Result<()> {
+        let _ = NcVisual::render(self.raw, nc.raw, &self.options)?;
+        Ok(())
+    }
+
+    // POST-BUILDER METHODS
+
+    /// Sets whether the scaling should be done with interpolation or not.
+    ///
+    /// The default is to interpolate.
+    pub fn set_from_rgba(&mut self, rgba: &[u8], cols: Dimension, rows: Dimension) -> Result<()> {
+        self.raw = NcVisual::from_rgba(rgba, rows, cols * 4, cols)?;
+        Ok(())
+    }
+
+    /// Sets the blitter
+    pub fn set_blitter(&mut self, blitter: Blitter) {
+        self.options.blitter = blitter.bits();
+    }
+
+    /// Sets whether the scaling should be done with interpolation or not.
+    ///
+    /// The default is to interpolate.
+    pub fn set_interpolate(&mut self, interpolate: bool) {
+        if interpolate {
+            self.options.flags &= !sys::NCVISUAL_OPTION_NOINTERPOLATE as u64;
+        } else {
+            self.options.flags |= sys::NCVISUAL_OPTION_NOINTERPOLATE as u64;
+        }
     }
 }

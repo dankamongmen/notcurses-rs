@@ -1,7 +1,8 @@
+//! Shows how you can manipulate [`Plane`]s.
 //!
-//!
+//! WIP
 
-use notcurses::sys::{NcChannelPairMethods}; // TEMP
+use notcurses::sys::NcChannelPairMethods; // TEMP
 use notcurses::*;
 
 fn main() -> Result<()> {
@@ -11,8 +12,17 @@ fn main() -> Result<()> {
     p1.set_base("X", Style::BOLD | Style::ITALIC, 0)?;
     rs![&mut p1, 0, 500];
 
-    let mut p2 = Plane::build().rows(10).cols(10).y(2).x(3).in_pile(&mut p1)?;
-    p2.set_base("·", Style::REVERSE, sys::NcChannelPair::with_rgb(0xaadd2b, 0x882222))?;
+    let mut p2 = Plane::build()
+        .rows(10)
+        .cols(10)
+        .y(2)
+        .x(3)
+        .in_pile(&mut p1)?;
+    p2.set_base(
+        "·",
+        Style::REVERSE,
+        sys::NcChannelPair::with_rgb(0xaadd2b, 0x882222),
+    )?;
     rs![&mut p1, 0, 500];
 
     for _ in 0..10 {

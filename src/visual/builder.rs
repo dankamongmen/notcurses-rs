@@ -1,5 +1,9 @@
 //!
 
+// TODO:
+// - separate the Scale from the VisualBuilder _plane finishers?
+// - add matching set_ methods to Visual
+
 use crate::sys::{self, NcPlane, NcVisual, NcVisualOptions};
 use crate::{Align, Blitter, Dimension, Error, Plane, Result, Scale, Visual};
 
@@ -30,8 +34,6 @@ pub struct VisualBuilder<'a, 'b> {
 
 impl<'a, 'b> VisualBuilder<'a, 'b> {
     /// Prepares a `Visual` based off RGBA content in memory at `rgba`.
-    //
-    // MAYBE: create another function that allows to specify the rowstride?
     #[allow(clippy::wrong_self_convention)]
     pub fn from_rgba(mut self, rgba: &[u8], cols: Dimension, rows: Dimension) -> Result<Self> {
         self.ncvisual = Some(NcVisual::from_rgba(rgba, rows, cols * 4, cols)?);
@@ -172,39 +174,50 @@ impl<'a, 'b> VisualBuilder<'a, 'b> {
         self
     }
 
+    /// Sets the blitter
     pub fn blitter(mut self, blitter: Blitter) -> Self {
         self.blitter = blitter;
         self
     }
 
-    // BUILD FINISHERS
-
-    // TODO WIP
-    /// Finishes the build returning a `Visual` configured to be rendered in a
-    /// new [`Plane`], on the same pile as the one provided.
-    //
-    // CHECK: do we need the Scale?  https://github.com/dankamongmen/notcurses/pull/1626
-    //
-    pub fn into_pile(mut self, plane: &mut Plane<'b>, scale: Scale) -> Result<Visual<'a>> {
-        if self.ncvisual.is_some() {
-            self.scale = Some(scale);
-            // self.scale = None;
-            self.flags |= sys::NCVISUAL_OPTION_CHILDPLANE;
-            Ok(Visual {
-                options: self.assemble_options_with_plane(plane.raw),
-                raw: self.ncvisual.unwrap(),
-            })
+    /// Sets whether the scaling should be done with interpolation or not.
+    ///
+    /// The default is to interpolate.
+    pub fn interpolate(mut self, interpolate: bool) -> Self {
+        if interpolate {
+            self.flags &= !sys::NCVISUAL_OPTION_NOINTERPOLATE;
         } else {
-            Err(Error::BuildIncomplete(
-                "It's necessary to prepare the Visual
-                first by calling one of the `from_*` methods."
-                    .into(),
-            ))
+            self.flags |= sys::NCVISUAL_OPTION_NOINTERPOLATE;
         }
+        self
     }
 
-    /// Finishes the build returning a `Visual` configured to be rendered in the
-    /// provided [`Plane`], using the provided [`Scale`] mode for it.
+    // BUILD FINISHERS
+
+    // NOTE This is not implemented, to avoid unnecessary complexity, including
+    // making sure that render() only returns the plane if it's a new child.
+    //
+    // /// Finishes the build returning a `Visual` configured to be rendered
+    // /// in a child [`Plane`] of the one provided.
+    // pub fn into_plane_child(mut self, plane: &mut Plane<'b>, scale: Scale) -> Result<Visual<'a>> {
+    //     if self.ncvisual.is_some() {
+    //         self.scale = Some(scale);
+    //         self.flags |= sys::NCVISUAL_OPTION_CHILDPLANE;
+    //         Ok(Visual {
+    //             options: self.assemble_options_with_plane(plane.raw),
+    //             raw: self.ncvisual.unwrap(),
+    //         })
+    //     } else {
+    //         Err(Error::BuildIncomplete(
+    //             "It's necessary to prepare the Visual
+    //             first by calling one of the `from_*` methods."
+    //                 .into(),
+    //         ))
+    //     }
+    // }
+
+    /// Finishes the build returning a `Visual` configured to be rendered
+    /// in the provided [`Plane`], with the provided [`Scale`].
     pub fn into_plane(mut self, plane: &mut Plane<'b>, scale: Scale) -> Result<Visual<'a>> {
         if self.ncvisual.is_some() {
             self.scale = Some(scale);
@@ -279,7 +292,7 @@ impl<'a, 'b> VisualBuilder<'a, 'b> {
         )
     }
 
-    // TODO
+    // MAYBE
     // /// Fills the relevant `VisualBuilder` fields from an `NcVisualOptions`.
     // fn disassemble_options(&mut self, &NcVisualOptions) {
     // }
