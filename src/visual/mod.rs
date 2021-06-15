@@ -15,7 +15,7 @@
 // - offer the alternative of using a VisualOptions structure. (old: visual3)
 
 use crate::sys::{self, NcVisual, NcVisualOptions};
-use crate::{ncresult, Dimension, Nc, Result};
+use crate::{ncresult, Dimension, Notcurses, Result};
 
 mod blitter;
 mod builder;
@@ -77,7 +77,7 @@ impl<'a, 'b> Visual<'a> {
     /// Renders the decoded frame to the configured [`Plane`][crate::Plane].
     //
     // Here render doesn't return the plane.
-    pub fn render(&mut self, nc: &mut Nc) -> Result<()> {
+    pub fn render(&mut self, nc: &mut Notcurses) -> Result<()> {
         let _ = NcVisual::render(self.raw, nc.raw, &self.options)?;
         Ok(())
     }

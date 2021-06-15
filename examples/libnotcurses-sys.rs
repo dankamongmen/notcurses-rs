@@ -3,7 +3,7 @@
 use notcurses::sys::*;
 
 fn main() -> NcResult<()> {
-    let nc = Notcurses::new()?;
+    let nc = Nc::new()?;
 
     println!("hello world");
 

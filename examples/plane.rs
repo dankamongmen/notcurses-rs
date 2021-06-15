@@ -4,7 +4,7 @@ use notcurses::sys::NcChannelPairMethods; // TEMP
 use notcurses::*;
 
 fn main() -> Result<()> {
-    let mut nc = Nc::new()?;
+    let mut nc = Notcurses::new()?;
 
     let mut p1 = Plane::build().rows(20).cols(40).new_pile(&mut nc)?;
     p1.set_base("X", Style::BOLD | Style::ITALIC, 0)?;

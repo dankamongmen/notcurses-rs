@@ -6,7 +6,7 @@
 use crate::{
     ncresult,
     sys::{NcChannelPair, NcPlane, NcPlaneOptions},
-    Dimension, Error, Nc, Offset, Result, Style,
+    Dimension, Error, Notcurses, Offset, Result, Style,
 };
 
 /// The fundamental drawing surface.
@@ -184,7 +184,7 @@ impl PlaneBuilder {
     }
 
     /// Sets the rows and columns to match the terminal size.
-    pub fn term_size(mut self, nc: &Nc) -> Self {
+    pub fn term_size(mut self, nc: &Notcurses) -> Self {
         let (rows, cols) = nc.term_size();
         self.rows = rows;
         self.cols = cols;
@@ -193,10 +193,11 @@ impl PlaneBuilder {
 
     // BUILD FINISHERS
 
-    /// Finishes and returns the new [`Plane`] over the provided [`Nc`] context.
+    /// Finishes and returns the new [`Plane`] over the provided [`Notcurses`]
+    /// context.
     //
     // TODO: horizontal alignment
-    pub fn new_pile<'a>(self, nc: &mut Nc<'a>) -> Result<Plane<'a>> {
+    pub fn new_pile<'a>(self, nc: &mut Notcurses<'a>) -> Result<Plane<'a>> {
         let options = NcPlaneOptions::with_flags(
             self.x,
             self.y,

@@ -4,13 +4,15 @@
 // - direct mode capabilities
 //   waiting for https://github.com/dankamongmen/notcurses/issues/1768
 
-use crate::Nc;
+use crate::Notcurses;
 
 /// The current terminal capabilities.
 ///
-/// It is created by [`Nc.term_capabilities`][crate::Nc#method.term_capabilities]
+/// It is created by
+/// [`Notcurses.term_capabilities`][crate::Notcurses#method.term_capabilities]
 ///
-// and [`NcD.capabilities`][crate::NcD#method.capabilities].
+// and
+// [`NotcursesDirect.capabilities`][crate::NotcursesDirect#method.capabilities].
 pub struct Capabilities {
     pub(crate) halfblock: bool,
     pub(crate) quadrant: bool,
@@ -28,7 +30,7 @@ pub struct Capabilities {
 
 impl Capabilities {
     /// New `Capabilities` from a notcurses context.
-    pub fn from_nc(nc: &Nc) -> Self {
+    pub fn from_nc(nc: &Notcurses) -> Self {
         nc.term_capabilities()
     }
 

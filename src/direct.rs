@@ -1,4 +1,4 @@
-//! `NcD` wrapper struct and traits implementations.
+//! `NotcursesDirect` wrapper struct and traits implementations.
 
 use crate::sys::NcDirect;
 
@@ -6,16 +6,16 @@ use crate::sys::NcDirect;
 ///
 /// A wrapper around `sys::`[`NcDirect`].
 #[derive(Debug)]
-pub struct NcD<'a> {
+pub struct NotcursesDirect<'a> {
     pub(crate) raw: &'a mut NcDirect,
 }
 
-impl<'a> Drop for NcD<'a> {
-    /// Destroys the NcD context.
+impl<'a> Drop for NotcursesDirect<'a> {
+    /// Destroys the NotcursesDirect context.
     fn drop(&mut self) {
         let _ = self.raw.stop();
     }
 }
 
 /// # Constructors
-impl<'a> NcD<'a> {}
+impl<'a> NotcursesDirect<'a> {}

@@ -8,7 +8,7 @@ const W: Dimension = 32;
 
 fn main() -> Result<()> {
 
-    let mut nc = Nc::new()?;
+    let mut nc = Notcurses::new()?;
 
     println!("terminal detected: {}", nc.term_name());
     sleep![1];
