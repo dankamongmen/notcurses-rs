@@ -1,0 +1,96 @@
+//!
+
+use crate::{
+    ncresult,
+    sys::{NcChannelPair, NcPlane},
+    Error, Offset, Result, Style,
+};
+
+mod builder;
+pub use builder::PlaneBuilder;
+
+/// The fundamental drawing surface.
+///
+/// *A wrapper around [`NcPlane`].*
+///
+#[derive(Debug)]
+pub struct Plane<'a> {
+    pub(crate) raw: &'a mut NcPlane,
+}
+
+impl<'a> AsMut<NcPlane> for Plane<'a> {
+    fn as_mut(&mut self) -> &mut NcPlane {
+        self.raw
+    }
+}
+
+impl<'a> Drop for Plane<'a> {
+    /// Destroys this Plane.
+    ///
+    /// None of its contents will be visible after the next render call.
+    fn drop(&mut self) {
+        let _ = self.raw.destroy();
+    }
+}
+
+/// # Constructors and translators
+impl<'a> Plane<'a> {
+    /// Returns a [`PlaneBuilder`] used to customize a new `Plane`.
+    pub fn build() -> PlaneBuilder {
+        PlaneBuilder::default()
+    }
+
+    /// Creates a `Plane` from an existing [`NcPlane`].
+    pub fn from_ncplane(plane: &'a mut NcPlane) -> Plane<'a> {
+        Self { raw: plane }
+    }
+
+    /// Returns a mutable reference to the inner [`NcPlane`].
+    pub fn as_ncplane(&'a mut self) -> &'a mut NcPlane {
+        self.raw
+    }
+}
+
+/// # Methods
+impl<'a> Plane<'a> {
+    /// Moves the plane relatively the provided `cols` & `rows`.
+    pub fn move_rel(&mut self, cols: Offset, rows: Offset) -> Result<()> {
+        ncresult![self.raw.move_rel(rows, cols)]
+    }
+
+    /// Moves the plane to the absolute coordinates `x`, `y`.
+    pub fn move_abs(&mut self, x: Offset, y: Offset) -> Result<()> {
+        ncresult![self.raw.move_yx(y, x)]
+    }
+
+    /// Sets the base cell from its components.
+    ///
+    /// Returns the number of bytes copied out of 'gcluster'
+    pub fn set_base(&mut self, egc: &str, style: Style, channels: NcChannelPair) -> Result<u32> {
+        // TODO: create macro that wraps this
+        match self.raw.set_base(egc, style.bits(), channels) {
+            Ok(bytes) => Ok(bytes),
+            Err(e) => Err(Error::NcError {
+                int: e.int,
+                msg: e.msg,
+            }),
+        }
+    }
+
+    /// Renders the pile the current `Plane` is part of.
+    pub fn render(&mut self) -> Result<()> {
+        ncresult![self.raw.render()]
+    }
+
+    /// Rasterizes the pile the current `Plane` is part of.
+    pub fn raster(&mut self) -> Result<()> {
+        ncresult![self.raw.rasterize()]
+    }
+
+    /// Renders and rasterizes the pile the current `Plane` is part of.
+    pub fn render_raster(&mut self) -> Result<()> {
+        self.render()?;
+        self.raster()?;
+        Ok(())
+    }
+}

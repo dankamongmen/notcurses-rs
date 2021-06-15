@@ -1,4 +1,4 @@
-//! A more *rusty*, higher level wrapper for the [notcurses C library][0]
+//! A simple *rusty* wrapper for the [notcurses C library][0]
 //!
 //! [0]: https://github.com/dankamongmen/notcurses
 

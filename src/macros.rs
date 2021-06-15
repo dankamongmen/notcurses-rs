@@ -1,6 +1,6 @@
 pub use crate::sys::sleep;
 
-/// Translates a libnotcurses_sys::NcResult to a notcurses::Result.
+/// Translates a `libnotcurses_sys::NcResult` to a `notcurses::Result`.
 #[macro_export]
 macro_rules! ncresult {
     ($res:expr) => {{

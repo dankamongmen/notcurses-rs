@@ -20,9 +20,7 @@ impl<'a> Drop for Notcurses<'a> {
 impl<'a> Notcurses<'a> {
     /// New Notcurses instance.
     pub fn new() -> Result<Self> {
-        Ok(Self {
-            raw: Nc::new()?,
-        })
+        Ok(Self { raw: Nc::new()? })
     }
 
     /// New Notcurses instance, without an alternate screen.
