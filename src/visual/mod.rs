@@ -27,11 +27,7 @@ pub use scale::Scale;
 
 /// A virtual pixel framebuffer.
 ///
-/// Internally, a `Visual` wraps an [`NcVisual`] and [`NcVisualOptions`], because
-/// the options are only used by the [`geom`][Visual#method.geom],
-/// [`render`][Visual#method.render] and
-/// [`simple_streamer`][Visual#simple_streamer] methods, and not for the
-/// creation of the `Visual` itself.
+/// *A wrapper around [`NcVisual`] and [`NcVisualOptions`].*
 #[derive(Debug)]
 pub struct Visual<'a> {
     pub(crate) raw: &'a mut NcVisual,
@@ -92,7 +88,6 @@ impl<'a, 'b> Visual<'a> {
 /// These methods allows to re-configure a `Visual` after it has been built
 /// via [`VisualBuilder`].
 impl<'a, 'b> Visual<'a> {
-
     /// Sets the `Visual` based off RGBA content in memory at `rgba`.
     pub fn set_from_rgba(&mut self, rgba: &[u8], cols: Dimension, rows: Dimension) -> Result<()> {
         self.raw = NcVisual::from_rgba(rgba, rows, cols * 4, cols)?;

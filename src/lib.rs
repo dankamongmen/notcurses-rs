@@ -22,6 +22,7 @@ mod error;
 mod macros;
 mod notcurses;
 mod plane;
+mod style;
 mod visual;
 
 // pub use self::notcurses::NcD;
@@ -31,6 +32,7 @@ pub use direct::NcD;
 pub use error::{Error, Result};
 pub use macros::*;
 pub use plane::{Plane, PlaneBuilder};
+pub use style::Style;
 pub use visual::{Blitter, Scale, Visual, VisualBuilder};
 
 // TODO: move to the appropriate modules:
@@ -44,46 +46,6 @@ bitflags! {
         const NCALIGN_RIGHT = sys::NCALIGN_RIGHT;
         const NCALIGN_CENTER = sys::NCALIGN_CENTER;
         const NCALIGN_UNALIGNED = sys::NCALIGN_UNALIGNED;
-    }
-}
-
-bitflags! {
-    pub struct Style: u16 {
-        ///
-        const BLINK= sys::ffi::NCSTYLE_BLINK as u16;
-
-        ///
-        const BOLD = sys::ffi::NCSTYLE_BOLD as u16;
-
-        ///
-        const DIM = sys::ffi::NCSTYLE_DIM as u16;
-
-        ///
-        const INVIS = sys::ffi::NCSTYLE_INVIS as u16;
-
-        ///
-        const ITALIC = sys::ffi::NCSTYLE_ITALIC as u16;
-
-        ///
-        const MASK = sys::ffi::NCSTYLE_MASK as u16;
-
-        ///
-        const NONE = sys::ffi::NCSTYLE_NONE as u16;
-
-        ///
-        const PROTECT = sys::ffi::NCSTYLE_PROTECT as u16;
-
-        ///
-        const REVERSE = sys::ffi::NCSTYLE_REVERSE as u16;
-
-        ///
-        const STANDOUT = sys::ffi::NCSTYLE_STANDOUT as u16;
-
-        ///
-        const STRUCK = sys::ffi::NCSTYLE_STRUCK as u16;
-
-        ///
-        const UNDERLINE = sys::ffi::NCSTYLE_UNDERLINE as u16;
     }
 }
 

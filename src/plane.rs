@@ -11,7 +11,8 @@ use crate::{
 
 /// The fundamental drawing surface.
 ///
-/// A wrapper around [`NcPlane`].
+/// *A wrapper around [`NcPlane`].*
+///
 #[derive(Debug)]
 pub struct Plane<'a> {
     pub(crate) raw: &'a mut NcPlane,
