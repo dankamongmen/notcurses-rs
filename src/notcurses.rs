@@ -1,6 +1,6 @@
 //! `Nc` wrapper struct and traits implementations.
 
-use crate::{sys::Notcurses, Dimension, Result};
+use crate::{sys::Notcurses, Capabilities, Dimension, Result};
 
 /// The main **notcurses** context.
 ///
@@ -32,7 +32,42 @@ impl<'a> Nc<'a> {
         })
     }
 
-    /// Returns the columns and rows (x, y) of the terminal.
+    /// Returns the capabilities of the terminal.
+    pub fn term_capabilities(&self) -> Capabilities {
+        // TEMP: waiting for https://github.com/dankamongmen/notcurses/issues/1766
+        let pixel: bool = {
+            if let Ok(canpixel) = self.raw.check_pixel_support() {
+                canpixel
+            } else {
+                false
+            }
+        };
+
+        let palette_size = {
+            if let Ok(size) = self.raw.palette_size() {
+                size
+            } else {
+                0
+            }
+        };
+
+        Capabilities {
+            halfblock: self.raw.canhalfblock(),
+            quadrant: self.raw.canquadrant(),
+            sextant: self.raw.cansextant(),
+            braille: self.raw.canbraille(),
+            utf8: self.raw.canutf8(),
+            images: self.raw.canopen_images(),
+            videos: self.raw.canopen_videos(),
+            pixel,
+            truecolor: self.raw.cantruecolor(),
+            fade: self.raw.canfade(),
+            palette_change: self.raw.canchangecolor(),
+            palette_size,
+        }
+    }
+
+    /// Returns the size of the terminal in columns and rows (x, y).
     pub fn term_size(&self) -> (Dimension, Dimension) {
         self.raw.term_dim_yx()
     }

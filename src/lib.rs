@@ -16,6 +16,7 @@ pub mod sys {
     pub use libnotcurses_sys::*;
 }
 
+mod capabilities;
 mod direct;
 mod error;
 mod macros;
@@ -23,11 +24,12 @@ mod notcurses;
 mod plane;
 mod visual;
 
-// pub use self::notcurses::{NcD, NcDCaps};
-pub use self::notcurses::Nc;
+// pub use self::notcurses::NcD;
+pub use capabilities::Capabilities;
 pub use direct::NcD;
 pub use error::{Error, Result};
 pub use macros::*;
+pub use self::notcurses::Nc;
 pub use plane::{Plane, PlaneBuilder};
 pub use visual::{Blitter, Scale, Visual, VisualBuilder};
 

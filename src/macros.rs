@@ -1,6 +1,6 @@
 pub use crate::sys::sleep;
 
-/// Translates a libnotcurses_sys::NcError to a notcurses::Error.
+/// Translates a libnotcurses_sys::NcResult to a notcurses::Result.
 #[macro_export]
 macro_rules! ncresult {
     ($res:expr) => {{
@@ -23,14 +23,14 @@ macro_rules! ncresult {
 ///
 /// [`Plane.render`][crate::Plane#method.render]\(`$p`\)? plus
 /// [`Plane.raster`][crate::Plane#method.raster]\(`$p`\)? plus
-/// [`s!`]`[$sleep_args]`.
+/// [`sleep!`]`[$sleep_args]`.
 ///
 /// Returns [Result].
 #[macro_export]
 macro_rules! rs {
     ($p:expr, $( $sleep_args:expr),+ ) => {
         crate::Plane::render_raster($p)?;
-        s![$( $sleep_args ),+];
+        sleep![$( $sleep_args ),+];
     };
     ($nc:expr, $( $sleep_args:expr),+ ,) => {
         rs![$nc, $( $sleep_args ),* ]
