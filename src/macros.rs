@@ -1,4 +1,4 @@
-pub use crate::sys::sleep as s;
+pub use crate::sys::sleep;
 
 /// Translates a libnotcurses_sys::NcError to a notcurses::Error.
 #[macro_export]
