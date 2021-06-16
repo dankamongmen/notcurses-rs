@@ -1,8 +1,8 @@
 //!
 
 use crate::{
-    ncresult,
-    sys::{NcChannelPair, NcPlane},
+    ncresult, // Channels,
+    sys::{NcChannels, NcPlane},
     Error, Offset, Result, Style,
 };
 
@@ -18,12 +18,6 @@ pub struct Plane<'a> {
     pub(crate) raw: &'a mut NcPlane,
 }
 
-impl<'a> AsMut<NcPlane> for Plane<'a> {
-    fn as_mut(&mut self) -> &mut NcPlane {
-        self.raw
-    }
-}
-
 impl<'a> Drop for Plane<'a> {
     /// Destroys this Plane.
     ///
@@ -33,7 +27,7 @@ impl<'a> Drop for Plane<'a> {
     }
 }
 
-/// # Constructors and translators
+/// # Constructors and converters
 impl<'a> Plane<'a> {
     /// Returns a [`PlaneBuilder`] used to customize a new `Plane`.
     pub fn build() -> PlaneBuilder {
@@ -66,9 +60,9 @@ impl<'a> Plane<'a> {
     /// Sets the base cell from its components.
     ///
     /// Returns the number of bytes copied out of 'gcluster'
-    pub fn set_base(&mut self, egc: &str, style: Style, channels: NcChannelPair) -> Result<u32> {
+    pub fn set_base<CHANNELS: Into<NcChannels>>(&mut self, egc: &str, style: Style, channels: CHANNELS) -> Result<u32> {
         // TODO: create macro that wraps this
-        match self.raw.set_base(egc, style.bits(), channels) {
+        match self.raw.set_base(egc, style.bits(), channels.into()) {
             Ok(bytes) => Ok(bytes),
             Err(e) => Err(Error::NcError {
                 int: e.int,

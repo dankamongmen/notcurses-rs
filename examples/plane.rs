@@ -1,13 +1,12 @@
 //! Shows how you can manipulate [`Plane`]s.
 
-use notcurses::sys::NcChannelPairMethods; // TEMP
 use notcurses::*;
 
 fn main() -> Result<()> {
     let mut nc = Notcurses::new()?;
 
     let mut p1 = Plane::build().rows(20).cols(40).new_pile(&mut nc)?;
-    p1.set_base("X", Style::BOLD | Style::ITALIC, 0)?;
+    p1.set_base("X", Style::BOLD | Style::ITALIC, Channels::with_default())?;
     p1.render_raster()?;
     sleep![0, 500];
 
@@ -20,7 +19,7 @@ fn main() -> Result<()> {
     p2.set_base(
         "·",
         Style::REVERSE,
-        sys::NcChannelPair::with_rgb(0xaadd2b, 0x882222),
+        Channels::from_rgb(0xaadd2b, 0x882222),
     )?;
     p1.render_raster()?;
     sleep![0, 500];
