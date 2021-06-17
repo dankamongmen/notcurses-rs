@@ -19,7 +19,6 @@ pub mod sys {
 }
 
 mod capabilities;
-mod channel;
 mod color;
 mod direct;
 mod error;
@@ -31,8 +30,7 @@ mod visual;
 
 pub use self::notcurses::Notcurses;
 pub use capabilities::Capabilities;
-pub use channel::{AlphaBits, Channel, Channels};
-pub use color::{Rgb, Rgba};
+pub use color::{Alpha, Channel, Channels, Rgb, Rgba};
 pub use direct::NotcursesDirect;
 pub use error::{Error, Result};
 pub use macros::*;

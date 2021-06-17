@@ -3,7 +3,10 @@
 use crate::{
     ncresult, // Channels,
     sys::{NcChannels, NcPlane},
-    Error, Offset, Result, Style,
+    Error,
+    Offset,
+    Result,
+    Style,
 };
 
 mod builder;
@@ -60,7 +63,12 @@ impl<'a> Plane<'a> {
     /// Sets the base cell from its components.
     ///
     /// Returns the number of bytes copied out of 'gcluster'
-    pub fn set_base<CHANNELS: Into<NcChannels>>(&mut self, egc: &str, style: Style, channels: CHANNELS) -> Result<u32> {
+    pub fn set_base<CHANNELS: Into<NcChannels>>(
+        &mut self,
+        egc: &str,
+        style: Style,
+        channels: CHANNELS,
+    ) -> Result<u32> {
         // TODO: create macro that wraps this
         match self.raw.set_base(egc, style.bits(), channels.into()) {
             Ok(bytes) => Ok(bytes),

@@ -46,7 +46,7 @@ impl Rgb {
 
     /// Returns the blue component.
     pub const fn b(&self) -> u8 {
-        (self.0 & 0x0000FF)  as u8
+        (self.0 & 0x0000FF) as u8
     }
 
     /// Returns a copy of this `Rgb` with the added red component.
