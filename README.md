@@ -29,16 +29,12 @@ it itself offers a different approach to its public API.
 
 If you come from the C API, these are the main differences:
 
-- The concept of standard plane dissapears, and you only use Planes, which
-  internally are piles of planes that are managed *indirectly*.
-- You use the builder pattern to construct the objects.
+- You use the builder pattern to construct `Plane` and `Visual` objects.
+- The concept of the standard plane dissapears, and you only use `Plane`s, which
+  internally are associated with piles, that you can only manage indirectly.
+- The coordinates `X` and `Y`, and `cols` and `rows` are used in the most common
+- alphabetic order, both as a part of function names and as function parameters.
 - The types used for flags, like `Style`, are created with the `bitflags!` macro.
-- The coordinates `X` and `Y` are presented in the most common alphabetic order, 
-  both in function names and parameters, and the same with `cols` and `rows`.
-- The unified error and result types are called `Error` and `Result`.
+- The `Rgb` type now has trait implementions From/Into tuples and arrays.
+- The new unified *error* and *result* types are called `Error` and `Result`.
 
-
-## Planes & Piles
-
-The Piles are made of planes in a list. The first of the list is called the root.
-They are rendered in order.
