@@ -5,9 +5,12 @@ use crate::{
     Alpha, Rgb, Channels,
 };
 
-/// A `u32`containing: 24bit RGB + 2bit alpha
+/// A `u32` of 24bit [`Rgb`] data + 2bit [Alpha].
 ///
-/// *A wrapper around [`NcChannel`].*
+/// # Diagram
+/// ```txt
+/// ~~AA~~~~|RRRRRRRR|GGGGGGGG|BBBBBBBB
+/// ```
 ///
 /// See also [`Channels`][crate::Channels]
 ///
@@ -16,7 +19,7 @@ pub struct Channel(pub NcChannel);
 
 impl Default for Channel {
     fn default() -> Self {
-        Self::new()
+        Self(0)
     }
 }
 
@@ -56,24 +59,19 @@ impl From<Channel> for Rgb {
 impl Channel {
     // constructors
 
-    /// New `Channel`, set to black and NOT using the "default color".
-    pub fn new() -> Self {
-        Self(NcChannel::new())
-    }
-
-    /// New `Channel`, set to black and using the "default color".
-    pub fn with_default() -> Self {
-        Self(NcChannel::with_default())
-    }
-
-    /// New NcChannel, expects [`Rgb`].
-    pub fn from_rgb<RGB: Into<Rgb>>(rgb: RGB) -> Self {
+    /// New [`Rgb`] `Channel`.
+    pub fn new<RGB: Into<Rgb>>(rgb: RGB) -> Self {
         Self(NcChannel::from_rgb(rgb.into().into()))
     }
 
-    /// New NcChannel, expects [`Rgb`] & [`Alpha`].
-    pub fn from_rgb_alpha<RGB: Into<Rgb>>(rgb: RGB, alpha: Alpha) -> Self {
-        Self(NcChannel::from_rgb_alpha(rgb.into().into(), alpha.bits()))
+    /// New `Channel` marked as using the "default color".
+    pub fn with_default<RGB: Into<Rgb>>(rgb: RGB) -> Self {
+        Self(NcChannel::from_rgb(rgb.into().into()).set_default())
+    }
+
+    /// New `Channel` that uses the provided [`Alpha`].
+    pub fn with_alpha<RGB: Into<Rgb>>(rgb: RGB, alpha: Alpha) -> Self {
+        Self(NcChannel::from_rgb_alpha(rgb.into().into(), alpha.into()))
     }
 
     // methods
@@ -96,7 +94,7 @@ impl Channel {
 
     /// Sets the [`Alpha`] bits, and returns the resulting `Channel`.
     pub fn set_alpha(&mut self, alpha: Alpha) -> Self {
-        NcChannel::from(self).set_alpha(alpha.bits()).into()
+        NcChannel::from(self).set_alpha(alpha.into()).into()
     }
 
     /// Is this `Channel` using the "default color" rather than RGB/palette-indexed?

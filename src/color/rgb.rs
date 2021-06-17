@@ -3,12 +3,14 @@ use std::fmt;
 
 use crate::sys::NcRgb;
 
-/// A `u32` of RGB data.
+/// A `u32` of 24bit [`Rgb`] data, part of a [`Channel`][crate::Channel].
 ///
 /// # Diagram
 /// ```txt
-/// -------- RRRRRRRR GGGGGGGG BBBBBBBB
+/// --------|RRRRRRRR|GGGGGGGG|BBBBBBBB
 /// ```
+///
+/// See also: [`Rgba`][crate::Rgba], [`Channel`][crate::Channel]
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Rgb(pub NcRgb);
 

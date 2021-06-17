@@ -5,12 +5,14 @@ use std::fmt;
 
 use crate::sys::NcRgba;
 
-/// A `u32` of RGBA data.
+/// A `u32` of 32bit RGBA data.
 ///
 /// # Diagram
 /// ```txt
-/// AAAAAAAA RRRRRRRR GGGGGGGG BBBBBBBB
+/// AAAAAAAA|RRRRRRRR|GGGGGGGG|BBBBBBBB
 /// ```
+///
+/// See also: [`Rgb`][crate::Rgb]
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Rgba(pub NcRgba);
 
