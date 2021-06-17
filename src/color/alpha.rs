@@ -23,3 +23,24 @@ bitflags! {
         const TRANSPARENT = sys::NCALPHA_TRANSPARENT;
     }
 }
+
+impl From<Alpha> for NcAlphaBits {
+    fn from(a: Alpha) -> NcAlphaBits {
+        a.bits()
+    }
+}
+impl From<&Alpha> for NcAlphaBits {
+    fn from(a: &Alpha) -> NcAlphaBits {
+        a.bits()
+    }
+}
+impl From<&mut Alpha> for NcAlphaBits {
+    fn from(a: &mut Alpha) -> NcAlphaBits {
+        a.bits()
+    }
+}
+impl From<NcAlphaBits> for Alpha {
+    fn from(na: NcAlphaBits) -> Alpha {
+        Alpha { bits: na }
+    }
+}

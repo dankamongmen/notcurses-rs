@@ -1,22 +1,18 @@
 #![allow(dead_code)]
 
 use crate::{
-    sys::{NcChannel, NcChannelMethods, NcChannels, NcChannelsMethods},
-    Alpha, Rgb,
+    sys::{NcChannel, NcChannelMethods},
+    Alpha, Rgb, Channels,
 };
 
 /// A `u32`containing: 24bit RGB + 2bit alpha
 ///
 /// *A wrapper around [`NcChannel`].*
 ///
-/// See also [`Channels`]
+/// See also [`Channels`][crate::Channels]
 ///
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Channel(pub NcChannel);
-
-///
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Channels(pub NcChannels);
 
 impl Default for Channel {
     fn default() -> Self {
@@ -24,29 +20,39 @@ impl Default for Channel {
     }
 }
 
-impl Default for Channels {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-// -----------------------------------------------------------------------------
-
 impl From<Channel> for NcChannel {
     fn from(c: Channel) -> NcChannel {
         c.0
     }
 }
-
-impl From<Channels> for NcChannels {
-    fn from(cp: Channels) -> NcChannels {
-        cp.0
+impl From<&Channel> for NcChannel {
+    fn from(c: &Channel) -> NcChannel {
+        c.0
+    }
+}
+impl From<&mut Channel> for NcChannel {
+    fn from(c: &mut Channel) -> NcChannel {
+        c.0
+    }
+}
+impl From<NcChannel> for Channel {
+    fn from(nc: NcChannel) -> Channel {
+        Channel(nc)
     }
 }
 
-// -----------------------------------------------------------------------------
+impl From<Rgb> for Channel {
+    fn from(rgb: Rgb) -> Channel {
+        Channel(rgb.into())
+    }
+}
 
-// RETHINK: methods that (un)sets the default color… CHECK in practice
+impl From<Channel> for Rgb {
+    fn from(c: Channel) -> Rgb {
+        Rgb(c.into())
+    }
+}
+
 impl Channel {
     // constructors
 
@@ -55,7 +61,7 @@ impl Channel {
         Self(NcChannel::new())
     }
 
-    /// New `Channel`, set to black but using the "default color".
+    /// New `Channel`, set to black and using the "default color".
     pub fn with_default() -> Self {
         Self(NcChannel::with_default())
     }
@@ -70,58 +76,52 @@ impl Channel {
         Self(NcChannel::from_rgb_alpha(rgb.into().into(), alpha.bits()))
     }
 
-    // TODO:
-
     // methods
 
-    // fn fcombine(&self, bchannel: NcChannel) -> NcChannels {  }
-    // fn bcombine(&self, fchannel: NcChannel) -> NcChannels {  }
-    //
-    // fn alpha(&self) -> Alpha {  }
-    // fn set_alpha(&mut self, alpha: Alpha) -> Self {  }
-    //
-    // fn set(&mut self, rgb: NcRgb) -> Self {  }
-    //
-    // fn r(&self) -> NcColor {  }
-    // fn g(&self) -> NcColor {  }
-    // fn b(&self) -> NcColor {  }
-    // fn set_r(&mut self, r: NcColor) -> Self {  }
-    // fn set_g(&mut self, g: NcColor) -> Self {  }
-    // fn set_b(&mut self, b: NcColor) -> Self {  }
-    //
-    // fn rgb(&self) -> NcRgb {  }
-    // fn set_rgb(&mut self, rgb: NcRgb) -> Self {  }
-    //
-    // fn default_p(&self) -> bool {  }
-    // fn set_default(&mut self) -> Self {  }
-    // fn set_not_default(&mut self) -> Self {  }
-    //
-    // fn palindex_p(&self) -> bool {  }
-}
-
-impl Channels {
-    // constructors
-
-    /// New `Channels`, set to black and NOT using the "default color".
-    pub fn new() -> Self {
-        Self(NcChannels::new())
+    /// Returns a new [`Channels`], by combining this `Channel` as foreground
+    /// with `bchannel` as the background.
+    pub fn fcombine(&self, bchannel: Channel) -> Channels {
+        NcChannel::from(self).fcombine(bchannel.into()).into()
+    }
+    /// Returns a new [`Channels`], by combining this `Channel` as background,
+    /// with `fchannel` as the foreground.
+    pub fn bcombine(&self, fchannel: Channel) -> Channels {
+        NcChannel::from(self).bcombine(fchannel.into()).into()
     }
 
-    /// New `Channels`, set to black but using the "default color".
-    pub fn with_default() -> Self {
-        Self(NcChannels::with_default())
+    /// Returns the [`Alpha`] bits.
+    pub fn alpha(&self) -> Alpha {
+        NcChannel::from(self).alpha().into()
     }
 
-    /// New `Channels`, expects two separate [`Rgb`]s for the foreground
-    /// and background `Channel`s.
-    pub fn from_rgb<RGB1, RGB2>(fg: RGB1, bg: RGB2) -> Self
-    where
-        RGB1: Into<Rgb>,
-        RGB2: Into<Rgb>,
-    {
-        Self(NcChannels::from_rgb(fg.into().into(), bg.into().into()))
+    /// Sets the [`Alpha`] bits, and returns the resulting `Channel`.
+    pub fn set_alpha(&mut self, alpha: Alpha) -> Self {
+        NcChannel::from(self).set_alpha(alpha.bits()).into()
     }
 
-    // New NcChannels, expects three RGB [`NcComponent`][sys::NcComponent]s
-    // per channel.
+    /// Is this `Channel` using the "default color" rather than RGB/palette-indexed?
+    pub fn is_default(&self) -> bool {
+        NcChannel::from(self).default_p()
+    }
+
+    /// Marks this `Channel` as using its "default color",
+    /// which also marks it opaque, and returns the resulting `Channel`.
+    pub fn set_default(&mut self) -> Self {
+        NcChannel::from(self).set_default().into()
+    }
+
+    /// Marks this `Channel` as *not* using its "default color",
+    /// and returns the resulting `Channel`.
+    ///
+    /// The following methods also marks the channel as not using the "default color":
+    /// - [new()][Channel#method.new]
+    /// - [set()][Channel#method.set]
+    pub fn set_not_default(&mut self) -> Self {
+        NcChannel::from(self).set_not_default().into()
+    }
+
+    /// Is this `Channel` using palette-indexed color rather than RGB?
+    pub fn is_palindex(&self) -> bool {
+        NcChannel::from(self).palindex_p()
+    }
 }
