@@ -42,7 +42,12 @@ impl<'a> Plane<'a> {
     }
 
     /// Returns a mutable reference to the inner [`NcPlane`].
-    pub fn as_ncplane(&'a mut self) -> &'a mut NcPlane {
+    pub fn as_ncplane(&self) -> &NcPlane {
+        self.raw
+    }
+
+    /// Returns a mutable reference to the inner [`NcPlane`].
+    pub fn as_ncplane_mut(&mut self) -> &mut NcPlane {
         self.raw
     }
 }

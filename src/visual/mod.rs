@@ -14,8 +14,7 @@
 // MAYBE
 // - offer the alternative of using a VisualOptions structure. (old: visual3)
 
-use crate::sys::{self, NcVisual, NcVisualOptions};
-use crate::{ncresult, Dimension, Notcurses, Result};
+use crate::{sys::{self, NcVisual, NcVisualOptions}, ncresult, Dimension, Notcurses, Result};
 
 mod blitter;
 mod builder;
@@ -59,8 +58,12 @@ impl<'a, 'b> Visual<'a> {
     //     }
     // }
 
+    pub fn as_ncvisual(&self) -> &NcVisual {
+        self.raw
+    }
+
     /// Returns a mutable reference to the inner `NcVisual`.
-    pub fn as_ncvisual(&'a mut self) -> &'a mut NcVisual {
+    pub fn as_ncvisual_mut(&mut self) -> &mut NcVisual {
         self.raw
     }
 
@@ -75,12 +78,17 @@ impl<'a, 'b> Visual<'a> {
     }
 
     /// Renders the decoded frame to the configured [`Plane`][crate::Plane].
-    //
-    // Here render doesn't return the plane.
     pub fn render(&mut self, nc: &mut Notcurses) -> Result<()> {
         let _ = NcVisual::render(self.raw, nc.raw, &self.options)?;
         Ok(())
     }
+    // NOTE: render doesn't return the plane. It would be nice to be able
+    // to return it only if it's a new plane. But there are lifetime issues:
+    // pub fn render(&mut self, nc: &mut Notcurses) -> Result<Option<crate::Plane<'a>>> {
+    //    let p = NcVisual::render(self.raw, nc.raw, &self.options)?;
+    //    Ok(Some(Plane::from_ncplane(p)))
+    // }
+
 }
 
 /// # Post-Builder Configuration Methods

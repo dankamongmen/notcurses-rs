@@ -234,19 +234,17 @@ impl<'a, 'b> VisualBuilder<'a, 'b> {
         }
     }
 
-    // NOTE: waiting for: https://github.com/dankamongmen/notcurses/issues/1462
-    //
+    // // NOTE: related: https://github.com/dankamongmen/notcurses/issues/1462
+    // //
     // /// Finishes the build returning a `Visual` configured to be rendered in the
     // /// provided [`Plane`], using the provided [`Scale`] mode for it.
-    // ///
-    // /// Note you can't provide a plane and a parent plane for the same `Visual`.
     // pub fn new_plane(mut self, plane: &mut Plane<'b>, scale: Scale) -> Result<Visual<'a>> {
     //     if self.ncvisual.is_some() {
     //         self.scale = Some(scale);
     //         self.flags &= !sys::NCVISUAL_OPTION_CHILDPLANE;
     //
     //         Ok(Visual {
-    //             options: self.assemble_options_with_plane(plane.raw),
+    //             options: self.assemble_options_without_plane(plane.raw),
     //             raw: self.ncvisual.unwrap(),
     //         })
     //     } else {

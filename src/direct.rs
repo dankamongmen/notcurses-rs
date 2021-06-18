@@ -266,8 +266,6 @@ impl<'a> NotcursesDirect<'a> {
     ///
     /// It will fail if the NcDirect context and the foreground channel
     /// are both marked as using the default color.
-    ///
-    /// *C style function: [ncdirect_putstr()][crate::ncdirect_putstr].*
     pub fn putstr(&mut self, channels: Channels, string: &str) -> Result<()> {
         ncresult![self.raw.putstr(channels.into(), string)]
     }
@@ -276,11 +274,10 @@ impl<'a> NotcursesDirect<'a> {
     ///
     /// Initializes Readline the first time it's called.
     ///
-    /// For input to be echoed to the terminal, it is necessary that the flag
-    /// [NCDIRECT_OPTION_INHIBIT_CBREAK][crate::NCDIRECT_OPTION_INHIBIT_CBREAK]
-    /// be provided to the constructor.
-    ///
-    /// *C style function: [ncdirect_readline()][crate::ncdirect_readline].*
+    // TODO: DirectBuilder
+    // For input to be echoed to the terminal, it is necessary that the flag
+    // [NCDIRECT_OPTION_INHIBIT_CBREAK][crate::NCDIRECT_OPTION_INHIBIT_CBREAK]
+    // be provided to the constructor.
     pub fn readline(&mut self, prompt: &str) -> Result<&str> {
         ncresult![self.raw.readline(prompt)]
     }

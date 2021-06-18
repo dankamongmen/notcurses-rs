@@ -5,7 +5,7 @@ use crate::{
     Rgb,
 };
 
-/// A `u64` composed of 2 × [`Channel`]s.
+/// A `u64` composed of 2 × [`Channel`][crate::Channel]s.
 ///
 /// # Diagram
 ///

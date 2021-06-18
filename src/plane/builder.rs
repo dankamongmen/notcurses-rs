@@ -73,13 +73,6 @@ impl PlaneBuilder {
         self
     }
 
-    /// Sets the flags of the Plane being built.
-    // TODO: make an enum
-    pub fn flags(mut self, flags: u64) -> Self {
-        self.flags = flags;
-        self
-    }
-
     /// Sets the bottom margin.
     pub fn margin_b(mut self, margin_b: Offset) -> Self {
         self.margin_b = margin_b;
@@ -112,7 +105,7 @@ impl PlaneBuilder {
             self.rows,
             self.cols,
             None,       // TODO resizecb
-            self.flags, // TODO: use enum
+            self.flags,
             self.margin_b,
             self.margin_r,
         );
@@ -131,7 +124,7 @@ impl PlaneBuilder {
             self.rows,
             self.cols,
             None,       // TODO resizecb
-            self.flags, // TODO: use enum
+            self.flags,
             self.margin_b,
             self.margin_r,
         );
