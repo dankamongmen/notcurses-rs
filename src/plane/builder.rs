@@ -104,7 +104,7 @@ impl PlaneBuilder {
             self.y,
             self.rows,
             self.cols,
-            None,       // TODO resizecb
+            None, // TODO resizecb
             self.flags,
             self.margin_b,
             self.margin_r,
@@ -123,7 +123,7 @@ impl PlaneBuilder {
             self.y,
             self.rows,
             self.cols,
-            None,       // TODO resizecb
+            None, // TODO resizecb
             self.flags,
             self.margin_b,
             self.margin_r,

@@ -102,19 +102,18 @@ impl Channel {
         NcChannel::from(self).default_p()
     }
 
-    /// Marks this `Channel` as using its "default color",
-    /// which also marks it opaque, and returns the resulting `Channel`.
-    pub fn set_default(&mut self) -> Self {
+    /// Marks this `Channel` as using its "default color", which also marks it
+    /// [`OPAQUE`][crate::Alpha::OPAQUE], and returns the resulting `Channel`.
+    pub fn default(&mut self) -> Self {
         NcChannel::from(self).set_default().into()
     }
 
-    /// Marks this `Channel` as *not* using its "default color",
+    /// Marks this `Channel` as *NOT* using its "default color",
     /// and returns the resulting `Channel`.
     ///
-    /// The following methods also marks the channel as not using the "default color":
-    /// - [new()][Channel#method.new]
-    /// - [set()][Channel#method.set]
-    pub fn set_not_default(&mut self) -> Self {
+    /// The [`new`][Channel#method.new] & [`set`][Channel#method.set]
+    /// methods also marks the channel as not using the "default color".
+    pub fn ndefault(&mut self) -> Self {
         NcChannel::from(self).set_not_default().into()
     }
 

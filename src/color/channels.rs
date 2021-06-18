@@ -2,7 +2,7 @@
 
 use crate::{
     sys::{NcChannels, NcChannelsMethods},
-    Rgb,
+    Channel,
 };
 
 /// A `u64` composed of 2 × [`Channel`][crate::Channel]s.
@@ -14,6 +14,8 @@ use crate::{
 /// ↑↑↑↑↑↑↑↑↑↑↑↑ foreground ↑↑↑↑↑↑↑↑↑↑↑|↑↑↑↑↑↑↑↑↑↑↑↑ background ↑↑↑↑↑↑↑↑↑↑↑
 ///                channel                            channel
 /// ```
+///
+/// See also: [`Cell`][crate::Cell].
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Channels(pub NcChannels);
 
@@ -49,22 +51,22 @@ impl From<NcChannels> for Channels {
 impl Channels {
     // constructors
 
-    /// New [`Rgb`] `Channels`.
-    pub fn new<RGB1, RGB2>(fg: RGB1, bg: RGB2) -> Self
+    /// New `Channels`.
+    pub fn new<C1, C2>(fg: C1, bg: C2) -> Self
     where
-        RGB1: Into<Rgb>,
-        RGB2: Into<Rgb>,
+        C1: Into<Channel>,
+        C2: Into<Channel>,
     {
-        Self(NcChannels::from_rgb(fg.into().into(), bg.into().into()))
+        Self(NcChannels::combine(fg.into().into(), bg.into().into()))
     }
 
     /// New `Channels` marked as using the "default color".
-    pub fn with_default<RGB1, RGB2>(fg: RGB1, bg: RGB2) -> Self
+    pub fn with_default<C1, C2>(fg: C1, bg: C2) -> Self
     where
-        RGB1: Into<Rgb>,
-        RGB2: Into<Rgb>,
+        C1: Into<Channel>,
+        C2: Into<Channel>,
     {
-        Self(NcChannels::from_rgb(fg.into().into(), bg.into().into()).set_default())
+        Self(NcChannels::combine(fg.into().into(), bg.into().into()).set_default())
     }
 
     // New NcChannels, expects three RGB [`NcComponent`][sys::NcComponent]s

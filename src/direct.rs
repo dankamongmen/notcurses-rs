@@ -1,7 +1,8 @@
 //! `NotcursesDirect` wrapper struct and traits implementations.
 
 use crate::{
-    ncresult, sys::NcDirect, Align, Blitter, Capabilities, Dimension, Offset, Plane, Result, Scale, Rgb, Style, Channels,
+    ncresult, sys::NcDirect, Align, Blitter, Capabilities, Channels, Dimension, Offset, Plane,
+    Result, Rgb, Scale, Style,
 };
 
 /// A minimal notcurses instance for styling text.

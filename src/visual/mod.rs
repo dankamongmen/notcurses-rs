@@ -14,7 +14,11 @@
 // MAYBE
 // - offer the alternative of using a VisualOptions structure. (old: visual3)
 
-use crate::{sys::{self, NcVisual, NcVisualOptions}, ncresult, Dimension, Notcurses, Result};
+use crate::{
+    ncresult,
+    sys::{self, NcVisual, NcVisualOptions},
+    Dimension, Notcurses, Result,
+};
 
 mod blitter;
 mod builder;
@@ -88,7 +92,6 @@ impl<'a, 'b> Visual<'a> {
     //    let p = NcVisual::render(self.raw, nc.raw, &self.options)?;
     //    Ok(Some(Plane::from_ncplane(p)))
     // }
-
 }
 
 /// # Post-Builder Configuration Methods
