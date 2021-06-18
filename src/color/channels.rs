@@ -2,7 +2,7 @@
 
 use crate::{
     sys::{NcChannels, NcChannelsMethods},
-    Alpha, Rgb, Channel,
+    Rgb,
 };
 
 /// A `u64` composed of 2 × [`Channel`]s.
@@ -66,7 +66,6 @@ impl Channels {
     {
         Self(NcChannels::from_rgb(fg.into().into(), bg.into().into()).set_default())
     }
-
 
     // New NcChannels, expects three RGB [`NcComponent`][sys::NcComponent]s
     // per channel.

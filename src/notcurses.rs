@@ -3,8 +3,6 @@
 use crate::{ncresult, sys::Nc, Capabilities, Dimension, Result};
 
 /// The main **notcurses** context.
-///
-/// *A  wrapper around `sys::`[`Nc`].*
 #[derive(Debug)]
 pub struct Notcurses<'a> {
     pub(crate) raw: &'a mut Nc,
@@ -18,12 +16,12 @@ impl<'a> Drop for Notcurses<'a> {
 }
 
 impl<'a> Notcurses<'a> {
-    /// New Notcurses instance.
+    /// New `Notcurses` instance.
     pub fn new() -> Result<Self> {
         Ok(Self { raw: Nc::new()? })
     }
 
-    /// New Notcurses instance, without an alternate screen.
+    /// New `Notcurses` instance, without an alternate screen.
     pub fn without_altscreen() -> Result<Self> {
         Ok(Self {
             raw: Nc::without_altscreen()?,

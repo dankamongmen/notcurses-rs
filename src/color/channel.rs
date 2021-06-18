@@ -2,7 +2,7 @@
 
 use crate::{
     sys::{NcChannel, NcChannelMethods},
-    Alpha, Rgb, Channels,
+    Alpha, Channels, Rgb,
 };
 
 /// A `u32` of 24bit [`Rgb`] data + 2bit [Alpha].

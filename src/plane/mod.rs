@@ -3,7 +3,6 @@
 use crate::{
     ncresult, // Channels,
     sys::{NcChannels, NcPlane},
-    Error,
     Offset,
     Result,
     Style,
@@ -69,14 +68,7 @@ impl<'a> Plane<'a> {
         style: Style,
         channels: CHANNELS,
     ) -> Result<u32> {
-        // TODO: create macro that wraps this
-        match self.raw.set_base(egc, style.bits(), channels.into()) {
-            Ok(bytes) => Ok(bytes),
-            Err(e) => Err(Error::NcError {
-                int: e.int,
-                msg: e.msg,
-            }),
-        }
+        ncresult![self.raw.set_base(egc, style.bits(), channels.into())]
     }
 
     /// Renders the pile the current `Plane` is part of.
