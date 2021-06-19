@@ -119,7 +119,7 @@ impl<'a, 'b> Visual<'a> {
     }
     /// Sets the blitter
     pub fn set_blitter(&mut self, blitter: Blitter) {
-        self.options.blitter = blitter.bits();
+        self.options.blitter = blitter as u32;
     }
 
     /// Sets whether the scaling should be done with interpolation or not.

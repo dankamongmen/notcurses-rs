@@ -82,7 +82,7 @@ impl<'a, 'b> VisualBuilder<'a, 'b> {
     ) -> Result<Self> {
         self.ncvisual = Some(NcVisual::from_plane(
             plane.raw,
-            blitter.bits(),
+            blitter as u32,
             y0,
             x0,
             y1,
@@ -260,14 +260,14 @@ impl<'a, 'b> VisualBuilder<'a, 'b> {
         // TODO if halign, valign…
         NcVisualOptions::with_plane(
             plane,
-            self.scale.expect("Couldn't find a prepared scale.").bits(),
+            self.scale.expect("Couldn't find a prepared scale.") as u32,
             self.y,
             self.x,
             self.begy,
             self.begx,
             self.leny,
             self.lenx,
-            self.blitter.bits(),
+            self.blitter as u32,
             self.flags,
             self.transcolor,
         )
@@ -283,7 +283,7 @@ impl<'a, 'b> VisualBuilder<'a, 'b> {
             self.begx,
             self.leny,
             self.lenx,
-            self.blitter.bits(),
+            self.blitter as u32,
             self.flags,
             self.transcolor,
         )

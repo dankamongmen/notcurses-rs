@@ -19,9 +19,9 @@ fn main() -> Result<()> {
     let mut root_plane = Plane::build().cols_rows(W * 2, H * 2).new_pile(&mut nc)?;
     let mut visual = Visual::build()
         .from_rgba(&buffer, W, H)?
-        .blitter(Blitter::PIXEL)
+        .blitter(Blitter::Pixel)
         .interpolate(false)
-        .into_plane(&mut root_plane, Scale::SCALE)?;
+        .into_plane(&mut root_plane, Scale::Scale)?;
     visual.render(&mut nc)?;
     root_plane.render_raster()?;
     sleep![0, 500];

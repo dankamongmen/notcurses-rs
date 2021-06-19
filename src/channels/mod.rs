@@ -2,6 +2,7 @@
 
 mod alpha;
 mod channel;
+#[allow(clippy::module_inception)]
 mod channels;
 mod rgb;
 

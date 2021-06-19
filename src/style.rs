@@ -3,11 +3,8 @@
 use crate::sys;
 
 bitflags! {
-    /// A `u16` bitfield of the `Style`s to apply to the text.
+    /// A `u16` bitmask of the styles you can apply to the text.
     pub struct Style: u16 {
-        // The bitmask covering all the styles.
-        // const MASK = sys::ffi::NCSTYLE_MASK as u16;
-
         /// Blinking.
         const UNDERCURL= sys::ffi::NCSTYLE_UNDERCURL as u16;
 
@@ -41,7 +38,7 @@ bitflags! {
         /// Reverse video.
         const REVERSE = sys::ffi::NCSTYLE_REVERSE as u16;
 
-        /// No style.
+        /// No styles.
         const NONE = sys::ffi::NCSTYLE_NONE as u16;
     }
 }

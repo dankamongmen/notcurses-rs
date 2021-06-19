@@ -5,7 +5,7 @@ use crate::{ncresult, sys::Nc, Capabilities, Dimension, Result};
 mod builder;
 pub use builder::NotcursesBuilder;
 
-/// Rendered mode. The main **notcurses** context.
+/// The main notcurses rendered mode context.
 #[derive(Debug)]
 pub struct Notcurses<'a> {
     pub(crate) raw: &'a mut Nc,

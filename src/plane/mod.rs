@@ -11,9 +11,7 @@ use crate::{
 mod builder;
 pub use builder::PlaneBuilder;
 
-/// The fundamental text drawing surface.
-///
-/// *A wrapper around [`NcPlane`].*
+/// A text drawing surface.
 ///
 #[derive(Debug)]
 pub struct Plane<'a> {
