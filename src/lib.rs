@@ -18,20 +18,18 @@ pub mod sys {
     pub use libnotcurses_sys::*;
 }
 
-mod capabilities;
 mod channels;
 mod error;
 mod macros;
-mod notcurses;
+mod mode;
 mod plane;
 mod style;
 mod visual;
 
-pub use self::notcurses::{Notcurses, NotcursesDirect};
-pub use capabilities::Capabilities;
 pub use channels::{Alpha, Channel, Channels, Rgb};
 pub use error::{Error, Result};
 pub use macros::*;
+pub use mode::{Capabilities, Notcurses, NotcursesDirect};
 pub use plane::{Plane, PlaneBuilder};
 pub use style::Style;
 pub use visual::{Blitter, Rgba, Scale, Visual, VisualBuilder};
