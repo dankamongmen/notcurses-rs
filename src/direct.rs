@@ -169,11 +169,12 @@ impl<'a> NotcursesDirect<'a> {
             fade: self.raw.canfade(),
             palette_change: self.raw.canchangecolor(),
             palette_size: self.raw.palette_size().unwrap_or(0),
+            cursor: self.raw.canget_cursor(),
         }
     }
 
     /// Returns the size of the terminal in columns and rows (x, y).
-    pub fn term_size(&self) -> (Dimension, Dimension) {
+    pub fn term_size(&mut self) -> (Dimension, Dimension) {
         let (y, x) = self.raw.dim_yx();
         (x, y)
     }

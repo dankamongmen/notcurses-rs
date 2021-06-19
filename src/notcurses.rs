@@ -129,6 +129,8 @@ impl<'a> Notcurses<'a> {
             fade: self.raw.canfade(),
             palette_change: self.raw.canchangecolor(),
             palette_size: self.raw.palette_size().unwrap_or(0),
+            // WIP https://github.com/dankamongmen/notcurses/issues/1790
+            cursor: true, // TEMP
         }
     }
 

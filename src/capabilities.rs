@@ -22,6 +22,7 @@ pub struct Capabilities {
     pub(crate) truecolor: bool,
     pub(crate) palette_change: bool,
     pub(crate) palette_size: u32,
+    pub(crate) cursor: bool,
 }
 
 impl Capabilities {
@@ -93,5 +94,10 @@ impl Capabilities {
     ///
     pub fn palette_size(&self) -> u32 {
         self.palette_size
+    }
+
+    ///
+    pub fn cursor(&self) -> bool {
+        self.cursor
     }
 }
