@@ -1,11 +1,14 @@
 //! `NotcursesDirect` wrapper struct and traits implementations.
 
+mod builder;
+pub use builder::NotcursesDirectBuilder;
+
 use crate::{
     ncresult, sys::NcDirect, Align, Blitter, Capabilities, Channels, Dimension, Offset, Plane,
     Result, Rgb, Scale, Style,
 };
 
-/// A minimal notcurses instance for styling text.
+/// Direct mode. A minimal notcurses instance for styling text.
 #[derive(Debug)]
 pub struct NotcursesDirect<'a> {
     pub(crate) raw: &'a mut NcDirect,
@@ -24,6 +27,12 @@ impl<'a> NotcursesDirect<'a> {
         Ok(Self {
             raw: NcDirect::new()?,
         })
+    }
+
+    /// Returns a [`NotcursesDirectBuilder`] used to customize a new
+    /// `NotcursesDirect` instance.
+    pub fn build() -> NotcursesDirectBuilder {
+        NotcursesDirectBuilder::default()
     }
 
     /// Clears the screen.

@@ -35,9 +35,16 @@ pub use channels::{Alpha, Channel, Channels, Rgb};
 pub use error::{Error, Result};
 pub use macros::*;
 pub use mode::{Capabilities, Notcurses, NotcursesDirect};
-pub use plane::{Plane, PlaneBuilder};
+pub use plane::Plane;
 pub use style::Style;
-pub use visual::{Blitter, Rgba, Scale, Visual, VisualBuilder};
+pub use visual::{Blitter, Rgba, Scale, Visual};
+
+pub mod builders {
+    //! All the builders
+    pub use crate::mode::{NotcursesBuilder, NotcursesDirectBuilder};
+    pub use crate::plane::PlaneBuilder;
+    pub use crate::visual::VisualBuilder;
+}
 
 /// Represents a dimension in rows or columns. Can't be negative.
 pub type Dimension = sys::NcDim;

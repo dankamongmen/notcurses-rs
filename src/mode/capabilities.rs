@@ -2,7 +2,7 @@
 
 use crate::{Notcurses, NotcursesDirect};
 
-/// The detected terminal capabilities.
+/// The detected current terminal capabilities.
 ///
 /// It can be generated with
 /// [`Notcurses.capabilities`][crate::Notcurses#method.capabilities] and

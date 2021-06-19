@@ -2,7 +2,10 @@
 
 use crate::{ncresult, sys::Nc, Capabilities, Dimension, Result};
 
-/// The main **notcurses** context.
+mod builder;
+pub use builder::NotcursesBuilder;
+
+/// Rendered mode. The main **notcurses** context.
 #[derive(Debug)]
 pub struct Notcurses<'a> {
     pub(crate) raw: &'a mut Nc,
@@ -21,12 +24,28 @@ impl<'a> Notcurses<'a> {
         Ok(Self { raw: Nc::new()? })
     }
 
-    /// New `Notcurses` instance, without an alternate screen.
-    pub fn without_altscreen() -> Result<Self> {
-        Ok(Self {
-            raw: Nc::without_altscreen()?,
-        })
+    /// Returns a [`NotcursesBuilder`] used to customize a new
+    /// `Notcurses` instance.
+    pub fn build() -> NotcursesBuilder {
+        NotcursesBuilder::default()
     }
+
+    ///
+    pub fn as_nc(&self) -> &Nc {
+        self.raw
+    }
+
+    ///
+    pub fn as_nc_mut(&mut self) -> &mut Nc {
+        self.raw
+    }
+
+    // /// New `Notcurses` instance, without an alternate screen.
+    // pub fn without_altscreen() -> Result<Self> {
+    //     Ok(Self {
+    //         raw: Nc::without_altscreen()?,
+    //     })
+    // }
 
     // pub fn align
     // pub fn at_yx
@@ -129,8 +148,7 @@ impl<'a> Notcurses<'a> {
             fade: self.raw.canfade(),
             palette_change: self.raw.canchangecolor(),
             palette_size: self.raw.palette_size().unwrap_or(0),
-            // WIP https://github.com/dankamongmen/notcurses/issues/1790
-            cursor: true, // TEMP
+            cursor: true,
         }
     }
 

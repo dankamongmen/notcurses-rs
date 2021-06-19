@@ -1,7 +1,7 @@
 mod capabilities;
 mod direct;
-mod notcurses;
+mod rendered;
 
-pub use self::notcurses::Notcurses;
 pub use capabilities::Capabilities;
-pub use direct::NotcursesDirect;
+pub use direct::{NotcursesDirect, NotcursesDirectBuilder};
+pub use rendered::{Notcurses, NotcursesBuilder};
