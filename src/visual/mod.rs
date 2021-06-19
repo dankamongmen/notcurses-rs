@@ -30,9 +30,7 @@ pub use builder::VisualBuilder;
 pub use rgba::Rgba;
 pub use scale::Scale;
 
-/// A virtual pixel framebuffer.
-///
-/// *A wrapper around [`NcVisual`] and [`NcVisualOptions`].*
+/// A virtual [`Rgba`] pixel framebuffer.
 #[derive(Debug)]
 pub struct Visual<'a> {
     pub(crate) raw: &'a mut NcVisual,

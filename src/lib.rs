@@ -4,6 +4,9 @@
 
 #![deny(clippy::default_numeric_fallback)]
 
+#[macro_use]
+extern crate bitflags;
+
 pub mod sys {
     //! `libnotcurses-sys` bindings.
     //!
@@ -18,6 +21,7 @@ pub mod sys {
     pub use libnotcurses_sys::*;
 }
 
+mod align;
 mod channels;
 mod error;
 mod macros;
@@ -26,6 +30,7 @@ mod plane;
 mod style;
 mod visual;
 
+pub use align::Align;
 pub use channels::{Alpha, Channel, Channels, Rgb};
 pub use error::{Error, Result};
 pub use macros::*;
@@ -39,16 +44,3 @@ pub type Dimension = sys::NcDim;
 
 /// Represents an offset in rows or columns. Can be negative.
 pub type Offset = sys::NcOffset;
-
-#[macro_use]
-extern crate bitflags;
-bitflags! {
-    /// Represents the alignment within a plane or terminal.
-    /// Either left/right-justified, centered, or unaligned.
-    pub struct Align: u32 {
-        const NCALIGN_LEFT = sys::NCALIGN_LEFT;
-        const NCALIGN_RIGHT = sys::NCALIGN_RIGHT;
-        const NCALIGN_CENTER = sys::NCALIGN_CENTER;
-        const NCALIGN_UNALIGNED = sys::NCALIGN_UNALIGNED;
-    }
-}

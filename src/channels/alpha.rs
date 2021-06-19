@@ -1,7 +1,7 @@
 use crate::sys::{self, NcAlphaBits};
 
 /// A `u32` of 2bit alpha, part of a [`Channel`][crate::Channel],
-/// and surrounded by context dependent bits.
+/// surrounded by context dependent bits.
 ///
 /// # Diagram
 /// ```txt

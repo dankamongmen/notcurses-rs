@@ -3,7 +3,7 @@ use std::fmt;
 
 use crate::sys::NcRgb;
 
-/// A `u32` of 24bit [`Rgb`] data, part of a [`Channel`][crate::Channel].
+/// A `u32` of 24bit `Rgb` data, part of a [`Channel`][crate::Channel].
 ///
 /// # Diagram
 /// ```txt

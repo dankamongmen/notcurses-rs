@@ -11,7 +11,7 @@ use crate::{
 mod builder;
 pub use builder::PlaneBuilder;
 
-/// The fundamental drawing surface.
+/// The fundamental text drawing surface.
 ///
 /// *A wrapper around [`NcPlane`].*
 ///

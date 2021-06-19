@@ -155,7 +155,7 @@ impl<'a> NotcursesDirect<'a> {
     }
 
     /// Returns the capabilities of the terminal.
-    pub fn term_capabilities(&self) -> Capabilities {
+    pub fn capabilities(&self) -> Capabilities {
         Capabilities {
             halfblock: self.raw.canhalfblock(),
             quadrant: self.raw.canquadrant(),

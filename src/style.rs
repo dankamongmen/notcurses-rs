@@ -3,7 +3,7 @@
 use crate::sys;
 
 bitflags! {
-    /// The style to apply to the text.
+    /// A `u16` bitfield of the `Style`s to apply to the text.
     pub struct Style: u16 {
         // The bitmask covering all the styles.
         // const MASK = sys::ffi::NCSTYLE_MASK as u16;
