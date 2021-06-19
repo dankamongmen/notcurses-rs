@@ -19,8 +19,7 @@ pub mod sys {
 }
 
 mod capabilities;
-mod color;
-mod direct;
+mod channels;
 mod error;
 mod macros;
 mod notcurses;
@@ -28,15 +27,14 @@ mod plane;
 mod style;
 mod visual;
 
-pub use self::notcurses::Notcurses;
+pub use self::notcurses::{Notcurses, NotcursesDirect};
 pub use capabilities::Capabilities;
-pub use color::{Alpha, Channel, Channels, Rgb, Rgba};
-pub use direct::NotcursesDirect;
+pub use channels::{Alpha, Channel, Channels, Rgb};
 pub use error::{Error, Result};
 pub use macros::*;
 pub use plane::{Plane, PlaneBuilder};
 pub use style::Style;
-pub use visual::{Blitter, Scale, Visual, VisualBuilder};
+pub use visual::{Blitter, Rgba, Scale, Visual, VisualBuilder};
 
 /// Represents a dimension in rows or columns. Can't be negative.
 pub type Dimension = sys::NcDim;

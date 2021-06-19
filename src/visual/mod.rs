@@ -22,10 +22,12 @@ use crate::{
 
 mod blitter;
 mod builder;
+mod rgba;
 mod scale;
 
 pub use blitter::Blitter;
 pub use builder::VisualBuilder;
+pub use rgba::Rgba;
 pub use scale::Scale;
 
 /// A virtual pixel framebuffer.
