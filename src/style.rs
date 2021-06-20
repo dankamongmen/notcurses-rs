@@ -73,7 +73,7 @@ impl From<NcStyle> for Style {
             sys::NCSTYLE_INVIS => Style::INVIS,
             sys::NCSTYLE_PROTECT => Style::PROTECT,
             sys::NCSTYLE_NONE => Style::NONE,
-            _ => Style::default()
+            _ => Style::default(),
         }
     }
 }

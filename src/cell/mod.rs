@@ -1,5 +1,8 @@
 use crate::{sys::NcCell, Plane, Style};
 
+mod builder;
+pub use builder::CellBuilder;
+
 /// Part of a [`Cell`].
 pub const BACKSTOP: u8 = 0;
 
@@ -17,14 +20,19 @@ pub struct Cell {
     raw: NcCell,
 }
 
-impl Cell {
+impl<'a, 'ncplane> Cell {
+    /// Returns a [`CellBuilder`] used to customize a new `Cell`.
+    pub fn build() -> CellBuilder<'a, 'ncplane> {
+        CellBuilder::default()
+    }
+
     /// Returns the `char`.
-    pub fn egc<'a>(&mut self, plane: &mut Plane<'a>) -> char {
+    pub fn char(&mut self, plane: &mut Plane<'ncplane>) -> char {
         self.raw.egc(plane.as_ncplane_mut())
     }
 
     /// Returns the [`Styles`].
-    pub fn styles<'a>(&mut self) -> Style {
+    pub fn styles(&mut self) -> Style {
         self.raw.styles().into()
     }
 
@@ -33,8 +41,8 @@ impl Cell {
         self.raw.styles_on(styles.bits())
     }
 
-    /// Removes the specified [`Style`]s.
-    pub fn remove_styles(&mut self, styles: Style) {
+    /// Deletes the specified [`Style`]s.
+    pub fn del_styles(&mut self, styles: Style) {
         self.raw.styles_off(styles.bits())
     }
 
