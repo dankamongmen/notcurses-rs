@@ -8,6 +8,4 @@ impl Default for NotcursesDirectBuilder {
     }
 }
 
-impl NotcursesDirectBuilder {
-
-}
+impl NotcursesDirectBuilder {}

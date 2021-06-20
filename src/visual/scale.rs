@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use crate::sys;
+use crate::sys::{self, NcScale};
 
 /// A `u8` of [`Visual`][crate::Visual] scaling during rendering.
 //
@@ -24,4 +24,25 @@ pub enum Scale {
     /// Maintains the aspect ratio, admitting high-resolution blitters
     /// that don't preserve aspect ratio.
     ScaleHires = sys::NCSCALE_SCALE_HIRES as u8,
+}
+
+impl From<Scale> for NcScale {
+    fn from(scale: Scale) -> NcScale {
+        scale as NcScale
+    }
+}
+
+/// Any value that is not a valid [`NcScale`] related constant
+/// will be converted to [`Scale::None`].
+impl From<NcScale> for Scale {
+    fn from(na: NcScale) -> Scale {
+        match na {
+            sys::NCSCALE_NONE => Scale::None,
+            sys::NCSCALE_SCALE => Scale::Scale,
+            sys::NCSCALE_STRETCH => Scale::Stretch,
+            sys::NCSCALE_NONE_HIRES => Scale::NoneHires,
+            sys::NCSCALE_SCALE_HIRES => Scale::ScaleHires,
+            _ => Scale::None,
+        }
+    }
 }

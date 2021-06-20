@@ -16,29 +16,29 @@ use crate::sys::{self, NcAlphaBits};
 pub enum Alpha {
     /// The [`Cell`][crate::Cell]'s foreground or background color will be a
     /// composite between its color and the corresponding colors underneath it.
-    Blend = (sys::NCALPHA_BLEND >> 24) as u8,
+    Blend = (sys::NCALPHA_BLEND >> 24_u8) as u8,
 
     /// The [`Cell`][crate::Cell]'s foreground color will be high-contrast
     /// (relative to the computed background).
     ///
     /// Note that the background cannot be highcontrast.
-    HighContrast = (sys::NCALPHA_HIGHCONTRAST >> 24) as u8,
+    HighContrast = (sys::NCALPHA_HIGHCONTRAST >> 24_u8) as u8,
 
     /// The [`Cell`][crate::Cell]'s foreground or background color is used unchanged.
-    Opaque = (sys::NCALPHA_OPAQUE >> 24) as u8,
+    Opaque = (sys::NCALPHA_OPAQUE >> 24_u8) as u8,
 
     /// The [`Cell`][crate::Cell]'s foreground or background color is derived
     /// entirely from the `Cell`s underneath it.
-    Transparent = (sys::NCALPHA_TRANSPARENT >> 24) as u8,
+    Transparent = (sys::NCALPHA_TRANSPARENT >> 24_u8) as u8,
 }
 
 impl From<Alpha> for NcAlphaBits {
-    fn from(a: Alpha) -> NcAlphaBits {
-        (a as NcAlphaBits) << 24
+    fn from(alpha: Alpha) -> NcAlphaBits {
+        (alpha as NcAlphaBits) << 24_u8
     }
 }
 
-/// Any value that is not an [`NcAlphaBits`] related constant
+/// Any value that is not a valid [`NcAlphaBits`] related constant
 /// will be converted to [`Alpha::Opaque`].
 impl From<NcAlphaBits> for Alpha {
     fn from(na: NcAlphaBits) -> Alpha {
@@ -53,8 +53,8 @@ impl From<NcAlphaBits> for Alpha {
 }
 
 #[cfg(test)]
-mod test{
-    use super::{Alpha, sys};
+mod test {
+    use super::{sys, Alpha};
     #[test]
     fn alpha_shifts() {
         assert_eq![sys::NCALPHA_BLEND, u32::from(Alpha::Blend)];

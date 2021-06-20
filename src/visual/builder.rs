@@ -82,7 +82,7 @@ impl<'a, 'b> VisualBuilder<'a, 'b> {
     ) -> Result<Self> {
         self.ncvisual = Some(NcVisual::from_plane(
             plane.raw,
-            blitter as u32,
+            blitter.into(),
             y0,
             x0,
             y1,
@@ -267,7 +267,7 @@ impl<'a, 'b> VisualBuilder<'a, 'b> {
             self.begx,
             self.leny,
             self.lenx,
-            self.blitter as u32,
+            self.blitter.into(),
             self.flags,
             self.transcolor,
         )
@@ -283,7 +283,7 @@ impl<'a, 'b> VisualBuilder<'a, 'b> {
             self.begx,
             self.leny,
             self.lenx,
-            self.blitter as u32,
+            self.blitter.into(),
             self.flags,
             self.transcolor,
         )

@@ -48,7 +48,7 @@ impl<'a> NotcursesDirect<'a> {
     /// Takes the result of [`render_frame`][NotcursesDirect#method.render_frame]
     /// and writes it to the output.
     pub fn raster_frame(&mut self, plane: &mut Plane, align: Align) -> Result<()> {
-        ncresult![self.raw.raster_frame(plane.raw, align as u32)]
+        ncresult![self.raw.raster_frame(plane.raw, align.into())]
     }
 
     /// Renders an image into a [`Plane`] using the specified [`Blitter`] and
@@ -73,7 +73,7 @@ impl<'a> NotcursesDirect<'a> {
     ) -> Result<Plane> {
         let p = self
             .raw
-            .render_frame(filename, blitter as u32, scale as u32, max_y, max_x)?;
+            .render_frame(filename, blitter.into(), scale.into(), max_y, max_x)?;
         Ok(Plane::from_ncplane(p))
     }
 
@@ -95,7 +95,7 @@ impl<'a> NotcursesDirect<'a> {
     ) -> Result<()> {
         ncresult![self
             .raw
-            .render_image(filename, align as u32, blitter as u32, scale as u32)]
+            .render_image(filename, align.into(), blitter.into(), scale.into())]
     }
 
     /// Disables the terminal cursor, if supported.

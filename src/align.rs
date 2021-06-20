@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use crate::sys;
+use crate::sys::{self, NcAlign};
 
 /// A `u8` of alignment within a plane or terminal.
 //
@@ -19,4 +19,23 @@ pub enum Align {
 
     /// Not [`Align`]ed.
     Unaligned = sys::NCALIGN_UNALIGNED as u8,
+}
+
+impl From<Align> for NcAlign {
+    fn from(align: Align) -> NcAlign {
+        align as NcAlign
+    }
+}
+
+/// Any value that is not a valid [`NcAlign`] related constant
+/// will be converted to [`Align::Unaligned`].
+impl From<NcAlign> for Align {
+    fn from(na: NcAlign) -> Align {
+        match na {
+            sys::NCALIGN_LEFT => Align::Left,
+            sys::NCALIGN_RIGHT => Align::Right,
+            sys::NCALIGN_CENTER => Align::Center,
+            sys::NCALIGN_UNALIGNED | _ => Align::Unaligned,
+        }
+    }
 }
