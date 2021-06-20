@@ -5,8 +5,8 @@ use crate::{
     Alpha, Channels, Rgb,
 };
 
-/// A `u32` of 24bit [`Rgb`] data + 2bit [Alpha]
-/// surrounded by context dependent bits.
+/// A `u32` of 24bit [`Rgb`] data + 2bit [Alpha] + context dependent bits,
+/// part of [`Channels`].
 ///
 /// # Diagram
 /// ```txt

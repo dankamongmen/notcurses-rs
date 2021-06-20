@@ -7,7 +7,7 @@ use crate::sys::{self, NcAlphaBits};
 /// --AA----
 /// ```
 ///
-/// Shifted right into an `u32`, as part of a `Channel`:
+/// Shifted right into an `u32`, as part of a [`Channel`][crate::Channel]:
 /// ```txt
 /// --AA----|--------|--------|--------
 /// ```

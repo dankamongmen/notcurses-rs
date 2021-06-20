@@ -29,6 +29,7 @@ impl From<Align> for NcAlign {
 
 /// Any value that is not a valid [`NcAlign`] related constant
 /// will be converted to [`Align::Unaligned`].
+#[allow(clippy::wildcard_in_or_patterns)]
 impl From<NcAlign> for Align {
     fn from(na: NcAlign) -> Align {
         match na {

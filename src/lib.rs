@@ -39,6 +39,7 @@ pub mod sys {
 }
 
 mod align;
+mod cell;
 mod channels;
 mod error;
 mod macros;
@@ -48,6 +49,7 @@ mod style;
 mod visual;
 
 pub use align::Align;
+pub use cell::{Cell, BACKSTOP};
 pub use channels::{Alpha, Channel, Channels, Rgb};
 pub use error::{Error, Result};
 pub use macros::*;
