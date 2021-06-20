@@ -32,6 +32,13 @@ pub enum Alpha {
     Transparent = (sys::NCALPHA_TRANSPARENT >> 24_u8) as u8,
 }
 
+/// Defaults to [`Alpha::Opaque`].
+impl Default for Alpha {
+    fn default() -> Self {
+        Alpha::Opaque
+    }
+}
+
 impl From<Alpha> for NcAlphaBits {
     fn from(alpha: Alpha) -> NcAlphaBits {
         (alpha as NcAlphaBits) << 24_u8
@@ -39,7 +46,7 @@ impl From<Alpha> for NcAlphaBits {
 }
 
 /// Any value that is not a valid [`NcAlphaBits`] related constant
-/// will be converted to [`Alpha::Opaque`].
+/// will be converted to the default [`Alpha::Opaque`].
 impl From<NcAlphaBits> for Alpha {
     fn from(na: NcAlphaBits) -> Alpha {
         match na {
@@ -47,7 +54,7 @@ impl From<NcAlphaBits> for Alpha {
             sys::NCALPHA_BLEND => Alpha::Blend,
             sys::NCALPHA_TRANSPARENT => Alpha::Transparent,
             sys::NCALPHA_HIGHCONTRAST => Alpha::HighContrast,
-            _ => Alpha::Opaque,
+            _ => Alpha::default(),
         }
     }
 }

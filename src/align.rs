@@ -21,6 +21,13 @@ pub enum Align {
     Unaligned = sys::NCALIGN_UNALIGNED as u8,
 }
 
+/// Defaults to [`Align::Unaligned`].
+impl Default for Align {
+    fn default() -> Self {
+        Align::Unaligned
+    }
+}
+
 impl From<Align> for NcAlign {
     fn from(align: Align) -> NcAlign {
         align as NcAlign
@@ -28,15 +35,15 @@ impl From<Align> for NcAlign {
 }
 
 /// Any value that is not a valid [`NcAlign`] related constant
-/// will be converted to [`Align::Unaligned`].
-#[allow(clippy::wildcard_in_or_patterns)]
+/// will be converted to the default [`Align::Unaligned`].
 impl From<NcAlign> for Align {
     fn from(na: NcAlign) -> Align {
         match na {
             sys::NCALIGN_LEFT => Align::Left,
             sys::NCALIGN_RIGHT => Align::Right,
             sys::NCALIGN_CENTER => Align::Center,
-            sys::NCALIGN_UNALIGNED | _ => Align::Unaligned,
+            sys::NCALIGN_UNALIGNED => Align::Unaligned,
+            _ => Align::default(),
         }
     }
 }

@@ -43,6 +43,13 @@ bitflags! {
     }
 }
 
+/// Defaults to [`Style::NONE`].
+impl Default for Style {
+    fn default() -> Self {
+        Style::NONE
+    }
+}
+
 impl From<Style> for NcStyle {
     fn from(align: Style) -> NcStyle {
         align.bits() as NcStyle
@@ -50,8 +57,7 @@ impl From<Style> for NcStyle {
 }
 
 /// Any value that is not a valid [`NcStyle`] related constant
-/// will be converted to [`Style::NONE`].
-#[allow(clippy::wildcard_in_or_patterns)]
+/// will be converted to the default [`Style::NONE`].
 impl From<NcStyle> for Style {
     fn from(na: NcStyle) -> Style {
         match na {
@@ -66,7 +72,8 @@ impl From<NcStyle> for Style {
             sys::NCSTYLE_BOLD => Style::BOLD,
             sys::NCSTYLE_INVIS => Style::INVIS,
             sys::NCSTYLE_PROTECT => Style::PROTECT,
-            sys::NCSTYLE_NONE | _ => Style::NONE,
+            sys::NCSTYLE_NONE => Style::NONE,
+            _ => Style::default()
         }
     }
 }

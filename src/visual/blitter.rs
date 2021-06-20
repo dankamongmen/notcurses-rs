@@ -53,11 +53,13 @@ pub enum Blitter {
     Eight = sys::NCBLIT_8x1 as u16,
 }
 
+/// Defaults to [`Blitter::Default`].
 impl Default for Blitter {
     fn default() -> Self {
         Blitter::Default
     }
 }
+
 impl From<Blitter> for NcBlitter {
     fn from(blitter: Blitter) -> NcBlitter {
         blitter as NcBlitter
