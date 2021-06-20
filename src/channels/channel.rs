@@ -104,7 +104,7 @@ impl Channel {
     }
 
     /// Marks this `Channel` as using its "default color", which also marks it
-    /// [`OPAQUE`][crate::Alpha::OPAQUE], and returns the resulting `Channel`.
+    /// [`OPAQUE`][crate::Alpha::Opaque], and returns the resulting `Channel`.
     pub fn default(&mut self) -> Self {
         NcChannel::from(self).set_default().into()
     }

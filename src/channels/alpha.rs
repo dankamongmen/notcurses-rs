@@ -1,40 +1,45 @@
 use crate::sys::{self, NcAlphaBits};
 
-/// A `u32` of 2bit alpha, part of a [`Channel`][crate::Channel].
+/// A `u8` of 2bit alpha, part of a [`Channel`][crate::Channel].
 ///
 /// # Diagram
 /// ```txt
-/// ~~AA~~~~|--------|--------|--------
+/// --AA----
 /// ```
-//
-// IMPROVE: store it as a u8, and bitshift on From …
-#[repr(u32)]
+///
+/// Shifted right into an `u32`, as part of a `Channel`:
+/// ```txt
+/// --AA----|--------|--------|--------
+/// ```
+#[repr(u8)]
 #[derive(Copy, Clone, Debug)]
 pub enum Alpha {
     /// The [`Cell`][crate::Cell]'s foreground or background color will be a
     /// composite between its color and the corresponding colors underneath it.
-    Blend = sys::NCALPHA_BLEND,
+    Blend = (sys::NCALPHA_BLEND >> 24) as u8,
 
     /// The [`Cell`][crate::Cell]'s foreground color will be high-contrast
     /// (relative to the computed background).
     ///
     /// Note that the background cannot be highcontrast.
-    HighContrast = sys::NCALPHA_HIGHCONTRAST,
+    HighContrast = (sys::NCALPHA_HIGHCONTRAST >> 24) as u8,
 
     /// The [`Cell`][crate::Cell]'s foreground or background color is used unchanged.
-    Opaque = sys::NCALPHA_OPAQUE,
+    Opaque = (sys::NCALPHA_OPAQUE >> 24) as u8,
 
     /// The [`Cell`][crate::Cell]'s foreground or background color is derived
     /// entirely from the `Cell`s underneath it.
-    Transparent = sys::NCALPHA_TRANSPARENT,
+    Transparent = (sys::NCALPHA_TRANSPARENT >> 24) as u8,
 }
 
 impl From<Alpha> for NcAlphaBits {
     fn from(a: Alpha) -> NcAlphaBits {
-        a as NcAlphaBits
+        (a as NcAlphaBits) << 24
     }
 }
 
+/// Any value that is not an [`NcAlphaBits`] related constant
+/// will be converted to [`Alpha::Opaque`].
 impl From<NcAlphaBits> for Alpha {
     fn from(na: NcAlphaBits) -> Alpha {
         match na {
@@ -44,5 +49,20 @@ impl From<NcAlphaBits> for Alpha {
             sys::NCALPHA_HIGHCONTRAST => Alpha::HighContrast,
             _ => Alpha::Opaque,
         }
+    }
+}
+
+#[cfg(test)]
+mod test{
+    use super::{Alpha, sys};
+    #[test]
+    fn alpha_shifts() {
+        assert_eq![sys::NCALPHA_BLEND, u32::from(Alpha::Blend)];
+        assert_eq![sys::NCALPHA_BLEND, Alpha::Blend.into()];
+        assert_eq![sys::NCALPHA_BLEND, Alpha::from(sys::NCALPHA_BLEND).into()];
+    }
+    #[test]
+    fn alpha_default_conversion_opaque() {
+        assert_eq![sys::NCALPHA_OPAQUE, Alpha::from(1337).into()];
     }
 }
