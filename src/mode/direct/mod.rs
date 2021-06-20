@@ -232,8 +232,8 @@ impl<'a> NotcursesDirect<'a> {
         ncresult![self.raw.styles_on(styles.bits())]
     }
 
-    /// Removes the specified [`Style`]s.
-    pub fn remove_styles(&mut self, styles: Style) -> Result<()> {
+    /// Deletes the specified [`Style`]s.
+    pub fn del_styles(&mut self, styles: Style) -> Result<()> {
         ncresult![self.raw.styles_off(styles.bits())]
     }
 
