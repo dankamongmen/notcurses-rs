@@ -2,7 +2,7 @@
 
 [![Crate](https://img.shields.io/crates/v/notcurses.svg)](https://crates.io/crates/notcurses)
 
-A higher level Rust wrapper for the [notcurses C library][1].
+A simple, higher-level Rust wrapper for the [notcurses C library][1].
 
 ## Status of the library
 
@@ -33,6 +33,6 @@ Currently the libnotcurses-sys API is being re-exported under the `sys` module.
   order, either as part of the function name or as parameters.
 - Many types have several `From` implementations in order to make it easier
   to use them in different contexts using `.into().
-- `Align`, `Blitter` and `Scale` are now enums.
+- `Align`, `Alpha`, `Blitter` and `Scale` are now enums. `Style` is a bitfield.
 - New unified `Error` and `Result` types.
 

@@ -1,4 +1,5 @@
-//! A simple *rusty* wrapper for the [notcurses C library][0]
+//! A simple, higher-level Rust wrapper for the [notcurses C library][0].
+//! It depends on [`libnotcurses-sys`][1].
 //!
 //! ## Main API differences with `libnotcurses-sys`
 //!
@@ -11,10 +12,12 @@
 //!   order, either as part of the function name or as parameters.
 //! - Many types have several `From` implementations in order to make it easier
 //!   to use them in different contexts using `.into()`.
-//! - [`Align`], [`Blitter`] and [`Scale`] are now enums.
+//! - [`Align`], [`Alpha`], [`Blitter`] and [`Scale`] are now enums.
+//!   [`Style`] is a bitfield.
 //! - New [`Error`] and [`Result`] types.
 //!
 //! [0]: https://github.com/dankamongmen/notcurses
+//! [1]: https://github.com/dankamongmen/notcurses/tree/master/rust
 
 #![deny(clippy::default_numeric_fallback)]
 
