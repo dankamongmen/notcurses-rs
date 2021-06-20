@@ -1,50 +1,48 @@
 use crate::sys::{self, NcAlphaBits};
 
-/// A `u32` of 2bit alpha, part of a [`Channel`][crate::Channel],
-/// surrounded by context dependent bits.
+/// A `u32` of 2bit alpha, part of a [`Channel`][crate::Channel].
 ///
 /// # Diagram
 /// ```txt
 /// ~~AA~~~~|--------|--------|--------
 /// ```
-pub struct Alpha(NcAlphaBits);
-
-impl Alpha {
+//
+// IMPROVE: store it as a u8, and bitshift on From …
+#[repr(u32)]
+#[derive(Copy, Clone, Debug)]
+pub enum Alpha {
     /// The [`Cell`][crate::Cell]'s foreground or background color will be a
     /// composite between its color and the corresponding colors underneath it.
-    pub const BLEND: Alpha = Self(sys::NCALPHA_BLEND);
+    Blend = sys::NCALPHA_BLEND,
 
     /// The [`Cell`][crate::Cell]'s foreground color will be high-contrast
     /// (relative to the computed background).
     ///
     /// Note that the background cannot be highcontrast.
-    pub const HIGHCONTRAST: Alpha = Self(sys::NCALPHA_HIGHCONTRAST);
+    HighContrast = sys::NCALPHA_HIGHCONTRAST,
 
     /// The [`Cell`][crate::Cell]'s foreground or background color is used unchanged.
-    pub const OPAQUE: Alpha = Self(sys::NCALPHA_OPAQUE);
+    Opaque = sys::NCALPHA_OPAQUE,
 
     /// The [`Cell`][crate::Cell]'s foreground or background color is derived
     /// entirely from the `Cell`s underneath it.
-    pub const TRANSPARENT: Alpha = Self(sys::NCALPHA_TRANSPARENT);
+    Transparent = sys::NCALPHA_TRANSPARENT,
 }
 
 impl From<Alpha> for NcAlphaBits {
     fn from(a: Alpha) -> NcAlphaBits {
-        a.0
+        a as NcAlphaBits
     }
 }
-impl From<&Alpha> for NcAlphaBits {
-    fn from(a: &Alpha) -> NcAlphaBits {
-        a.0
-    }
-}
-impl From<&mut Alpha> for NcAlphaBits {
-    fn from(a: &mut Alpha) -> NcAlphaBits {
-        a.0
-    }
-}
+
 impl From<NcAlphaBits> for Alpha {
     fn from(na: NcAlphaBits) -> Alpha {
-        Alpha(na)
+        match na {
+            sys::NCALPHA_OPAQUE => Alpha::Opaque,
+            sys::NCALPHA_BLEND => Alpha::Blend,
+            sys::NCALPHA_TRANSPARENT => Alpha::Transparent,
+            sys::NCALPHA_HIGHCONTRAST => Alpha::HighContrast,
+            _ => Alpha::Opaque,
+        }
     }
 }

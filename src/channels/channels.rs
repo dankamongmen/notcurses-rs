@@ -5,7 +5,7 @@ use crate::{
     Channel,
 };
 
-/// A `u64` composed of 2 × [`Channel`][crate::Channel]s.
+/// A `u64` of foreground [`Channel`] + background [`Channel`].
 ///
 /// # Diagram
 ///

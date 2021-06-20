@@ -5,7 +5,7 @@ use std::fmt;
 
 use crate::sys::NcRgba;
 
-/// A `u32` of 32bit `Rgba` data, to build a [`Visual`][crate::Visual].
+/// A `u32` of 32bit `Rgba` data, used to build a [`Visual`][crate::Visual].
 ///
 /// # Diagram
 /// ```txt
