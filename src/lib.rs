@@ -53,7 +53,7 @@ pub use cell::{Cell, BACKSTOP};
 pub use channels::{Alpha, Channel, Channels, Rgb};
 pub use error::{Error, Result};
 pub use macros::*;
-pub use mode::{Capabilities, Notcurses, NotcursesDirect};
+pub use mode::{Capabilities, LogLevel, Notcurses, NotcursesDirect};
 pub use plane::Plane;
 pub use style::Style;
 pub use visual::{Blitter, Rgba, Scale, Visual};

@@ -3,7 +3,9 @@
 use crate::{ncresult, sys::Nc, Capabilities, Dimension, Result};
 
 mod builder;
+mod loglevel;
 pub use builder::NotcursesBuilder;
+pub use loglevel::LogLevel;
 
 /// The main notcurses rendered mode context.
 #[derive(Debug)]
@@ -30,22 +32,15 @@ impl<'a> Notcurses<'a> {
         NotcursesBuilder::default()
     }
 
-    ///
+    /// Returns a reference to the inner [`Nc`].
     pub fn as_nc(&self) -> &Nc {
         self.raw
     }
 
-    ///
+    /// Returns a mutable reference to the inner [`Nc`].
     pub fn as_nc_mut(&mut self) -> &mut Nc {
         self.raw
     }
-
-    // /// New `Notcurses` instance, without an alternate screen.
-    // pub fn without_altscreen() -> Result<Self> {
-    //     Ok(Self {
-    //         raw: Nc::without_altscreen()?,
-    //     })
-    // }
 
     // pub fn align
     // pub fn at_yx

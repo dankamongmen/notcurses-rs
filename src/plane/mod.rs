@@ -39,7 +39,7 @@ impl<'a> Plane<'a> {
         Self { raw: plane }
     }
 
-    /// Returns a mutable reference to the inner [`NcPlane`].
+    /// Returns a reference to the inner [`NcPlane`].
     pub fn as_ncplane(&self) -> &NcPlane {
         self.raw
     }
