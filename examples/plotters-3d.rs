@@ -1,6 +1,6 @@
 //! A 3d graph.
 //!
-//! Source: <https://github.com/38/plotters/blob/master/examples/3d-plot.rs>
+//! based on: <https://github.com/38/plotters/blob/master/examples/3d-plot.rs>
 //!
 //! Run with:
 //! ```sh

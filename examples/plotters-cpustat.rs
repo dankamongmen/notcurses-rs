@@ -1,6 +1,6 @@
 //! A CPU stats monitor.
 //!
-//! Source: <https://github.com/plotters-rs/plotters-piston/>
+//! based on: <https://github.com/plotters-rs/plotters-piston/>
 //!
 //! Run with:
 //! ```sh
@@ -30,10 +30,10 @@ struct State {
 fn main() -> NotcursesResult<()> {
     let mut nc = Notcurses::new()?;
 
-    let (width, height) = nc.term_size();
+    let (cols, rows) = nc.term_size();
     let geom = nc.term_pixelgeometry();
 
-    let mut plane = Plane::build().cols_rows(width, height).new_pile(&mut nc)?;
+    let mut plane = Plane::build().cols_rows(cols, rows).new_pile(&mut nc)?;
     let mut buffer = vec![0; geom.max_bitmap_x as usize * geom.max_bitmap_y as usize * 3];
 
     let system = System::new();
@@ -56,7 +56,7 @@ fn main() -> NotcursesResult<()> {
             // WIP
             // sys::NCKEY_RESIZE => break Err(NotcursesError::ExitMessage("resize".into())),
             'q' => break Ok(()),
-            _ => {},
+            _ => {}
         }
 
         let mut visual = Visual::build()

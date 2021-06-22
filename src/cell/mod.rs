@@ -6,7 +6,7 @@ pub use builder::CellBuilder;
 /// Part of a [`Cell`].
 pub const BACKSTOP: u8 = 0;
 
-/// A `u128` of [`char`] + [`BACKSTOP`] + *width* + [`Style`] + [`Channels`],
+/// A `u128` of [`char`] + [`BACKSTOP`] + *width* + [`Style`] + [`Channels`][crate::Channels],
 /// part of a [`Plane`][crate::Plane].
 ///
 /// # Diagram
@@ -31,7 +31,7 @@ impl<'a, 'ncplane> Cell {
         self.raw.egc(plane.as_ncplane_mut())
     }
 
-    /// Returns the [`Styles`].
+    /// Returns the [`Style`]s.
     pub fn styles(&mut self) -> Style {
         self.raw.styles().into()
     }
