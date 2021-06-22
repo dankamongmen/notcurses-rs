@@ -4,7 +4,7 @@ use crate::{
     ncresult, // Channels,
     sys::{NcChannels, NcPlane},
     Offset,
-    Result,
+    NotcursesResult as Result,
     Style,
 };
 

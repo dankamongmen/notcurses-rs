@@ -2,7 +2,7 @@ use std::{fmt, io};
 
 /// The notcurses `Error` type.
 #[derive(Debug)]
-pub enum Error {
+pub enum NotcursesError {
     /// An IO error.
     IoError(io::Error),
 
@@ -18,9 +18,9 @@ pub enum Error {
     // ControlCharInText(char),
 }
 
-impl fmt::Display for Error {
+impl fmt::Display for NotcursesError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use Error::*;
+        use NotcursesError::*;
         match self {
             IoError(err) => write!(f, "{}", err),
             NcError { int, msg } => write!(f, "NcError<{0}, {1}>", int, msg),
@@ -38,15 +38,15 @@ impl fmt::Display for Error {
     }
 }
 
-impl From<io::Error> for Error {
-    fn from(err: io::Error) -> Error {
-        Error::IoError(err)
+impl From<io::Error> for NotcursesError {
+    fn from(err: io::Error) -> Self {
+        Self::IoError(err)
     }
 }
 
-impl From<libnotcurses_sys::NcError> for Error {
-    fn from(err: libnotcurses_sys::NcError) -> Error {
-        Error::NcError {
+impl From<libnotcurses_sys::NcError> for NotcursesError {
+    fn from(err: libnotcurses_sys::NcError) -> Self {
+        Self::NcError {
             int: err.int,
             msg: err.msg,
         }
@@ -54,4 +54,4 @@ impl From<libnotcurses_sys::NcError> for Error {
 }
 
 /// The notcurses `Result` type.
-pub type Result<T> = std::result::Result<T, Error>;
+pub type NotcursesResult<T> = std::result::Result<T, NotcursesError>;

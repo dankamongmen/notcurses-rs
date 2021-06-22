@@ -1,6 +1,6 @@
 //! `Notcurses` wrapper struct and traits implementations.
 
-use crate::{ncresult, sys::Nc, Capabilities, Dimension, Result};
+use crate::{ncresult, sys::Nc, Capabilities, Dimension, NotcursesResult as Result};
 
 mod builder;
 mod loglevel;

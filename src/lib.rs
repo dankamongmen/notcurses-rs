@@ -51,7 +51,7 @@ mod visual;
 pub use align::Align;
 pub use cell::{Cell, BACKSTOP};
 pub use channels::{Alpha, Channel, Channels, Rgb};
-pub use error::{Error, Result};
+pub use error::{NotcursesError, NotcursesResult};
 pub use macros::*;
 pub use mode::{Capabilities, LogLevel, Notcurses, NotcursesDirect};
 pub use plane::Plane;

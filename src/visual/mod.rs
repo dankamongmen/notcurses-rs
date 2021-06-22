@@ -17,7 +17,7 @@
 use crate::{
     ncresult,
     sys::{self, NcVisual, NcVisualOptions},
-    Dimension, Notcurses, Result,
+    Dimension, Notcurses, NotcursesResult as Result,
 };
 
 mod blitter;
