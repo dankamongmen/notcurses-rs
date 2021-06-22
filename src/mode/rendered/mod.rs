@@ -1,6 +1,6 @@
 //! `Notcurses` wrapper struct and traits implementations.
 
-use crate::{ncresult, sys::Nc, Capabilities, Dimension, NotcursesResult as Result};
+use crate::{ncresult, sys::Nc, Capabilities, Dimension, NotcursesResult as Result, PixelGeometry};
 
 mod builder;
 mod loglevel;
@@ -107,12 +107,12 @@ impl<'a> Notcurses<'a> {
     /// without reflecting any changes since the last call to
     /// [render][crate::Notcurses#method.render]).
     ///
-    /// Returns the current screen geometry (`x`, `y`).
+    /// Returns the current terminal size (`x`, `y`).
     ///
     /// This is primarily useful if the screen is externally corrupted, or if an
     /// [NCKEY_RESIZE][crate::sys::NCKEY_RESIZE] event has been read and you're not
     /// yet ready to render.
-    // WIP: sys::NCKEY_RESIZE reference
+    // TODO: sys::NCKEY_RESIZE reference
     pub fn refresh(&mut self) -> Result<(Dimension, Dimension)> {
         let (y, x) = self.raw.refresh()?;
         Ok((x, y))
@@ -149,7 +149,13 @@ impl<'a> Notcurses<'a> {
 
     /// Returns the size of the terminal in columns and rows (x, y).
     pub fn term_size(&self) -> (Dimension, Dimension) {
-        self.raw.term_dim_yx()
+        let (h, w) = self.raw.term_dim_yx();
+        (w, h)
+    }
+
+    /// Returns the `PixelGeometry` of the terminal.
+    pub fn term_pixelgeometry(&self) -> PixelGeometry {
+        self.raw.stdplane_const().pixelgeom()
     }
 
     /// Returns the name of the detected terminal.

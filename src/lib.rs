@@ -14,7 +14,6 @@
 //!   to use them in different contexts using `.into()`.
 //! - [`Align`], [`Alpha`], [`Blitter`] and [`Scale`] are now enums.
 //!   [`Style`] is a bitfield.
-//! - New [`Error`] and [`Result`] types.
 //!
 //! [0]: https://github.com/dankamongmen/notcurses
 //! [1]: https://github.com/dankamongmen/notcurses/tree/master/rust
@@ -56,7 +55,7 @@ pub use macros::*;
 pub use mode::{Capabilities, LogLevel, Notcurses, NotcursesDirect};
 pub use plane::Plane;
 pub use style::Style;
-pub use visual::{Blitter, Rgba, Scale, Visual};
+pub use visual::{Blitter, PixelGeometry, Rgba, Scale, Visual};
 
 pub mod builders {
     //! All the builders

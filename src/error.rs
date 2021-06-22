@@ -16,6 +16,8 @@ pub enum NotcursesError {
     // UnknownWindowSize,
     // NotUtf8Input(Vec<u8>),
     // ControlCharInText(char),
+    /// A generic exit message, mainly for debugging
+    ExitMessage(String),
 }
 
 impl fmt::Display for NotcursesError {
@@ -25,6 +27,7 @@ impl fmt::Display for NotcursesError {
             IoError(err) => write!(f, "{}", err),
             NcError { int, msg } => write!(f, "NcError<{0}, {1}>", int, msg),
             BuildIncomplete(string) => write!(f, "BuildIncomplete: {}", string),
+            ExitMessage(string) => write!(f, "ExitMessage: {}", string),
             // UnknownWindowSize => write!(f, "Could not detect terminal window size"),
             // NotUtf8Input(seq) => {
             //     write!(f, "Cannot handle non-UTF8 multi-byte input sequence: ")?;

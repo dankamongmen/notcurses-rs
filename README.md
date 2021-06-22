@@ -34,5 +34,4 @@ Currently the libnotcurses-sys API is being re-exported under the `sys` module.
 - Many types have several `From` implementations in order to make it easier
   to use them in different contexts using `.into().
 - `Align`, `Alpha`, `Blitter` and `Scale` are now enums. `Style` is a bitfield.
-- New unified `Error` and `Result` types.
 
