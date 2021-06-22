@@ -2,7 +2,7 @@
 
 use notcurses::*;
 
-fn main() -> Result<()> {
+fn main() -> NotcursesResult<()> {
     let mut nc = Notcurses::new()?;
 
     let mut p1 = Plane::build().rows(20).cols(40).new_pile(&mut nc)?;
