@@ -21,9 +21,17 @@ include = ["src/", "LICENSE-*", "README.md", "examples/"]
 [dependencies]
 libnotcurses-sys = { path="_deps/notcurses/rust/" } # WIP
 # libnotcurses-sys = "3"
-
 bitflags = "1.2.1"
 
+# for the examples
+plotters = { version = "^0.3", optional = true }
+
+
 [dev-dependencies]
-rand = "0.8.3"
-project-root = "0.2.2"
+rand = "^0.8"
+project-root = "^0.2"
+
+
+[[example]]
+name = "plotters-3d"
+required-features = ["plotters"]

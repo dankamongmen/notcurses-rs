@@ -14,7 +14,7 @@ fn main() -> NotcursesResult<()> {
     sleep![1];
 
     let mut buffer = Vec::<u8>::with_capacity((W * H * 4) as usize);
-    fill_buffer_rand(&mut buffer);
+    fill_buffer(&mut buffer, true);
 
     let mut root_plane = Plane::build().cols_rows(W * 2, H * 2).new_pile(&mut nc)?;
     let mut visual = Visual::build()
@@ -29,6 +29,7 @@ fn main() -> NotcursesResult<()> {
 
     let mut rng_house = rand::thread_rng();
     for n in 0..50 {
+        // show random house every 10 frames
         if n % 10 == 9 {
             let random_house = rng_house.gen_range(0..=2);
             match random_house {
@@ -40,8 +41,9 @@ fn main() -> NotcursesResult<()> {
             visual.render(&mut nc)?;
             root_plane.render_raster()?;
             sleep![0, 200];
+
         } else {
-            refill_buffer_rand(&mut buffer);
+            fill_buffer(&mut buffer, false);
             visual.set_from_rgba(&buffer, W, H)?;
             visual.render(&mut nc)?;
             root_plane.render_raster()?;
@@ -53,26 +55,23 @@ fn main() -> NotcursesResult<()> {
 }
 
 /// Fills the buffer with random colors.
-fn fill_buffer_rand(buffer: &mut Vec<u8>) {
+fn fill_buffer(buffer: &mut Vec<u8>, empty: bool) {
     let mut rng = rand::thread_rng();
     let range = Uniform::from(50..=180);
-    for _byte in 0..=(W * H) {
-        buffer.push(rng.sample(&range));
-        buffer.push(rng.sample(&range));
-        buffer.push(rng.sample(&range));
-        buffer.push(255);
-    }
-}
-
-/// Refills the buffer with random colors.
-fn refill_buffer_rand(buffer: &mut Vec<u8>) {
-    let mut rng = rand::thread_rng();
-    let range = Uniform::from(50..=180);
-    for chunk in buffer.chunks_mut(4) {
-        chunk[0] = rng.sample(&range);
-        chunk[1] = rng.sample(&range);
-        chunk[2] = rng.sample(&range);
-        chunk[3] = 255;
+    if empty {
+        for _byte in 0..=(W * H) {
+            buffer.push(rng.sample(&range));
+            buffer.push(rng.sample(&range));
+            buffer.push(rng.sample(&range));
+            buffer.push(255);
+        }
+    } else {
+        for chunk in buffer.chunks_mut(4) {
+            chunk[0] = rng.sample(&range);
+            chunk[1] = rng.sample(&range);
+            chunk[2] = rng.sample(&range);
+            chunk[3] = 255;
+        }
     }
 }
 
