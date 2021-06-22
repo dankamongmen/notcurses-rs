@@ -1,20 +1,16 @@
 //!
 
-// TODO:
-// - separate the Scale from the VisualBuilder _plane finishers?
-// - add matching set_ methods to Visual
-
-use crate::sys::{self, NcPlane, NcVisual, NcVisualOptions};
+use crate::sys::{self, NcVisual, NcVisualOptions};
 use crate::{
     Align, Blitter, Dimension, NotcursesError, NotcursesResult as Result, Plane, Scale, Visual,
 };
 
 /// A [`Visual`] builder.
 #[derive(Default)]
-pub struct VisualBuilder<'a, 'b> {
-    ncvisual: Option<&'a mut NcVisual>,
+pub struct VisualBuilder<'ncvisual, 'ncplane, 'plane> {
+    ncvisual: Option<&'ncvisual mut NcVisual>,
 
-    plane: Option<&'a mut Plane<'b>>,
+    plane: Option<&'plane mut Plane<'ncplane>>,
     scale: Scale,
 
     x: Dimension,
@@ -31,10 +27,10 @@ pub struct VisualBuilder<'a, 'b> {
     blitter: Blitter,
 
     flags: u32,
-    transcolor: u32, // NcRgba,
+    transcolor: u32,
 }
 
-impl<'a, 'b> VisualBuilder<'a, 'b> {
+impl<'ncvisual, 'ncplane, 'plane> VisualBuilder<'ncvisual, 'ncplane, 'plane> {
     /// Prepares a `Visual` based off RGBA content in memory at `rgba`.
     #[allow(clippy::wrong_self_convention)]
     pub fn from_rgba(mut self, rgba: &[u8], cols: Dimension, rows: Dimension) -> Result<Self> {
@@ -103,7 +99,7 @@ impl<'a, 'b> VisualBuilder<'a, 'b> {
     #[allow(clippy::wrong_self_convention)]
     pub fn from_plane(
         mut self,
-        plane: &Plane<'b>,
+        plane: &Plane<'ncplane>,
         blitter: Blitter,
         x0: Dimension,
         y0: Dimension,
@@ -123,7 +119,7 @@ impl<'a, 'b> VisualBuilder<'a, 'b> {
 
     // MAYBE
     // /// Creates a `VisualBuilder` from an already configured [`Visual`].
-    // pub fn from_visual(visual: Visual<'a>) -> Self {
+    // pub fn from_visual(visual: Visual<'ncvisual>) -> Self {
     //     // if let visua
     //     // let plane =
     //     Self {
@@ -132,8 +128,15 @@ impl<'a, 'b> VisualBuilder<'a, 'b> {
     //     }
     // }
 
-    /// The X and Y coordinates.
+    /// Sets the [`Plane`] used by the rendering functions. Default: Not set.
+    pub fn plane(mut self, plane: &'plane mut Plane<'ncplane>) -> Self {
+        self.plane = Some(plane);
+        self
+    }
+
+    /// Sets the `x,y` coordinates.
     ///
+    // TODO: make clearer:
     /// - If you don't provide a pre-existing `Plane`, they will be relative to
     ///   the terminal size.
     /// - If you do provide a pre-existing `Plane` via the
@@ -152,7 +155,7 @@ impl<'a, 'b> VisualBuilder<'a, 'b> {
         self
     }
 
-    /// Set the `x` cooordinate.
+    /// Sets the `x` cooordinate.
     ///
     /// This will override any relative [`halign`][VisualBuilder#method.halign]
     /// vertical positioning.
@@ -163,7 +166,7 @@ impl<'a, 'b> VisualBuilder<'a, 'b> {
         self
     }
 
-    /// Set the `y` cooordinate.
+    /// Sets the `y` cooordinate.
     ///
     /// This will override any relative [`valign`][VisualBuilder#method.valign]
     /// vertical positioning.
@@ -192,6 +195,7 @@ impl<'a, 'b> VisualBuilder<'a, 'b> {
         self
     }
 
+    /// TODO: description
     ///
     /// - `x0`,`y0` are the origin coordinates of the rendering section
     /// - `x1`,`y1` are the size of the rendering section
@@ -203,7 +207,7 @@ impl<'a, 'b> VisualBuilder<'a, 'b> {
         self
     }
 
-    /// Sets the blitter. Default: `Blitter::Default`.
+    /// Sets the [`Blitter`]. Default: `Blitter::Default`.
     pub fn blitter(mut self, blitter: Blitter) -> Self {
         self.blitter = blitter;
         self
@@ -215,9 +219,20 @@ impl<'a, 'b> VisualBuilder<'a, 'b> {
         self
     }
 
+    /// Will treat this RGB color as transparent. Default: `None`.
+    pub fn transparent_color(mut self, color: Option<u32>) -> Self {
+        if let Some(color) = color {
+            self.flags |= sys::NCVISUAL_OPTION_ADDALPHA;
+            self.transcolor = color;
+        } else {
+            self.flags &= !sys::NCVISUAL_OPTION_ADDALPHA;
+            self.transcolor = 0;
+        }
+        self
+    }
+
     /// Sets whether the scaling should be done with interpolation or not.
-    ///
-    /// The default is to interpolate.
+    /// Default: do interpolate.
     pub fn interpolate(mut self, interpolate: bool) -> Self {
         if interpolate {
             self.flags &= !sys::NCVISUAL_OPTION_NOINTERPOLATE;
@@ -229,34 +244,46 @@ impl<'a, 'b> VisualBuilder<'a, 'b> {
 
     // BUILD FINISHERS
 
-    // NOTE This is not implemented, to avoid unnecessary complexity, including
-    // making sure that render() only returns the plane if it's a new child.
-    //
-    // /// Finishes the build returning a `Visual` configured to be rendered
-    // /// in a child [`Plane`] of the one provided.
-    // pub fn into_plane_child(mut self, plane: &mut Plane<'b>, scale: Scale) -> Result<Visual<'a>> {
-    //     if self.ncvisual.is_some() {
-    //         self.scale = Some(scale);
-    //         self.flags |= sys::NCVISUAL_OPTION_CHILDPLANE;
-    //         Ok(Visual {
-    //             options: self.assemble_options_with_plane(plane.raw),
-    //             raw: self.ncvisual.unwrap(),
-    //         })
-    //     } else {
-    //         Err(NotcursesError::BuildIncomplete(
-    //             "It's necessary to prepare the Visual
-    //             first by calling one of the `from_*` methods."
-    //                 .into(),
-    //         ))
-    //     }
-    // }
-
-    /// Finishes the build and returns a `Visual` to be rendered in `plane`.
-    pub fn into_plane(mut self, plane: &mut Plane<'b>) -> Result<Visual<'a>> {
+    /// Finishes the build and returns a `Visual`.
+    // TODO:IMPROVE
+    // - save scale, even if not
+    // - MAYBE
+    //   1. separate the options from VisualBuilder into an external private structure
+    //   2. use the options structure also in Visual, and move the  conversion to
+    //      ncvisual options inside this method as a new private Visual method.
+    pub fn finish(self) -> Result<Visual<'ncvisual>> {
         if self.ncvisual.is_some() {
-            self.flags &= !sys::NCVISUAL_OPTION_CHILDPLANE;
+            let ncvisualopt = if let Some(plane) = self.plane {
+                NcVisualOptions::with_plane(
+                    plane.as_ncplane_mut(),
+                    self.scale as u32,
+                    self.y,
+                    self.x,
+                    self.begy,
+                    self.begx,
+                    self.leny,
+                    self.lenx,
+                    self.blitter.into(),
+                    self.flags,
+                    self.transcolor,
+                )
+            } else {
+                NcVisualOptions::without_plane(
+                    // scale preference should be taken into account
+                    self.y,
+                    self.x,
+                    self.begy,
+                    self.begx,
+                    self.leny,
+                    self.lenx,
+                    self.blitter.into(),
+                    self.flags,
+                    self.transcolor,
+                )
+            };
+
             Ok(Visual {
-                options: self.assemble_options_with_plane(plane.raw),
+                options: ncvisualopt,
                 raw: self.ncvisual.unwrap(),
             })
         } else {
@@ -266,61 +293,6 @@ impl<'a, 'b> VisualBuilder<'a, 'b> {
                     .into(),
             ))
         }
-    }
-
-    // // NOTE: related: https://github.com/dankamongmen/notcurses/issues/1462
-    // //
-    // /// Finishes the build returning a `Visual` configured to be rendered in the
-    // /// provided [`Plane`], using the provided [`Scale`] mode for it.
-    // pub fn new_plane(mut self, plane: &mut Plane<'b>, scale: Scale) -> Result<Visual<'a>> {
-    //     if self.ncvisual.is_some() {
-    //         self.scale = Some(scale);
-    //         self.flags &= !sys::NCVISUAL_OPTION_CHILDPLANE;
-    //
-    //         Ok(Visual {
-    //             options: self.assemble_options_without_plane(plane.raw),
-    //             raw: self.ncvisual.unwrap(),
-    //         })
-    //     } else {
-    //         Err(NotcursesError::BuildIncomplete("It's necessary to prepare the Visual
-    //             first by calling any of the `from_*` methods.".into()))
-    //     }
-    // }
-
-    // PRIVATE METHODS
-
-    /// Prepares an `NcVisualOptions` from the relevant `VisualBuilder` fields.
-    fn assemble_options_with_plane(&self, plane: &mut NcPlane) -> NcVisualOptions {
-        // TODO if halign, valign…
-        NcVisualOptions::with_plane(
-            plane,
-            self.scale as u32,
-            self.y,
-            self.x,
-            self.begy,
-            self.begx,
-            self.leny,
-            self.lenx,
-            self.blitter.into(),
-            self.flags,
-            self.transcolor,
-        )
-    }
-
-    /// Prepares an `NcVisualOptions` from the relevant `VisualBuilder` fields.
-    fn assemble_options_without_plane(&self) -> NcVisualOptions {
-        // TODO: if halign, valign…
-        NcVisualOptions::without_plane(
-            self.y,
-            self.x,
-            self.begy,
-            self.begx,
-            self.leny,
-            self.lenx,
-            self.blitter.into(),
-            self.flags,
-            self.transcolor,
-        )
     }
 
     // MAYBE

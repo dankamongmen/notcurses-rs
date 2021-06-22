@@ -20,9 +20,9 @@ pub struct Cell {
     raw: NcCell,
 }
 
-impl<'a, 'ncplane> Cell {
+impl<'plane, 'ncplane> Cell {
     /// Returns a [`CellBuilder`] used to customize a new `Cell`.
-    pub fn build() -> CellBuilder<'a, 'ncplane> {
+    pub fn build() -> CellBuilder<'plane, 'ncplane> {
         CellBuilder::default()
     }
 

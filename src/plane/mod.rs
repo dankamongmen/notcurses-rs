@@ -14,11 +14,11 @@ pub use builder::PlaneBuilder;
 /// A text drawing surface.
 ///
 #[derive(Debug)]
-pub struct Plane<'a> {
-    pub(crate) raw: &'a mut NcPlane,
+pub struct Plane<'ncplane> {
+    pub(crate) raw: &'ncplane mut NcPlane,
 }
 
-impl<'a> Drop for Plane<'a> {
+impl<'ncplane> Drop for Plane<'ncplane> {
     /// Destroys this Plane.
     ///
     /// None of its contents will be visible after the next render call.
@@ -28,14 +28,14 @@ impl<'a> Drop for Plane<'a> {
 }
 
 /// # Constructors and converters
-impl<'a> Plane<'a> {
+impl<'ncplane> Plane<'ncplane> {
     /// Returns a [`PlaneBuilder`] used to customize a new `Plane`.
     pub fn build() -> PlaneBuilder {
         PlaneBuilder::default()
     }
 
     /// Creates a `Plane` from an existing [`NcPlane`].
-    pub fn from_ncplane(plane: &'a mut NcPlane) -> Plane<'a> {
+    pub fn from_ncplane(plane: &'ncplane mut NcPlane) -> Plane<'ncplane> {
         Self { raw: plane }
     }
 
@@ -51,7 +51,7 @@ impl<'a> Plane<'a> {
 }
 
 /// # Methods
-impl<'a> Plane<'a> {
+impl<'ncplane> Plane<'ncplane> {
     /// Moves the plane relatively the provided `cols` & `rows`.
     pub fn move_rel(&mut self, cols: Offset, rows: Offset) -> Result<()> {
         ncresult![self.raw.move_rel(rows, cols)]
@@ -64,7 +64,7 @@ impl<'a> Plane<'a> {
 
     /// Sets the base cell from its components.
     ///
-    /// Returns the number of bytes copied out of 'gcluster'
+    /// Returns the number of bytes copied out of `egc`.
     pub fn set_base<CHANNELS: Into<NcChannels>>(
         &mut self,
         egc: &str,

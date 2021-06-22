@@ -1,4 +1,4 @@
-use crate::NotcursesDirect;
+//use crate::NotcursesDirect;
 
 pub struct NotcursesDirectBuilder {}
 

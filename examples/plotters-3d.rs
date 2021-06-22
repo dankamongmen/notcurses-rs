@@ -24,9 +24,10 @@ fn main() -> NotcursesResult<()> {
         .from_rgb(&buffer, geom.max_bitmap_x, geom.max_bitmap_y, 255)?
         .blitter(Blitter::Pixel)
         .interpolate(false)
-        .into_plane(&mut plane)?;
+        .plane(&mut plane)
+        .finish()?;
 
-    visual.render(&mut nc)?;
+    visual.render_plane(&mut nc)?;
     plane.render_raster()?;
     sleep![5];
     Ok(())

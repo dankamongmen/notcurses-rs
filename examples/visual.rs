@@ -7,7 +7,6 @@ const H: Dimension = 32;
 const W: Dimension = 32;
 
 fn main() -> NotcursesResult<()> {
-
     let mut nc = Notcurses::new()?;
 
     println!("terminal detected: {}", nc.term_name());
@@ -16,15 +15,16 @@ fn main() -> NotcursesResult<()> {
     let mut buffer = Vec::<u8>::with_capacity((W * H * 4) as usize);
     fill_buffer(&mut buffer, true);
 
-    let mut root_plane = Plane::build().cols_rows(W * 2, H * 2).new_pile(&mut nc)?;
+    let mut plane = Plane::build().cols_rows(W * 2, H * 2).new_pile(&mut nc)?;
     let mut visual = Visual::build()
         .from_rgba(&buffer, W, H)?
         .blitter(Blitter::Pixel)
         .interpolate(false)
         .scale(Scale::Scale)
-        .into_plane(&mut root_plane)?;
-    visual.render(&mut nc)?;
-    root_plane.render_raster()?;
+        .plane(&mut plane)
+        .finish()?;
+    visual.render_plane(&mut nc)?;
+    plane.render_raster()?;
     sleep![0, 500];
 
     let mut rng_house = rand::thread_rng();
@@ -35,18 +35,18 @@ fn main() -> NotcursesResult<()> {
             match random_house {
                 0 => visual.set_from_file(&path("examples/img/house0.png"))?,
                 1 => visual.set_from_file(&path("examples/img/house1.png"))?,
-                2|_ => visual.set_from_file(&path("examples/img/house2.png"))?,
+                2 | _ => visual.set_from_file(&path("examples/img/house2.png"))?,
             }
 
-            visual.render(&mut nc)?;
-            root_plane.render_raster()?;
+            visual.render_plane(&mut nc)?;
+            plane.render_raster()?;
             sleep![0, 200];
 
         } else {
             fill_buffer(&mut buffer, false);
             visual.set_from_rgba(&buffer, W, H)?;
-            visual.render(&mut nc)?;
-            root_plane.render_raster()?;
+            visual.render_plane(&mut nc)?;
+            plane.render_raster()?;
             sleep![0, 25];
         }
     }

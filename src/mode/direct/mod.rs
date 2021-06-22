@@ -10,18 +10,18 @@ use crate::{
 
 /// A minimal notcurses direct mode context for styling text.
 #[derive(Debug)]
-pub struct NotcursesDirect<'a> {
-    pub(crate) raw: &'a mut NcDirect,
+pub struct NotcursesDirect<'ncdirect> {
+    pub(crate) raw: &'ncdirect mut NcDirect,
 }
 
-impl<'a> Drop for NotcursesDirect<'a> {
+impl<'ncdirect> Drop for NotcursesDirect<'ncdirect> {
     /// Destroys the NotcursesDirect context.
     fn drop(&mut self) {
         let _ = self.raw.stop();
     }
 }
 
-impl<'a> NotcursesDirect<'a> {
+impl<'ncdirect> NotcursesDirect<'ncdirect> {
     /// New `NotcursesDirect` instance.
     pub fn new() -> Result<Self> {
         Ok(Self {

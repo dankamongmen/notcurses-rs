@@ -22,7 +22,7 @@ impl Default for NotcursesBuilder {
     }
 }
 
-impl<'a> NotcursesBuilder {
+impl<'nc> NotcursesBuilder {
     ///   Desirable margins.
     ///
     ///   If all are 0 (default), we will render to the entirety of the screen.
@@ -132,7 +132,7 @@ impl<'a> NotcursesBuilder {
     }
 
     /// Finishes the build returning the newly configured [`Notcurses`] context.
-    pub fn finish(self) -> NotcursesResult<Notcurses<'a>> {
+    pub fn finish(self) -> NotcursesResult<Notcurses<'nc>> {
         let ncoptions = NcOptions::with_all_options(
             self.loglevel.into(),
             self.margins.0,

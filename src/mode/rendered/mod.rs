@@ -9,18 +9,18 @@ pub use loglevel::LogLevel;
 
 /// The main notcurses rendered mode context.
 #[derive(Debug)]
-pub struct Notcurses<'a> {
-    pub(crate) raw: &'a mut Nc,
+pub struct Notcurses<'nc> {
+    pub(crate) raw: &'nc mut Nc,
 }
 
-impl<'a> Drop for Notcurses<'a> {
+impl<'nc> Drop for Notcurses<'nc> {
     /// Destroys the Notcurses context.
     fn drop(&mut self) {
         let _ = self.raw.stop();
     }
 }
 
-impl<'a> Notcurses<'a> {
+impl<'nc> Notcurses<'nc> {
     /// New `Notcurses` instance.
     pub fn new() -> Result<Self> {
         Ok(Self { raw: Nc::new()? })
