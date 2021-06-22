@@ -1,6 +1,6 @@
 use crate::{
     sys::{NcPlane, NcPlaneOptions},
-    Dimension, Notcurses, Offset, Plane, NotcursesResult as Result,
+    Dimension, Notcurses, NotcursesResult as Result, Offset, Plane,
 };
 
 /// A [`Plane`] builder.

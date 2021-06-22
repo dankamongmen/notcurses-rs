@@ -4,8 +4,8 @@ mod builder;
 pub use builder::NotcursesDirectBuilder;
 
 use crate::{
-    ncresult, sys::NcDirect, Align, Blitter, Capabilities, Channels, Dimension, Offset, Plane,
-    NotcursesResult as Result, Rgb, Scale, Style,
+    ncresult, sys::NcDirect, Align, Blitter, Capabilities, Channels, Dimension,
+    NotcursesResult as Result, Offset, Plane, Rgb, Scale, Style,
 };
 
 /// A minimal notcurses direct mode context for styling text.

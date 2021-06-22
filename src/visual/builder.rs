@@ -5,7 +5,9 @@
 // - add matching set_ methods to Visual
 
 use crate::sys::{self, NcPlane, NcVisual, NcVisualOptions};
-use crate::{Align, Blitter, Dimension, NotcursesError, Plane, NotcursesResult as Result, Scale, Visual};
+use crate::{
+    Align, Blitter, Dimension, NotcursesError, NotcursesResult as Result, Plane, Scale, Visual,
+};
 
 /// A [`Visual`] builder.
 #[derive(Default)] // TEMP do manually

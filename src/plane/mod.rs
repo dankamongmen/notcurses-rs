@@ -3,8 +3,8 @@
 use crate::{
     ncresult, // Channels,
     sys::{NcChannels, NcPlane},
-    Offset,
     NotcursesResult as Result,
+    Offset,
     Style,
 };
 

@@ -60,6 +60,7 @@ pub use visual::{Blitter, Rgba, Scale, Visual};
 
 pub mod builders {
     //! All the builders
+    pub use crate::cell::CellBuilder;
     pub use crate::mode::{NotcursesBuilder, NotcursesDirectBuilder};
     pub use crate::plane::PlaneBuilder;
     pub use crate::visual::VisualBuilder;

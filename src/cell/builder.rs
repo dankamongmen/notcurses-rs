@@ -1,4 +1,4 @@
-use crate::{sys::NcCell, Cell, Channels, NotcursesError, Plane, NotcursesResult, Style};
+use crate::{sys::NcCell, Cell, Channels, NotcursesError, NotcursesResult, Plane, Style};
 
 /// A [`Cell`] builder.
 pub struct CellBuilder<'plane, 'ncplane> {
