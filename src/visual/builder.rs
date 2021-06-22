@@ -40,6 +40,34 @@ impl<'a, 'b> VisualBuilder<'a, 'b> {
         Ok(self)
     }
 
+    /// Prepares a `Visual` based off RGB content in memory at `rgb`, providing
+    /// the alpha to assign to all the pixels.
+    #[allow(clippy::wrong_self_convention)]
+    pub fn from_rgb(
+        mut self,
+        rgb: &[u8],
+        cols: Dimension,
+        rows: Dimension,
+        alpha: u8,
+    ) -> Result<Self> {
+        self.ncvisual = Some(NcVisual::from_rgb_packed(rgb, rows, cols * 3, cols, alpha)?);
+        Ok(self)
+    }
+
+    /// Prepares a `Visual` based off RGBX content in memory at `rgbx`,
+    /// overriding the *alpha* byte *X* for all the pixels.
+    #[allow(clippy::wrong_self_convention)]
+    pub fn from_rgbx(
+        mut self,
+        rgbx: &[u8],
+        cols: Dimension,
+        rows: Dimension,
+        alpha: u8,
+    ) -> Result<Self> {
+        self.ncvisual = Some(NcVisual::from_rgb_loose(rgbx, rows, cols * 4, cols, alpha)?);
+        Ok(self)
+    }
+
     /// Prepares a `Visual` based off BGRA content in memory at `bgra`.
     ///
     /// This is slower than [`from_rgba`][VisualBuilder#method.rgba], since it
