@@ -21,7 +21,8 @@ fn main() -> NotcursesResult<()> {
         .from_rgba(&buffer, W, H)?
         .blitter(Blitter::Pixel)
         .interpolate(false)
-        .into_plane(&mut root_plane, Scale::Scale)?;
+        .scale(Scale::Scale)
+        .into_plane(&mut root_plane)?;
     visual.render(&mut nc)?;
     root_plane.render_raster()?;
     sleep![0, 500];

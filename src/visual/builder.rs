@@ -10,12 +10,12 @@ use crate::{
 };
 
 /// A [`Visual`] builder.
-#[derive(Default)] // TEMP do manually
+#[derive(Default)]
 pub struct VisualBuilder<'a, 'b> {
     ncvisual: Option<&'a mut NcVisual>,
 
     plane: Option<&'a mut Plane<'b>>,
-    scale: Option<Scale>,
+    scale: Scale,
 
     x: Dimension,
     y: Dimension,
@@ -203,9 +203,15 @@ impl<'a, 'b> VisualBuilder<'a, 'b> {
         self
     }
 
-    /// Sets the blitter
+    /// Sets the blitter. Default: `Blitter::Default`.
     pub fn blitter(mut self, blitter: Blitter) -> Self {
         self.blitter = blitter;
+        self
+    }
+
+    /// Sets the [`Scale`]. Default: `Scale::None`.
+    pub fn scale(mut self, scale: Scale) -> Self {
+        self.scale = scale;
         self
     }
 
@@ -245,11 +251,9 @@ impl<'a, 'b> VisualBuilder<'a, 'b> {
     //     }
     // }
 
-    /// Finishes the build returning a `Visual` configured to be rendered
-    /// in the provided [`Plane`], with the provided [`Scale`].
-    pub fn into_plane(mut self, plane: &mut Plane<'b>, scale: Scale) -> Result<Visual<'a>> {
+    /// Finishes the build and returns a `Visual` to be rendered in `plane`.
+    pub fn into_plane(mut self, plane: &mut Plane<'b>) -> Result<Visual<'a>> {
         if self.ncvisual.is_some() {
-            self.scale = Some(scale);
             self.flags &= !sys::NCVISUAL_OPTION_CHILDPLANE;
             Ok(Visual {
                 options: self.assemble_options_with_plane(plane.raw),
@@ -290,7 +294,7 @@ impl<'a, 'b> VisualBuilder<'a, 'b> {
         // TODO if halign, valign…
         NcVisualOptions::with_plane(
             plane,
-            self.scale.expect("Couldn't find a prepared scale.") as u32,
+            self.scale as u32,
             self.y,
             self.x,
             self.begy,

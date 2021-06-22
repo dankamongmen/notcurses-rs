@@ -26,6 +26,12 @@ pub enum Scale {
     ScaleHires = sys::NCSCALE_SCALE_HIRES as u8,
 }
 
+impl Default for Scale {
+    fn default() -> Self {
+        Scale::None
+    }
+}
+
 impl From<Scale> for NcScale {
     fn from(scale: Scale) -> NcScale {
         scale as NcScale
