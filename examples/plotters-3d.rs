@@ -1,21 +1,27 @@
-//! source: https://github.com/38/plotters/blob/master/examples/nested_coord.rs
-
-// TODO: adapt to the size of the terminal
+//! A 3d graph.
+//!
+//! Source: <https://github.com/38/plotters/blob/master/examples/3d-plot.rs>
+//!
+//! Run with:
+//! ```sh
+//! cargo re plotters-3d --features="plotters"
+//! ```
 
 use notcurses::*;
 use plotters::prelude::*;
 
-const W: u32 = 1024;
-const H: u32 = 760;
-
 fn main() -> NotcursesResult<()> {
-    let mut buffer = vec![0; H as usize * W as usize * 3];
-    plot(&mut buffer).expect("plotting failed");
-
     let mut nc = Notcurses::new()?;
-    let mut plane = Plane::build().cols_rows(W, H).new_pile(&mut nc)?;
+
+    let (width, height) = nc.term_size();
+    let geom = nc.term_pixelgeometry();
+
+    let mut buffer = vec![0; geom.max_bitmap_x as usize * geom.max_bitmap_y as usize * 3];
+    plot(&mut buffer, geom.max_bitmap_x, geom.max_bitmap_y).expect("plotting failed");
+
+    let mut plane = Plane::build().cols_rows(width, height).new_pile(&mut nc)?;
     let mut visual = Visual::build()
-        .from_rgb(&buffer, W, H, 255)?
+        .from_rgb(&buffer, geom.max_bitmap_x, geom.max_bitmap_y, 255)?
         .blitter(Blitter::Pixel)
         .interpolate(false)
         .into_plane(&mut plane)?;
@@ -26,8 +32,8 @@ fn main() -> NotcursesResult<()> {
     Ok(())
 }
 
-fn plot(buffer: &mut Vec<u8>) -> Result<(), Box<dyn std::error::Error>> {
-    let area = BitMapBackend::with_buffer(buffer, (W, H)).into_drawing_area();
+fn plot(buffer: &mut Vec<u8>, max_x: u32, max_y: u32) -> Result<(), Box<dyn std::error::Error>> {
+    let area = BitMapBackend::with_buffer(buffer, (max_x, max_y)).into_drawing_area();
 
     area.fill(&WHITE)?;
 
