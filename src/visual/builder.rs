@@ -1,9 +1,7 @@
 //!
 
 use crate::sys::{self, NcVisual, NcVisualOptions};
-use crate::{
-    Align, Blitter, Dimension, NotcursesError, NotcursesResult as Result, Plane, Scale, Visual,
-};
+use crate::{Align, Blitter, NotcursesError, NotcursesResult as Result, Plane, Scale, Visual};
 
 /// A [`Visual`] builder.
 #[derive(Default)]
@@ -13,16 +11,16 @@ pub struct VisualBuilder<'ncvisual, 'ncplane, 'plane> {
     plane: Option<&'plane mut Plane<'ncplane>>,
     scale: Scale,
 
-    x: Dimension,
-    y: Dimension,
+    x: u32,
+    y: u32,
 
     halign: Option<Align>,
     valign: Option<Align>,
 
-    begx: Dimension,
-    begy: Dimension,
-    lenx: Dimension,
-    leny: Dimension,
+    begx: u32,
+    begy: u32,
+    lenx: u32,
+    leny: u32,
 
     blitter: Blitter,
 
@@ -33,7 +31,7 @@ pub struct VisualBuilder<'ncvisual, 'ncplane, 'plane> {
 impl<'ncvisual, 'ncplane, 'plane> VisualBuilder<'ncvisual, 'ncplane, 'plane> {
     /// Prepares a `Visual` based off RGBA content in memory at `rgba`.
     #[allow(clippy::wrong_self_convention)]
-    pub fn from_rgba(mut self, rgba: &[u8], cols: Dimension, rows: Dimension) -> Result<Self> {
+    pub fn from_rgba(mut self, rgba: &[u8], cols: u32, rows: u32) -> Result<Self> {
         self.ncvisual = Some(NcVisual::from_rgba(rgba, rows, cols * 4, cols)?);
         Ok(self)
     }
@@ -41,13 +39,7 @@ impl<'ncvisual, 'ncplane, 'plane> VisualBuilder<'ncvisual, 'ncplane, 'plane> {
     /// Prepares a `Visual` based off RGB content in memory at `rgb`, providing
     /// the alpha to assign to all the pixels.
     #[allow(clippy::wrong_self_convention)]
-    pub fn from_rgb(
-        mut self,
-        rgb: &[u8],
-        cols: Dimension,
-        rows: Dimension,
-        alpha: u8,
-    ) -> Result<Self> {
+    pub fn from_rgb(mut self, rgb: &[u8], cols: u32, rows: u32, alpha: u8) -> Result<Self> {
         self.ncvisual = Some(NcVisual::from_rgb_packed(rgb, rows, cols * 3, cols, alpha)?);
         Ok(self)
     }
@@ -55,13 +47,7 @@ impl<'ncvisual, 'ncplane, 'plane> VisualBuilder<'ncvisual, 'ncplane, 'plane> {
     /// Prepares a `Visual` based off RGBX content in memory at `rgbx`,
     /// overriding the *alpha* byte *X* for all the pixels.
     #[allow(clippy::wrong_self_convention)]
-    pub fn from_rgbx(
-        mut self,
-        rgbx: &[u8],
-        cols: Dimension,
-        rows: Dimension,
-        alpha: u8,
-    ) -> Result<Self> {
+    pub fn from_rgbx(mut self, rgbx: &[u8], cols: u32, rows: u32, alpha: u8) -> Result<Self> {
         self.ncvisual = Some(NcVisual::from_rgb_loose(rgbx, rows, cols * 4, cols, alpha)?);
         Ok(self)
     }
@@ -71,7 +57,7 @@ impl<'ncvisual, 'ncplane, 'plane> VisualBuilder<'ncvisual, 'ncplane, 'plane> {
     /// This is slower than [`from_rgba`][VisualBuilder#method.rgba], since it
     /// has to convert the pixels to the rgba format used internally.
     #[allow(clippy::wrong_self_convention)]
-    pub fn from_bgra(mut self, bgra: &[u8], cols: Dimension, rows: Dimension) -> Result<Self> {
+    pub fn from_bgra(mut self, bgra: &[u8], cols: u32, rows: u32) -> Result<Self> {
         self.ncvisual = Some(NcVisual::from_bgra(bgra, rows, cols * 4, cols)?);
         Ok(self)
     }
@@ -101,10 +87,10 @@ impl<'ncvisual, 'ncplane, 'plane> VisualBuilder<'ncvisual, 'ncplane, 'plane> {
         mut self,
         plane: &Plane<'ncplane>,
         blitter: Blitter,
-        x0: Dimension,
-        y0: Dimension,
-        x1: Dimension,
-        y1: Dimension,
+        x0: u32,
+        y0: u32,
+        x1: u32,
+        y1: u32,
     ) -> Result<Self> {
         self.ncvisual = Some(NcVisual::from_plane(
             plane.raw,
@@ -147,7 +133,7 @@ impl<'ncvisual, 'ncplane, 'plane> VisualBuilder<'ncvisual, 'ncplane, 'plane> {
     ///
     /// This will override any relative [`halign`][VisualBuilder#method.halign]
     /// and [`valign`][VisualBuilder#method.halign] positioning.
-    pub fn xy(mut self, x: Dimension, y: Dimension) -> Self {
+    pub fn xy(mut self, x: u32, y: u32) -> Self {
         self.x = x;
         self.y = y;
         self.flags &= !sys::NCVISUAL_OPTION_HORALIGNED;
@@ -159,7 +145,7 @@ impl<'ncvisual, 'ncplane, 'plane> VisualBuilder<'ncvisual, 'ncplane, 'plane> {
     ///
     /// This will override any relative [`halign`][VisualBuilder#method.halign]
     /// vertical positioning.
-    pub fn x(mut self, x: Dimension) -> Self {
+    pub fn x(mut self, x: u32) -> Self {
         self.x = x;
         self.halign = None;
         self.flags &= !sys::NCVISUAL_OPTION_HORALIGNED;
@@ -170,7 +156,7 @@ impl<'ncvisual, 'ncplane, 'plane> VisualBuilder<'ncvisual, 'ncplane, 'plane> {
     ///
     /// This will override any relative [`valign`][VisualBuilder#method.valign]
     /// vertical positioning.
-    pub fn y(mut self, y: Dimension) -> Self {
+    pub fn y(mut self, y: u32) -> Self {
         self.y = y;
         self.valign = None;
         self.flags &= !sys::NCVISUAL_OPTION_VERALIGNED;
@@ -199,7 +185,7 @@ impl<'ncvisual, 'ncplane, 'plane> VisualBuilder<'ncvisual, 'ncplane, 'plane> {
     ///
     /// - `x0`,`y0` are the origin coordinates of the rendering section
     /// - `x1`,`y1` are the size of the rendering section
-    pub fn section(mut self, x0: Dimension, y0: Dimension, x1: Dimension, y1: Dimension) -> Self {
+    pub fn section(mut self, x0: u32, y0: u32, x1: u32, y1: u32) -> Self {
         self.begx = x0;
         self.begy = y0;
         self.lenx = x1;

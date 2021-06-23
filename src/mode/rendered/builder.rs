@@ -1,13 +1,13 @@
 use crate::{
     sys::{self, Nc, NcOptions},
-    Dimension, LogLevel, Notcurses, NotcursesResult,
+    LogLevel, Notcurses, NotcursesResult,
 };
 
 /// A [`Notcurses`] builder.
 #[derive(Debug)]
 pub struct NotcursesBuilder {
     /// top, right, bottom & left margins.
-    margins: (Dimension, Dimension, Dimension, Dimension),
+    margins: (u32, u32, u32, u32),
     flags: u64,
     loglevel: LogLevel,
 }
@@ -30,13 +30,7 @@ impl<'nc> NotcursesBuilder {
     //
     //   Absolute coordinates are relative to the rendering area
     //   ((0, 0) is always the origin of the rendering area).
-    pub fn margins(
-        mut self,
-        top: Dimension,
-        right: Dimension,
-        bottom: Dimension,
-        left: Dimension,
-    ) -> Self {
+    pub fn margins(mut self, top: u32, right: u32, bottom: u32, left: u32) -> Self {
         self.margins = (top, right, bottom, left);
         self
     }

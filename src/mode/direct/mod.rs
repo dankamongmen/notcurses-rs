@@ -4,11 +4,11 @@ mod builder;
 pub use builder::NotcursesDirectBuilder;
 
 use crate::{
-    ncresult, sys::NcDirect, Align, Blitter, Capabilities, Channels, Dimension,
-    NotcursesResult as Result, Offset, Plane, Rgb, Scale, Style,
+    ncresult, sys::NcDirect, Align, Blitter, Capabilities, Channels, NotcursesResult, Plane, Rgb,
+    Scale, Style,
 };
 
-/// A minimal notcurses direct mode context for styling text.
+/// A minimal notcurses *direct mode* context for styling text.
 #[derive(Debug)]
 pub struct NotcursesDirect<'ncdirect> {
     pub(crate) raw: &'ncdirect mut NcDirect,
@@ -23,7 +23,7 @@ impl<'ncdirect> Drop for NotcursesDirect<'ncdirect> {
 
 impl<'ncdirect> NotcursesDirect<'ncdirect> {
     /// New `NotcursesDirect` instance.
-    pub fn new() -> Result<Self> {
+    pub fn new() -> NotcursesResult<Self> {
         Ok(Self {
             raw: NcDirect::new()?,
         })
@@ -36,18 +36,18 @@ impl<'ncdirect> NotcursesDirect<'ncdirect> {
     }
 
     /// Clears the screen.
-    pub fn clear(&mut self) -> Result<()> {
+    pub fn clear(&mut self) -> NotcursesResult<()> {
         ncresult![self.raw.clear()]
     }
 
     /// Forces a flush.
-    pub fn flush(&mut self) -> Result<()> {
+    pub fn flush(&mut self) -> NotcursesResult<()> {
         ncresult![self.raw.flush()]
     }
 
     /// Takes the result of [`render_frame`][NotcursesDirect#method.render_frame]
     /// and writes it to the output.
-    pub fn raster_frame(&mut self, plane: &mut Plane, align: Align) -> Result<()> {
+    pub fn raster_frame(&mut self, plane: &mut Plane, align: Align) -> NotcursesResult<()> {
         ncresult![self.raw.raster_frame(plane.raw, align.into())]
     }
 
@@ -68,9 +68,9 @@ impl<'ncdirect> NotcursesDirect<'ncdirect> {
         filename: &str,
         blitter: Blitter,
         scale: Scale,
-        max_x: Dimension,
-        max_y: Dimension,
-    ) -> Result<Plane> {
+        max_x: u32,
+        max_y: u32,
+    ) -> NotcursesResult<Plane> {
         let p = self
             .raw
             .render_frame(filename, blitter.into(), scale.into(), max_y, max_x)?;
@@ -92,59 +92,59 @@ impl<'ncdirect> NotcursesDirect<'ncdirect> {
         align: Align,
         blitter: Blitter,
         scale: Scale,
-    ) -> Result<()> {
+    ) -> NotcursesResult<()> {
         ncresult![self
             .raw
             .render_image(filename, align.into(), blitter.into(), scale.into())]
     }
 
     /// Disables the terminal cursor, if supported.
-    pub fn cursor_disable(&mut self) -> Result<()> {
+    pub fn cursor_disable(&mut self) -> NotcursesResult<()> {
         ncresult![self.raw.cursor_disable()]
     }
 
     /// Enables the terminal cursor, if supported.
-    pub fn cursor_enable(&mut self) -> Result<()> {
+    pub fn cursor_enable(&mut self) -> NotcursesResult<()> {
         ncresult![self.raw.cursor_enable()]
     }
 
     /// Moves the cursor down any number of `rows`.
-    pub fn cursor_down(&mut self, num: Offset) -> Result<()> {
+    pub fn cursor_down(&mut self, num: i32) -> NotcursesResult<()> {
         ncresult![self.raw.cursor_down(num)]
     }
 
     /// Moves the cursor left any number of `rows`.
-    pub fn cursor_left(&mut self, num: Offset) -> Result<()> {
+    pub fn cursor_left(&mut self, num: i32) -> NotcursesResult<()> {
         ncresult![self.raw.cursor_left(num)]
     }
 
     /// Moves the cursor right any number of `rows`.
-    pub fn cursor_right(&mut self, num: Offset) -> Result<()> {
+    pub fn cursor_right(&mut self, num: i32) -> NotcursesResult<()> {
         ncresult![self.raw.cursor_right(num)]
     }
 
     /// Moves the cursor up any number of `rows`.
-    pub fn cursor_up(&mut self, num: Offset) -> Result<()> {
+    pub fn cursor_up(&mut self, num: i32) -> NotcursesResult<()> {
         ncresult![self.raw.cursor_up(num)]
     }
 
     /// Moves the cursor to the specified column `x`.
-    pub fn cursor_set_x(&mut self, x: Dimension) -> Result<()> {
+    pub fn cursor_set_x(&mut self, x: u32) -> NotcursesResult<()> {
         ncresult![self.raw.cursor_set_x(x)]
     }
 
     /// Moves the cursor to the specified row `y`.
-    pub fn cursor_set_y(&mut self, y: Dimension) -> Result<()> {
+    pub fn cursor_set_y(&mut self, y: u32) -> NotcursesResult<()> {
         ncresult![self.raw.cursor_set_y(y)]
     }
 
     /// Moves the cursor to the specified column `x`, row `y`.
-    pub fn cursor_set_xy(&mut self, x: Dimension, y: Dimension) -> Result<()> {
+    pub fn cursor_set_xy(&mut self, x: u32, y: u32) -> NotcursesResult<()> {
         ncresult![self.raw.cursor_set_yx(y, x)]
     }
 
     /// Returns the cursor (x, y) position, when supported.
-    pub fn cursor_xy(&mut self) -> Result<(Dimension, Dimension)> {
+    pub fn cursor_xy(&mut self) -> NotcursesResult<(u32, u32)> {
         let (y, x) = self.raw.cursor_yx()?;
         Ok((x, y))
     }
@@ -152,14 +152,14 @@ impl<'ncdirect> NotcursesDirect<'ncdirect> {
     /// Pushes the cursor location to the terminal's stack.
     ///
     /// The depth of this stack, and indeed its existence, is terminal-dependent.
-    pub fn cursor_push(&mut self) -> Result<()> {
+    pub fn cursor_push(&mut self) -> NotcursesResult<()> {
         ncresult![self.raw.cursor_push()]
     }
 
     /// Pops the cursor location from the terminal's stack.
     ///
     /// The depth of this stack, and indeed its existence, is terminal-dependent.
-    pub fn cursor_pop(&mut self) -> Result<()> {
+    pub fn cursor_pop(&mut self) -> NotcursesResult<()> {
         ncresult![self.raw.cursor_pop()]
     }
 
@@ -183,7 +183,7 @@ impl<'ncdirect> NotcursesDirect<'ncdirect> {
     }
 
     /// Returns the size of the terminal in columns and rows (x, y).
-    pub fn term_size(&mut self) -> (Dimension, Dimension) {
+    pub fn term_size(&mut self) -> (u32, u32) {
         let (y, x) = self.raw.dim_yx();
         (x, y)
     }
@@ -194,51 +194,51 @@ impl<'ncdirect> NotcursesDirect<'ncdirect> {
     }
 
     /// Sets the background [`Rgb`].
-    pub fn set_bg<RGB: Into<Rgb>>(&mut self, rgb: RGB) -> Result<()> {
+    pub fn set_bg<RGB: Into<Rgb>>(&mut self, rgb: RGB) -> NotcursesResult<()> {
         ncresult![self.raw.set_bg_rgb(rgb.into().into())]
     }
 
     /// Sets the foreground [`Rgb`].
-    pub fn set_fg<RGB: Into<Rgb>>(&mut self, rgb: RGB) -> Result<()> {
+    pub fn set_fg<RGB: Into<Rgb>>(&mut self, rgb: RGB) -> NotcursesResult<()> {
         ncresult![self.raw.set_fg_rgb(rgb.into().into())]
     }
 
     /// Indicates to use the "default color" for the background .
-    pub fn set_bg_default(&mut self) -> Result<()> {
+    pub fn set_bg_default(&mut self) -> NotcursesResult<()> {
         ncresult![self.raw.set_bg_default()]
     }
 
     /// Indicates to use the "default color" for the foreground .
-    pub fn set_fg_default(&mut self) -> Result<()> {
+    pub fn set_fg_default(&mut self) -> NotcursesResult<()> {
         ncresult![self.raw.set_fg_default()]
     }
 
     // TODO: set_bg_palindex, set_fg_palindex
 
     // /// Sets the background [`PaletteIndex`].
-    // pub fn set_bg_palindex(&mut self, index: PaletteIndex) -> Result<()> {
+    // pub fn set_bg_palindex(&mut self, index: PaletteIndex) -> NotcursesResult<()> {
     //     ncresult![self.raw.set_bg_palindex(index)]
     // }
     //
     // /// Sets the foreground [`PaletteIndex`].
-    // pub fn set_fg_palindex(&mut self, index: PaletteIndex) -> Result<()> {
+    // pub fn set_fg_palindex(&mut self, index: PaletteIndex) -> NotcursesResult<()> {
     //     ncresult![self.raw.set_fg_palindex(index)]
     // }
 
     // MAYBE: palette_size
 
     /// Adds the specified [`Style`]s.
-    pub fn add_styles(&mut self, styles: Style) -> Result<()> {
+    pub fn add_styles(&mut self, styles: Style) -> NotcursesResult<()> {
         ncresult![self.raw.styles_on(styles.bits())]
     }
 
     /// Deletes the specified [`Style`]s.
-    pub fn del_styles(&mut self, styles: Style) -> Result<()> {
+    pub fn del_styles(&mut self, styles: Style) -> NotcursesResult<()> {
         ncresult![self.raw.styles_off(styles.bits())]
     }
 
     /// Sets just the specified [`Style`]s.
-    pub fn set_styles(&mut self, styles: Style) -> Result<()> {
+    pub fn set_styles(&mut self, styles: Style) -> NotcursesResult<()> {
         ncresult![self.raw.styles_set(styles.bits())]
     }
 
@@ -265,7 +265,7 @@ impl<'ncdirect> NotcursesDirect<'ncdirect> {
     //     time: Option<NcTime>,
     //     sigmask: Option<&mut sigset_t>,
     //     input: Option<&mut NcInput>,
-    // ) -> NcResult<char> {
+    // ) -> NcNotcursesResult<char> {
     //
     // }
 
@@ -277,7 +277,7 @@ impl<'ncdirect> NotcursesDirect<'ncdirect> {
     ///
     /// It will fail if the NcDirect context and the foreground channel
     /// are both marked as using the default color.
-    pub fn putstr(&mut self, channels: Channels, string: &str) -> Result<()> {
+    pub fn putstr(&mut self, channels: Channels, string: &str) -> NotcursesResult<()> {
         ncresult![self.raw.putstr(channels.into(), string)]
     }
 
@@ -289,7 +289,7 @@ impl<'ncdirect> NotcursesDirect<'ncdirect> {
     // For input to be echoed to the terminal, it is necessary that the flag
     // [NCDIRECT_OPTION_INHIBIT_CBREAK][crate::NCDIRECT_OPTION_INHIBIT_CBREAK]
     // be provided to the constructor.
-    pub fn readline(&mut self, prompt: &str) -> Result<&str> {
+    pub fn readline(&mut self, prompt: &str) -> NotcursesResult<&str> {
         ncresult![self.raw.readline(prompt)]
     }
 

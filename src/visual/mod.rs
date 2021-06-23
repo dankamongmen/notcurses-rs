@@ -17,7 +17,7 @@
 use crate::{
     ncresult,
     sys::{self, NcVisual, NcVisualOptions},
-    Dimension, Notcurses, NotcursesResult as Result, Plane,
+    Notcurses, NotcursesResult, Plane,
 };
 
 mod blitter;
@@ -74,17 +74,17 @@ impl<'ncvisual, 'ncplane, 'plane> Visual<'ncvisual> {
     }
 
     /// Resizes the visual to `x`,`y` pixels, using interpolation.
-    pub fn resize(&mut self, x: Dimension, y: Dimension) -> Result<()> {
+    pub fn resize(&mut self, x: u32, y: u32) -> NotcursesResult<()> {
         ncresult![NcVisual::resize(self.raw, y, x)]
     }
 
     /// Resizes the visual to `x`,`y` pixels, without using interpolation.
-    pub fn resize_ni(&mut self, x: Dimension, y: Dimension) -> Result<()> {
+    pub fn resize_ni(&mut self, x: u32, y: u32) -> NotcursesResult<()> {
         ncresult![NcVisual::resize_noninterpolative(self.raw, y, x)]
     }
 
     /// Renders the decoded frame to the configured [`Plane`][crate::Plane].
-    pub fn render_plane(&mut self, nc: &mut Notcurses) -> Result<()> {
+    pub fn render_plane(&mut self, nc: &mut Notcurses) -> NotcursesResult<()> {
         assert![!self.options.n.is_null()];
         self.options.flags &= !sys::NCVISUAL_OPTION_CHILDPLANE as u64;
         let _ = NcVisual::render(self.raw, nc.raw, &self.options)?;
@@ -93,7 +93,10 @@ impl<'ncvisual, 'ncplane, 'plane> Visual<'ncvisual> {
 
     /// Renders the decoded frame as a new plane, that is a child of the configured
     /// [`Plane`][crate::Plane], and returns it.
-    pub fn render_child_plane(&'ncvisual mut self, nc: &mut Notcurses) -> Result<Plane<'ncvisual>> {
+    pub fn render_child_plane(
+        &'ncvisual mut self,
+        nc: &mut Notcurses,
+    ) -> NotcursesResult<Plane<'ncvisual>> {
         assert![!self.options.n.is_null()];
         self.options.flags |= sys::NCVISUAL_OPTION_CHILDPLANE as u64;
         let child_plane = NcVisual::render(self.raw, nc.raw, &self.options)?;
@@ -103,7 +106,10 @@ impl<'ncvisual, 'ncplane, 'plane> Visual<'ncvisual> {
     /// Renders the decoded frame as a new [`Plane`][crate::Plane], and returns it.
     ///
     /// Doesn't need to have a plane configured.
-    pub fn render_new_plane(&'ncvisual mut self, nc: &mut Notcurses) -> Result<Plane<'ncvisual>> {
+    pub fn render_new_plane(
+        &'ncvisual mut self,
+        nc: &mut Notcurses,
+    ) -> NotcursesResult<Plane<'ncvisual>> {
         self.options.flags |= sys::NCVISUAL_OPTION_CHILDPLANE as u64;
         let child_plane = NcVisual::render(self.raw, nc.raw, &self.options)?;
         Ok(Plane::<'ncvisual>::from_ncplane(child_plane))
@@ -116,7 +122,7 @@ impl<'ncvisual, 'ncplane, 'plane> Visual<'ncvisual> {
 /// via [`VisualBuilder`].
 impl<'ncvisual, 'ncplane> Visual<'ncvisual> {
     /// (re)Sets the `Visual` based off RGBA content in memory at `rgba`.
-    pub fn set_from_rgba(&mut self, rgba: &[u8], cols: Dimension, rows: Dimension) -> Result<()> {
+    pub fn set_from_rgba(&mut self, rgba: &[u8], cols: u32, rows: u32) -> NotcursesResult<()> {
         self.raw = NcVisual::from_rgba(rgba, rows, cols * 4, cols)?;
         Ok(())
     }
@@ -125,10 +131,10 @@ impl<'ncvisual, 'ncplane> Visual<'ncvisual> {
     pub fn set_from_rgb(
         &mut self,
         rgb: &[u8],
-        cols: Dimension,
-        rows: Dimension,
+        cols: u32,
+        rows: u32,
         alpha: u8,
-    ) -> Result<()> {
+    ) -> NotcursesResult<()> {
         self.raw = NcVisual::from_rgb_packed(rgb, rows, cols * 4, cols, alpha)?;
         Ok(())
     }
@@ -137,23 +143,23 @@ impl<'ncvisual, 'ncplane> Visual<'ncvisual> {
     pub fn set_from_rgbx(
         &mut self,
         rgbx: &[u8],
-        cols: Dimension,
-        rows: Dimension,
+        cols: u32,
+        rows: u32,
         alpha: u8,
-    ) -> Result<()> {
+    ) -> NotcursesResult<()> {
         self.raw = NcVisual::from_rgb_loose(rgbx, rows, cols * 4, cols, alpha)?;
         Ok(())
     }
 
     /// (re)Sets the `Visual` based off BGRA content in memory at `bgra`.
-    pub fn set_from_bgra(&mut self, bgra: &[u8], cols: Dimension, rows: Dimension) -> Result<()> {
+    pub fn set_from_bgra(&mut self, bgra: &[u8], cols: u32, rows: u32) -> NotcursesResult<()> {
         self.raw = NcVisual::from_bgra(bgra, rows, cols * 4, cols)?;
         Ok(())
     }
 
     /// (re)Sets the `Visual` from a `file`, extracts the codec and paramenters
     /// and decodes the first image to memory.
-    pub fn set_from_file(&mut self, file: &str) -> Result<()> {
+    pub fn set_from_file(&mut self, file: &str) -> NotcursesResult<()> {
         self.raw = NcVisual::from_file(file)?;
         Ok(())
     }
@@ -168,12 +174,12 @@ impl<'ncvisual, 'ncplane> Visual<'ncvisual> {
         self.options.scaling = scale.into();
     }
 
-    /// (re)Sets the [`Plane`] used by the rendering functions. Default: Not set.
+    /// (re)Sets the [`Plane`] used by the rendering functions. Default: unset.
     pub fn set_plane(&mut self, plane: &mut Plane<'ncplane>) {
         self.options.n = plane.as_ncplane_mut();
     }
 
-    /// Unsets the [`Plane`]. This is by default.
+    /// Unsets the [`Plane`]. The plane is unset by default.
     pub fn unset_plane(&mut self) {
         self.options.n = core::ptr::null_mut();
     }

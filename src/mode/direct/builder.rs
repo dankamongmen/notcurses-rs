@@ -1,5 +1,6 @@
-//use crate::NotcursesDirect;
+use crate::NotcursesDirect;
 
+/// A [`NotcursesDirect`] builder.
 pub struct NotcursesDirectBuilder {}
 
 impl Default for NotcursesDirectBuilder {

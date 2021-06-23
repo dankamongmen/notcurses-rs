@@ -2,7 +2,7 @@
 
 use crate::sys::{self, NcAlign};
 
-/// A `u8` of alignment within a plane or terminal.
+/// A `u8` of alignment within a [`Plane`][crate::Plane] or terminal.
 //
 // data type in C: u32
 #[repr(u8)]

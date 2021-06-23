@@ -1,5 +1,7 @@
 use crate::sys::{self, NcLogLevel};
 
+/// A `u32` of logging levels for [`Notcurses`][crate::Notcurses].
+///
 /// These log levels consciously map cleanly to those of libav; notcurses itself
 /// does not use this full granularity. The log level does not affect the opening
 /// and closing banners, which can be disabled via the `NcOptions`

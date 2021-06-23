@@ -3,8 +3,8 @@
 use notcurses::*;
 use rand::{distributions::Uniform, Rng};
 
-const H: Dimension = 32;
-const W: Dimension = 32;
+const H: u32 = 32;
+const W: u32 = 32;
 
 fn main() -> NotcursesResult<()> {
     let mut nc = Notcurses::new()?;

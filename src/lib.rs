@@ -64,9 +64,3 @@ pub mod builders {
     pub use crate::plane::PlaneBuilder;
     pub use crate::visual::VisualBuilder;
 }
-
-/// Represents a dimension in rows or columns. Can't be negative.
-pub type Dimension = sys::NcDim;
-
-/// Represents an offset in rows or columns. Can be negative.
-pub type Offset = sys::NcOffset;

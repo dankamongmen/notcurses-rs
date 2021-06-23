@@ -3,8 +3,7 @@
 use crate::{
     ncresult, // Channels,
     sys::{NcChannels, NcPlane},
-    NotcursesResult as Result,
-    Offset,
+    NotcursesResult,
     Style,
 };
 
@@ -53,12 +52,12 @@ impl<'ncplane> Plane<'ncplane> {
 /// # Methods
 impl<'ncplane> Plane<'ncplane> {
     /// Moves the plane relatively the provided `cols` & `rows`.
-    pub fn move_rel(&mut self, cols: Offset, rows: Offset) -> Result<()> {
+    pub fn move_rel(&mut self, cols: i32, rows: i32) -> NotcursesResult<()> {
         ncresult![self.raw.move_rel(rows, cols)]
     }
 
     /// Moves the plane to the absolute coordinates `x`, `y`.
-    pub fn move_abs(&mut self, x: Offset, y: Offset) -> Result<()> {
+    pub fn move_abs(&mut self, x: i32, y: i32) -> NotcursesResult<()> {
         ncresult![self.raw.move_yx(y, x)]
     }
 
@@ -70,22 +69,22 @@ impl<'ncplane> Plane<'ncplane> {
         egc: &str,
         style: Style,
         channels: CHANNELS,
-    ) -> Result<u32> {
+    ) -> NotcursesResult<u32> {
         ncresult![self.raw.set_base(egc, style.bits(), channels.into())]
     }
 
     /// Renders the pile the current `Plane` is part of.
-    pub fn render(&mut self) -> Result<()> {
+    pub fn render(&mut self) -> NotcursesResult<()> {
         ncresult![self.raw.render()]
     }
 
     /// Rasterizes the pile the current `Plane` is part of.
-    pub fn raster(&mut self) -> Result<()> {
+    pub fn raster(&mut self) -> NotcursesResult<()> {
         ncresult![self.raw.rasterize()]
     }
 
     /// Renders and rasterizes the pile the current `Plane` is part of.
-    pub fn render_raster(&mut self) -> Result<()> {
+    pub fn render_raster(&mut self) -> NotcursesResult<()> {
         self.render()?;
         self.raster()?;
         Ok(())

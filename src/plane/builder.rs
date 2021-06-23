@@ -1,18 +1,18 @@
 use crate::{
     sys::{NcPlane, NcPlaneOptions},
-    Dimension, Notcurses, NotcursesResult as Result, Offset, Plane,
+    Notcurses, NotcursesResult, Plane,
 };
 
 /// A [`Plane`] builder.
 pub struct PlaneBuilder {
-    x: Offset,
-    y: Offset,
-    rows: Dimension,
-    cols: Dimension,
+    x: i32,
+    y: i32,
+    rows: u32,
+    cols: u32,
     // resizecb: Option<NcResizeCb>, // FUTURE
     flags: u64,
-    margin_b: Offset,
-    margin_r: Offset,
+    margin_b: i32,
+    margin_r: i32,
     // /// A flag to indicate if the plane is horizontally aligned
     // is_horizontally_aligned: bool, // TBD
     // /// A flag to indicate whether the plane is bounded to another plane,
@@ -36,50 +36,50 @@ impl Default for PlaneBuilder {
 
 impl PlaneBuilder {
     /// Sets the number of rows (>= 1).
-    pub fn rows(mut self, rows: Dimension) -> Self {
+    pub fn rows(mut self, rows: u32) -> Self {
         self.rows = rows;
         self
     }
 
     /// Sets the number of columns (>= 1).
-    pub fn cols(mut self, cols: Dimension) -> Self {
+    pub fn cols(mut self, cols: u32) -> Self {
         self.cols = cols;
         self
     }
 
     /// Sets the number of columns and rows (>= 1).
-    pub fn cols_rows(mut self, cols: Dimension, rows: Dimension) -> Self {
+    pub fn cols_rows(mut self, cols: u32, rows: u32) -> Self {
         self.cols = cols;
         self.rows = rows;
         self
     }
 
     /// Sets the vertical placement relative to the parent plane.
-    pub fn y(mut self, y: Offset) -> Self {
+    pub fn y(mut self, y: i32) -> Self {
         self.y = y;
         self
     }
 
     /// Sets the horizontal positioning of the Plane being built.
-    pub fn x(mut self, x: Offset) -> Self {
+    pub fn x(mut self, x: i32) -> Self {
         self.x = x;
         self
     }
 
     /// Sets the horizontal and vertical positioning of the Plane being built.
-    pub fn xy(mut self, x: Offset, y: Offset) -> Self {
+    pub fn xy(mut self, x: i32, y: i32) -> Self {
         self.x = x;
         self.y = y;
         self
     }
 
     /// Sets the bottom margin.
-    pub fn margin_b(mut self, margin_b: Offset) -> Self {
+    pub fn margin_b(mut self, margin_b: i32) -> Self {
         self.margin_b = margin_b;
         self
     }
     /// Sets the right margin.
-    pub fn margin_r(mut self, margin_r: Offset) -> Self {
+    pub fn margin_r(mut self, margin_r: i32) -> Self {
         self.margin_r = margin_r;
         self
     }
@@ -98,7 +98,10 @@ impl PlaneBuilder {
     /// context.
     //
     // TODO: horizontal alignment
-    pub fn new_pile<'nc, 'ncplane>(self, nc: &mut Notcurses<'nc>) -> Result<Plane<'ncplane>> {
+    pub fn new_pile<'nc, 'ncplane>(
+        self,
+        nc: &mut Notcurses<'nc>,
+    ) -> NotcursesResult<Plane<'ncplane>> {
         let options = NcPlaneOptions::with_flags(
             self.x,
             self.y,
@@ -120,7 +123,7 @@ impl PlaneBuilder {
     pub fn in_pile<'ncplane1, 'ncplane2>(
         self,
         plane: &mut Plane<'ncplane1>,
-    ) -> Result<Plane<'ncplane2>> {
+    ) -> NotcursesResult<Plane<'ncplane2>> {
         let options = NcPlaneOptions::with_flags(
             self.x,
             self.y,

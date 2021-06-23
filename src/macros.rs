@@ -19,20 +19,22 @@ macro_rules! ncresult {
     }};
 }
 
-/// Renders and rasterizes the pile of the Plane `$p` and then sleeps.
-///
-/// [`Plane.render`][crate::Plane#method.render]\(`$p`\)? plus
-/// [`Plane.raster`][crate::Plane#method.raster]\(`$p`\)? plus
-/// [`sleep!`]`[$sleep_args]`.
-///
-/// Returns [Result].
-#[macro_export]
-macro_rules! rs {
-    ($p:expr, $( $sleep_args:expr),+ ) => {
-        crate::Plane::render_raster($p)?;
-        sleep![$( $sleep_args ),+];
-    };
-    ($nc:expr, $( $sleep_args:expr),+ ,) => {
-        rs![$nc, $( $sleep_args ),* ]
-    };
-}
+// MAYBE this is not necessary
+//
+// /// Renders and rasterizes the pile of the Plane `$p` and then sleeps.
+// ///
+// /// [`Plane.render`][crate::Plane#method.render]\(`$p`\)? plus
+// /// [`Plane.raster`][crate::Plane#method.raster]\(`$p`\)? plus
+// /// [`sleep!`]`[$sleep_args]`.
+// ///
+// /// Returns [`NotcursesResult`].
+// #[macro_export]
+// macro_rules! rs {
+//     ($p:expr, $( $sleep_args:expr),+ ) => {
+//         crate::Plane::render_raster($p)?;
+//         sleep![$( $sleep_args ),+];
+//     };
+//     ($nc:expr, $( $sleep_args:expr),+ ,) => {
+//         rs![$nc, $( $sleep_args ),* ]
+//     };
+// }
