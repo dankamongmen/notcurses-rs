@@ -109,8 +109,8 @@ impl PlaneBuilder {
             self.margin_b,
             self.margin_r,
         );
-        let p = NcPlane::with_options(&mut nc.raw, options)?;
-        Ok(Plane { raw: p })
+        let p = NcPlane::with_options(&mut nc.nc, options)?;
+        Ok(Plane { ncplane: p })
     }
 
     /// Finishes and returns the new [`Plane`] bounded to the same pile of the
@@ -131,7 +131,7 @@ impl PlaneBuilder {
             self.margin_b,
             self.margin_r,
         );
-        let p = NcPlane::with_options_bound(&mut plane.raw, options)?;
-        Ok(Plane { raw: p })
+        let ncplane = NcPlane::with_options_bound(&mut plane.ncplane, options)?;
+        Ok(Plane { ncplane })
     }
 }

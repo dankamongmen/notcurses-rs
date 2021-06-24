@@ -1,18 +1,32 @@
 //! A simple, higher-level Rust wrapper for the [notcurses C library][0].
 //! It depends on [`libnotcurses-sys`][1].
 //!
+//! ## How to use this library
+//!
+//! ```rust
+//! use notcurses::*;
+//!
+//! fn main() -> NResult<()> {
+//!     let mut nc = Notcurses::new()?;
+//!     let mut plane = Plane::build().term_size(&mut nc).new_pile(&mut nc)?;
+//!     // plane.print("hello world")?;
+//!     plane.show()?;
+//!     Ok(())
+//! }
+//! ```
+//!
 //! ## Main API differences with `libnotcurses-sys`
 //!
 //! - Instead of using option structures, you now use the builder pattern
 //!   to construct [`Plane`] and [`Visual`] objects.
 //! - The concept of the standard plane disappears, you just use [`Plane`]s.
-//! - Types have the `Drop` trait implemented so that you don't have to manually
-//!   stop the [`Notcurses`] context, or to destroy [`Plane`]s or [`Visual`]s anymore.
+//! - Types have the `Drop` trait implemented so you don't have to manually stop
+//!   the [`Notcurses`] context, or to destroy [`Plane`]s or [`Visual`]s anymore.
 //! - All coordinate pairs (`X`,`Y`), (`cols`,`rows`) are used in alphabetic
 //!   order, either as part of the function name or as parameters.
 //! - Many types have several `From` implementations in order to make it easier
 //!   to use them in different contexts using `.into()`.
-//! - [`Align`], [`Alpha`], [`Blitter`] and [`Scale`] are now enums.
+//! - [`Align`], [`Alpha`], [`Blitter`] and [`Scale`] are now enums, and
 //!   [`Style`] is a bitfield.
 //!
 //! [0]: https://github.com/dankamongmen/notcurses

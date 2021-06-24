@@ -55,7 +55,7 @@ impl<'plane, 'ncplane> CellBuilder<'plane, 'ncplane> {
             if let Some(_plane) = self.plane {
                 // TEMP
                 let nccell = NcCell::from_char7b(self.ch);
-                Ok(Cell { raw: nccell })
+                Ok(Cell { nccell })
             } else {
                 Err(NError::BuildIncomplete(
                     "Cells with characters bigger than
@@ -66,7 +66,7 @@ impl<'plane, 'ncplane> CellBuilder<'plane, 'ncplane> {
         } else {
             // TEMP
             let nccell = NcCell::from_char7b(self.ch);
-            Ok(Cell { raw: nccell })
+            Ok(Cell { nccell })
         }
     }
 }

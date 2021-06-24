@@ -27,7 +27,7 @@ struct State {
     height: u32,
 }
 
-fn main() -> NotcursesResult<()> {
+fn main() -> NResult<()> {
     let mut nc = Notcurses::new()?;
 
     let (cols, rows) = nc.term_size();
@@ -66,7 +66,7 @@ fn main() -> NotcursesResult<()> {
             .finish()?;
 
         visual.render_plane(&mut nc)?;
-        plane.render_raster()?;
+        plane.show()?;
         sleep![0, 1000 / FPS as u64];
     }
 }

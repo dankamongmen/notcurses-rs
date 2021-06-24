@@ -6,7 +6,7 @@ use rand::{distributions::Uniform, Rng};
 const H: u32 = 32;
 const W: u32 = 32;
 
-fn main() -> NotcursesResult<()> {
+fn main() -> NResult<()> {
     let mut nc = Notcurses::new()?;
 
     println!("terminal detected: {}", nc.term_name());
@@ -24,7 +24,7 @@ fn main() -> NotcursesResult<()> {
         .plane(&mut plane)
         .finish()?;
     visual.render_plane(&mut nc)?;
-    plane.render_raster()?;
+    plane.show()?;
     sleep![0, 500];
 
     let mut rng_house = rand::thread_rng();
@@ -39,14 +39,14 @@ fn main() -> NotcursesResult<()> {
             }
 
             visual.render_plane(&mut nc)?;
-            plane.render_raster()?;
+            plane.show()?;
             sleep![0, 200];
 
         } else {
             fill_buffer(&mut buffer, false);
             visual.set_from_rgba(&buffer, W, H)?;
             visual.render_plane(&mut nc)?;
-            plane.render_raster()?;
+            plane.show()?;
             sleep![0, 25];
         }
     }

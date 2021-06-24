@@ -1,10 +1,5 @@
 //!
 
-// TODO:IDEAS
-// - methods: pixelsize() cellsize() size of the plane in pixels, cells
-// size_cells() size_pixels()
-// Notcurses.cell_size() term_size() … instead of PixelGeometry? (like options struct)
-
 use crate::{
     ncresult, // Channels,
     sys::{NcChannels, NcPlane},
@@ -16,7 +11,7 @@ use crate::{
 mod builder;
 pub use builder::PlaneBuilder;
 
-/// A rectilinear surface meant for text drawing.
+/// A rectilinear surface meant for text dncplaneing.
 ///
 /// Can be larger than the physical screen, or smaller, or the same size; it can
 /// be entirely contained within the physical screen, or overlap in part, or lie
@@ -35,7 +30,7 @@ pub use builder::PlaneBuilder;
 
 #[derive(Debug)]
 pub struct Plane<'ncplane> {
-    pub(crate) raw: &'ncplane mut NcPlane,
+    pub(crate) ncplane: &'ncplane mut NcPlane,
 }
 
 impl<'ncplane> Drop for Plane<'ncplane> {
@@ -43,11 +38,17 @@ impl<'ncplane> Drop for Plane<'ncplane> {
     ///
     /// None of its contents will be visible after the next render call.
     fn drop(&mut self) {
-        let _ = self.raw.destroy();
+        let _ = self.ncplane.destroy();
     }
 }
 
-/// # Constructors and converters
+impl<'ncplane> From<&'ncplane mut NcPlane> for Plane<'ncplane> {
+    fn from(ncplane: &'ncplane mut NcPlane) -> Self {
+        Self { ncplane }
+    }
+}
+
+/// # Constructors and converters.
 impl<'ncplane> Plane<'ncplane> {
     /// Returns a [`PlaneBuilder`] used to customize a new `Plane`.
     pub fn build() -> PlaneBuilder {
@@ -55,23 +56,19 @@ impl<'ncplane> Plane<'ncplane> {
     }
 
     /// New `Plane` with the size of the terminal.
+    // FIXME
     pub fn with_term_size(nc: &mut Notcurses) -> NResult<Self> {
         Self::build().term_size(nc).new_pile(nc)
     }
 
-    /// Creates a `Plane` from an existing [`NcPlane`].
-    pub fn from_ncplane(plane: &'ncplane mut NcPlane) -> Plane<'ncplane> {
-        Self { raw: plane }
-    }
-
     /// Returns a reference to the inner [`NcPlane`].
     pub fn as_ncplane(&self) -> &NcPlane {
-        self.raw
+        self.ncplane
     }
 
     /// Returns a mutable reference to the inner [`NcPlane`].
     pub fn as_ncplane_mut(&mut self) -> &mut NcPlane {
-        self.raw
+        self.ncplane
     }
 }
 
@@ -79,12 +76,12 @@ impl<'ncplane> Plane<'ncplane> {
 impl<'ncplane> Plane<'ncplane> {
     /// Moves the plane relatively the provided `cols` & `rows`.
     pub fn move_rel(&mut self, cols: i32, rows: i32) -> NResult<()> {
-        ncresult![self.raw.move_rel(rows, cols)]
+        ncresult![self.ncplane.move_rel(rows, cols)]
     }
 
     /// Moves the plane to the absolute coordinates `x`, `y`.
     pub fn move_abs(&mut self, x: i32, y: i32) -> NResult<()> {
-        ncresult![self.raw.move_yx(y, x)]
+        ncresult![self.ncplane.move_yx(y, x)]
     }
 
     /// Sets the base cell from its components.
@@ -96,17 +93,17 @@ impl<'ncplane> Plane<'ncplane> {
         style: Style,
         channels: CHANNELS,
     ) -> NResult<u32> {
-        ncresult![self.raw.set_base(egc, style.bits(), channels.into())]
+        ncresult![self.ncplane.set_base(egc, style.bits(), channels.into())]
     }
 
     /// Renders the pile the current `Plane` is part of.
     pub fn render(&mut self) -> NResult<()> {
-        ncresult![self.raw.render()]
+        ncresult![self.ncplane.render()]
     }
 
     /// Rasterizes the pile the current `Plane` is part of.
     pub fn raster(&mut self) -> NResult<()> {
-        ncresult![self.raw.rasterize()]
+        ncresult![self.ncplane.rasterize()]
     }
 
     /// Renders and rasterizes the pile the current `Plane` is part of.

@@ -17,7 +17,7 @@ pub const BACKSTOP: u8 = 0;
 /// ~~AA~~~~ RRRRRRRR GGGGGGGG BBBBBBBB  Background Channel
 /// ```
 pub struct Cell {
-    raw: NcCell,
+    nccell: NcCell,
 }
 
 impl<'plane, 'ncplane> Cell {
@@ -28,27 +28,27 @@ impl<'plane, 'ncplane> Cell {
 
     /// Returns the `char`.
     pub fn char(&mut self, plane: &mut Plane<'ncplane>) -> char {
-        self.raw.egc(plane.as_ncplane_mut())
+        self.nccell.egc(plane.as_ncplane_mut())
     }
 
     /// Returns the [`Style`]s.
     pub fn styles(&mut self) -> Style {
-        self.raw.styles().into()
+        self.nccell.styles().into()
     }
 
     /// Adds the specified [`Style`]s.
     pub fn add_styles(&mut self, styles: Style) {
-        self.raw.styles_on(styles.bits())
+        self.nccell.styles_on(styles.bits())
     }
 
     /// Deletes the specified [`Style`]s.
     pub fn del_styles(&mut self, styles: Style) {
-        self.raw.styles_off(styles.bits())
+        self.nccell.styles_off(styles.bits())
     }
 
     /// Sets just the specified [`Style`]s.
     pub fn set_styles(&mut self, styles: Style) {
-        self.raw.styles_set(styles.bits())
+        self.nccell.styles_set(styles.bits())
     }
 
     // pub fn channels(&mut self) -> Channels {

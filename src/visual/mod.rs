@@ -35,7 +35,7 @@ pub use scale::Scale;
 /// A virtual [`Rgba`] pixel framebuffer.
 #[derive(Debug)]
 pub struct Visual<'ncvisual> {
-    pub(crate) raw: &'ncvisual mut NcVisual,
+    pub(crate) ncvisual: &'ncvisual mut NcVisual,
     pub(crate) options: NcVisualOptions,
 }
 
@@ -45,7 +45,7 @@ impl<'ncvisual> Drop for Visual<'ncvisual> {
     /// Rendered elements will not be disrupted, but the visual can be neither
     /// decoded nor rendered any further.
     fn drop(&mut self) {
-        let _ = self.raw.destroy();
+        let _ = self.ncvisual.destroy();
     }
 }
 
@@ -59,35 +59,35 @@ impl<'ncvisual, 'ncplane, 'plane> Visual<'ncvisual> {
     // /// Creates a `Visual` from an existing [`NcVisual`] and [`NcVisualOptions`].
     // pub fn from_ncvisual(visual: &'ncvisual mut NcVisual) -> Visual<'ncvisual> {
     //     Self {
-    //         raw: visual,
+    //         ncvisual: visual,
     //         // options: None,
     //     }
     // }
 
     pub fn as_ncvisual(&self) -> &NcVisual {
-        self.raw
+        self.ncvisual
     }
 
     /// Returns a mutable reference to the inner `NcVisual`.
     pub fn as_ncvisual_mut(&mut self) -> &mut NcVisual {
-        self.raw
+        self.ncvisual
     }
 
     /// Resizes the visual to `x`,`y` pixels, using interpolation.
     pub fn resize(&mut self, x: u32, y: u32) -> NResult<()> {
-        ncresult![NcVisual::resize(self.raw, y, x)]
+        ncresult![NcVisual::resize(self.ncvisual, y, x)]
     }
 
     /// Resizes the visual to `x`,`y` pixels, without using interpolation.
     pub fn resize_ni(&mut self, x: u32, y: u32) -> NResult<()> {
-        ncresult![NcVisual::resize_noninterpolative(self.raw, y, x)]
+        ncresult![NcVisual::resize_noninterpolative(self.ncvisual, y, x)]
     }
 
     /// Renders the decoded frame to the configured [`Plane`][crate::Plane].
     pub fn render_plane(&mut self, nc: &mut Notcurses) -> NResult<()> {
         assert![!self.options.n.is_null()];
         self.options.flags &= !sys::NCVISUAL_OPTION_CHILDPLANE as u64;
-        let _ = NcVisual::render(self.raw, nc.raw, &self.options)?;
+        let _ = NcVisual::render(self.ncvisual, nc.nc, &self.options)?;
         Ok(())
     }
 
@@ -99,8 +99,8 @@ impl<'ncvisual, 'ncplane, 'plane> Visual<'ncvisual> {
     ) -> NResult<Plane<'ncvisual>> {
         assert![!self.options.n.is_null()];
         self.options.flags |= sys::NCVISUAL_OPTION_CHILDPLANE as u64;
-        let child_plane = NcVisual::render(self.raw, nc.raw, &self.options)?;
-        Ok(Plane::<'ncvisual> { raw: child_plane })
+        let child_plane = NcVisual::render(self.ncvisual, nc.nc, &self.options)?;
+        Ok(Plane::<'ncvisual> { ncplane: child_plane })
     }
 
     /// Renders the decoded frame as a new [`Plane`][crate::Plane], and returns it.
@@ -108,8 +108,8 @@ impl<'ncvisual, 'ncplane, 'plane> Visual<'ncvisual> {
     /// Doesn't need to have a plane configured.
     pub fn render_new_plane(&'ncvisual mut self, nc: &mut Notcurses) -> NResult<Plane<'ncvisual>> {
         self.options.flags |= sys::NCVISUAL_OPTION_CHILDPLANE as u64;
-        let child_plane = NcVisual::render(self.raw, nc.raw, &self.options)?;
-        Ok(Plane::<'ncvisual>::from_ncplane(child_plane))
+        let child_ncplane = NcVisual::render(self.ncvisual, nc.nc, &self.options)?;
+        Ok(child_ncplane.into())
     }
 }
 
@@ -120,32 +120,32 @@ impl<'ncvisual, 'ncplane, 'plane> Visual<'ncvisual> {
 impl<'ncvisual, 'ncplane> Visual<'ncvisual> {
     /// (re)Sets the `Visual` based off RGBA content in memory at `rgba`.
     pub fn set_from_rgba(&mut self, rgba: &[u8], cols: u32, rows: u32) -> NResult<()> {
-        self.raw = NcVisual::from_rgba(rgba, rows, cols * 4, cols)?;
+        self.ncvisual = NcVisual::from_rgba(rgba, rows, cols * 4, cols)?;
         Ok(())
     }
 
     /// (re)Sets the `Visual` based off RGB content in memory at `rgb`.
     pub fn set_from_rgb(&mut self, rgb: &[u8], cols: u32, rows: u32, alpha: u8) -> NResult<()> {
-        self.raw = NcVisual::from_rgb_packed(rgb, rows, cols * 4, cols, alpha)?;
+        self.ncvisual = NcVisual::from_rgb_packed(rgb, rows, cols * 4, cols, alpha)?;
         Ok(())
     }
 
     /// (re)Sets the `Visual` based off RGBX content in memory at `rgbx`.
     pub fn set_from_rgbx(&mut self, rgbx: &[u8], cols: u32, rows: u32, alpha: u8) -> NResult<()> {
-        self.raw = NcVisual::from_rgb_loose(rgbx, rows, cols * 4, cols, alpha)?;
+        self.ncvisual = NcVisual::from_rgb_loose(rgbx, rows, cols * 4, cols, alpha)?;
         Ok(())
     }
 
     /// (re)Sets the `Visual` based off BGRA content in memory at `bgra`.
     pub fn set_from_bgra(&mut self, bgra: &[u8], cols: u32, rows: u32) -> NResult<()> {
-        self.raw = NcVisual::from_bgra(bgra, rows, cols * 4, cols)?;
+        self.ncvisual = NcVisual::from_bgra(bgra, rows, cols * 4, cols)?;
         Ok(())
     }
 
     /// (re)Sets the `Visual` from a `file`, extracts the codec and paramenters
     /// and decodes the first image to memory.
     pub fn set_from_file(&mut self, file: &str) -> NResult<()> {
-        self.raw = NcVisual::from_file(file)?;
+        self.ncvisual = NcVisual::from_file(file)?;
         Ok(())
     }
 

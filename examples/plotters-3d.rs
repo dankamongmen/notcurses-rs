@@ -10,16 +10,16 @@
 use notcurses::*;
 use plotters::prelude::*;
 
-fn main() -> NotcursesResult<()> {
+fn main() -> NResult<()> {
     let mut nc = Notcurses::new()?;
 
-    let (width, height) = nc.term_size();
+    let (cos, rows) = nc.term_size();
     let geom = nc.term_pixelgeometry();
 
     let mut buffer = vec![0; geom.max_bitmap_x as usize * geom.max_bitmap_y as usize * 3];
     plot(&mut buffer, geom.max_bitmap_x, geom.max_bitmap_y).expect("plotting failed");
 
-    let mut plane = Plane::build().cols_rows(width, height).new_pile(&mut nc)?;
+    let mut plane = Plane::build().cols_rows(cols, rows).new_pile(&mut nc)?;
     let mut visual = Visual::build()
         .from_rgb(&buffer, geom.max_bitmap_x, geom.max_bitmap_y, 255)?
         .blitter(Blitter::Pixel)
@@ -28,7 +28,7 @@ fn main() -> NotcursesResult<()> {
         .finish()?;
 
     visual.render_plane(&mut nc)?;
-    plane.render_raster()?;
+    plane.show()?;
     sleep![5];
     Ok(())
 }

@@ -8,8 +8,8 @@ fn main() -> NResult<()> {
     let mut p1 = Plane::build().rows(20).cols(40).new_pile(&mut nc)?;
     p1.set_base(
         "l",
-        Style::BOLD | Style::ITALIC,
-        Channels::new(Rgb::DARK_GREY, 0x123),
+        Style::BOLD | Style::ITALIC | Style::STRUCK,
+        Channels::new(0x88aa00, 0x222288),
     )?;
     p1.show()?;
     sleep![0, 500];
@@ -20,7 +20,7 @@ fn main() -> NResult<()> {
         .y(2)
         .x(3)
         .into_pile(&mut p1)?;
-    p2.set_base("o", Style::REVERSE, Channels::new(0x332244, Rgb::GREY))?;
+    p2.set_base("^", Style::UNDERLINE, Channels::new(0x332244, Rgb::GREY))?;
     p1.show()?;
     sleep![0, 500];
 

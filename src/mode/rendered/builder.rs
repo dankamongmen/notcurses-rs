@@ -136,6 +136,6 @@ impl<'nc> NotcursesBuilder {
             self.flags,
         );
         let nc = Nc::with_options(ncoptions)?;
-        Ok(Notcurses { raw: nc })
+        Ok(Notcurses { nc })
     }
 }

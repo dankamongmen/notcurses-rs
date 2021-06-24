@@ -11,13 +11,13 @@ use crate::{
 /// A minimal notcurses *direct mode* context for styling text.
 #[derive(Debug)]
 pub struct NotcursesD<'ncdirect> {
-    pub(crate) raw: &'ncdirect mut NcDirect,
+    pub(crate) ncdirect: &'ncdirect mut NcDirect,
 }
 
 impl<'ncdirect> Drop for NotcursesD<'ncdirect> {
     /// Destroys the NotcursesD context.
     fn drop(&mut self) {
-        let _ = self.raw.stop();
+        let _ = self.ncdirect.stop();
     }
 }
 
@@ -25,7 +25,7 @@ impl<'ncdirect> NotcursesD<'ncdirect> {
     /// New `NotcursesD` instance.
     pub fn new() -> NResult<Self> {
         Ok(Self {
-            raw: NcDirect::new()?,
+            ncdirect: NcDirect::new()?,
         })
     }
 
@@ -37,18 +37,18 @@ impl<'ncdirect> NotcursesD<'ncdirect> {
 
     /// Clears the screen.
     pub fn clear(&mut self) -> NResult<()> {
-        ncresult![self.raw.clear()]
+        ncresult![self.ncdirect.clear()]
     }
 
     /// Forces a flush.
     pub fn flush(&mut self) -> NResult<()> {
-        ncresult![self.raw.flush()]
+        ncresult![self.ncdirect.flush()]
     }
 
     /// Takes the result of [`render_frame`][NotcursesD#method.render_frame]
     /// and writes it to the output.
     pub fn raster_frame(&mut self, plane: &mut Plane, align: Align) -> NResult<()> {
-        ncresult![self.raw.raster_frame(plane.raw, align.into())]
+        ncresult![self.ncdirect.raster_frame(plane.ncplane, align.into())]
     }
 
     /// Renders an image into a [`Plane`] using the specified [`Blitter`] and
@@ -71,10 +71,10 @@ impl<'ncdirect> NotcursesD<'ncdirect> {
         max_x: u32,
         max_y: u32,
     ) -> NResult<Plane> {
-        let p = self
-            .raw
-            .render_frame(filename, blitter.into(), scale.into(), max_y, max_x)?;
-        Ok(Plane::from_ncplane(p))
+        let ncplane =
+            self.ncdirect
+                .render_frame(filename, blitter.into(), scale.into(), max_y, max_x)?;
+        Ok(ncplane.into())
     }
 
     /// Renders an image using the specified [`Blitter`] and [`Scale`].
@@ -94,58 +94,58 @@ impl<'ncdirect> NotcursesD<'ncdirect> {
         scale: Scale,
     ) -> NResult<()> {
         ncresult![self
-            .raw
+            .ncdirect
             .render_image(filename, align.into(), blitter.into(), scale.into())]
     }
 
     /// Disables the terminal cursor, if supported.
     pub fn cursor_disable(&mut self) -> NResult<()> {
-        ncresult![self.raw.cursor_disable()]
+        ncresult![self.ncdirect.cursor_disable()]
     }
 
     /// Enables the terminal cursor, if supported.
     pub fn cursor_enable(&mut self) -> NResult<()> {
-        ncresult![self.raw.cursor_enable()]
+        ncresult![self.ncdirect.cursor_enable()]
     }
 
     /// Moves the cursor down any number of `rows`.
     pub fn cursor_down(&mut self, num: i32) -> NResult<()> {
-        ncresult![self.raw.cursor_down(num)]
+        ncresult![self.ncdirect.cursor_down(num)]
     }
 
     /// Moves the cursor left any number of `rows`.
     pub fn cursor_left(&mut self, num: i32) -> NResult<()> {
-        ncresult![self.raw.cursor_left(num)]
+        ncresult![self.ncdirect.cursor_left(num)]
     }
 
     /// Moves the cursor right any number of `rows`.
     pub fn cursor_right(&mut self, num: i32) -> NResult<()> {
-        ncresult![self.raw.cursor_right(num)]
+        ncresult![self.ncdirect.cursor_right(num)]
     }
 
     /// Moves the cursor up any number of `rows`.
     pub fn cursor_up(&mut self, num: i32) -> NResult<()> {
-        ncresult![self.raw.cursor_up(num)]
+        ncresult![self.ncdirect.cursor_up(num)]
     }
 
     /// Moves the cursor to the specified column `x`.
     pub fn cursor_set_x(&mut self, x: u32) -> NResult<()> {
-        ncresult![self.raw.cursor_set_x(x)]
+        ncresult![self.ncdirect.cursor_set_x(x)]
     }
 
     /// Moves the cursor to the specified row `y`.
     pub fn cursor_set_y(&mut self, y: u32) -> NResult<()> {
-        ncresult![self.raw.cursor_set_y(y)]
+        ncresult![self.ncdirect.cursor_set_y(y)]
     }
 
     /// Moves the cursor to the specified column `x`, row `y`.
     pub fn cursor_set_xy(&mut self, x: u32, y: u32) -> NResult<()> {
-        ncresult![self.raw.cursor_set_yx(y, x)]
+        ncresult![self.ncdirect.cursor_set_yx(y, x)]
     }
 
     /// Returns the cursor (x, y) position, when supported.
     pub fn cursor_xy(&mut self) -> NResult<(u32, u32)> {
-        let (y, x) = self.raw.cursor_yx()?;
+        let (y, x) = self.ncdirect.cursor_yx()?;
         Ok((x, y))
     }
 
@@ -153,93 +153,93 @@ impl<'ncdirect> NotcursesD<'ncdirect> {
     ///
     /// The depth of this stack, and indeed its existence, is terminal-dependent.
     pub fn cursor_push(&mut self) -> NResult<()> {
-        ncresult![self.raw.cursor_push()]
+        ncresult![self.ncdirect.cursor_push()]
     }
 
     /// Pops the cursor location from the terminal's stack.
     ///
     /// The depth of this stack, and indeed its existence, is terminal-dependent.
     pub fn cursor_pop(&mut self) -> NResult<()> {
-        ncresult![self.raw.cursor_pop()]
+        ncresult![self.ncdirect.cursor_pop()]
     }
 
     /// Returns the capabilities of the terminal.
     pub fn capabilities(&self) -> Capabilities {
         Capabilities {
-            halfblock: self.raw.canhalfblock(),
-            quadrant: self.raw.canquadrant(),
-            sextant: self.raw.cansextant(),
-            braille: self.raw.canbraille(),
-            utf8: self.raw.canutf8(),
-            images: self.raw.canopen_images(),
-            videos: self.raw.canopen_videos(),
-            pixel: self.raw.check_pixel_support().unwrap_or(false),
-            truecolor: self.raw.cantruecolor(),
-            fade: self.raw.canfade(),
-            palette_change: self.raw.canchangecolor(),
-            palette_size: self.raw.palette_size().unwrap_or(0),
-            cursor: self.raw.canget_cursor(),
+            halfblock: self.ncdirect.canhalfblock(),
+            quadrant: self.ncdirect.canquadrant(),
+            sextant: self.ncdirect.cansextant(),
+            braille: self.ncdirect.canbraille(),
+            utf8: self.ncdirect.canutf8(),
+            images: self.ncdirect.canopen_images(),
+            videos: self.ncdirect.canopen_videos(),
+            pixel: self.ncdirect.check_pixel_support().unwrap_or(false),
+            truecolor: self.ncdirect.cantruecolor(),
+            fade: self.ncdirect.canfade(),
+            palette_change: self.ncdirect.canchangecolor(),
+            palette_size: self.ncdirect.palette_size().unwrap_or(0),
+            cursor: self.ncdirect.canget_cursor(),
         }
     }
 
     /// Returns the size of the terminal in columns and rows (x, y).
     pub fn term_size(&mut self) -> (u32, u32) {
-        let (y, x) = self.raw.dim_yx();
+        let (y, x) = self.ncdirect.dim_yx();
         (x, y)
     }
 
     /// Returns the name of the detected terminal.
     pub fn term_name(&self) -> String {
-        self.raw.detected_terminal()
+        self.ncdirect.detected_terminal()
     }
 
     /// Sets the background [`Rgb`].
     pub fn set_bg<RGB: Into<Rgb>>(&mut self, rgb: RGB) -> NResult<()> {
-        ncresult![self.raw.set_bg_rgb(rgb.into().into())]
+        ncresult![self.ncdirect.set_bg_rgb(rgb.into().into())]
     }
 
     /// Sets the foreground [`Rgb`].
     pub fn set_fg<RGB: Into<Rgb>>(&mut self, rgb: RGB) -> NResult<()> {
-        ncresult![self.raw.set_fg_rgb(rgb.into().into())]
+        ncresult![self.ncdirect.set_fg_rgb(rgb.into().into())]
     }
 
     /// Indicates to use the "default color" for the background .
     pub fn set_bg_default(&mut self) -> NResult<()> {
-        ncresult![self.raw.set_bg_default()]
+        ncresult![self.ncdirect.set_bg_default()]
     }
 
     /// Indicates to use the "default color" for the foreground .
     pub fn set_fg_default(&mut self) -> NResult<()> {
-        ncresult![self.raw.set_fg_default()]
+        ncresult![self.ncdirect.set_fg_default()]
     }
 
     // TODO: set_bg_palindex, set_fg_palindex
 
     // /// Sets the background [`PaletteIndex`].
     // pub fn set_bg_palindex(&mut self, index: PaletteIndex) -> NResult<()> {
-    //     ncresult![self.raw.set_bg_palindex(index)]
+    //     ncresult![self.ncdirect.set_bg_palindex(index)]
     // }
     //
     // /// Sets the foreground [`PaletteIndex`].
     // pub fn set_fg_palindex(&mut self, index: PaletteIndex) -> NResult<()> {
-    //     ncresult![self.raw.set_fg_palindex(index)]
+    //     ncresult![self.ncdirect.set_fg_palindex(index)]
     // }
 
     // MAYBE: palette_size
 
     /// Adds the specified [`Style`]s.
     pub fn add_styles(&mut self, styles: Style) -> NResult<()> {
-        ncresult![self.raw.styles_on(styles.bits())]
+        ncresult![self.ncdirect.styles_on(styles.bits())]
     }
 
     /// Deletes the specified [`Style`]s.
     pub fn del_styles(&mut self, styles: Style) -> NResult<()> {
-        ncresult![self.raw.styles_off(styles.bits())]
+        ncresult![self.ncdirect.styles_off(styles.bits())]
     }
 
     /// Sets just the specified [`Style`]s.
     pub fn set_styles(&mut self, styles: Style) -> NResult<()> {
-        ncresult![self.raw.styles_set(styles.bits())]
+        ncresult![self.ncdirect.styles_set(styles.bits())]
     }
 
     // TODO: getc, getc_nblock, getc_blocking, inputread_fd
@@ -278,7 +278,7 @@ impl<'ncdirect> NotcursesD<'ncdirect> {
     /// It will fail if the NcDirect context and the foreground channel
     /// are both marked as using the default color.
     pub fn putstr(&mut self, channels: Channels, string: &str) -> NResult<()> {
-        ncresult![self.raw.putstr(channels.into(), string)]
+        ncresult![self.ncdirect.putstr(channels.into(), string)]
     }
 
     /// Reads a (heap-allocated) line of text using the Readline library.
@@ -290,7 +290,7 @@ impl<'ncdirect> NotcursesD<'ncdirect> {
     // [NCDIRECT_OPTION_INHIBIT_CBREAK][crate::NCDIRECT_OPTION_INHIBIT_CBREAK]
     // be provided to the constructor.
     pub fn readline(&mut self, prompt: &str) -> NResult<&str> {
-        ncresult![self.raw.readline(prompt)]
+        ncresult![self.ncdirect.readline(prompt)]
     }
 
     // TODO: r#box, double_box, rounded_box, hline_interp, vline_interp

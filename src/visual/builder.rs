@@ -93,7 +93,7 @@ impl<'ncvisual, 'ncplane, 'plane> VisualBuilder<'ncvisual, 'ncplane, 'plane> {
         y1: u32,
     ) -> Result<Self> {
         self.ncvisual = Some(NcVisual::from_plane(
-            plane.raw,
+            plane.ncplane,
             blitter.into(),
             y0,
             x0,
@@ -270,7 +270,7 @@ impl<'ncvisual, 'ncplane, 'plane> VisualBuilder<'ncvisual, 'ncplane, 'plane> {
 
             Ok(Visual {
                 options: ncvisualopt,
-                raw: self.ncvisual.unwrap(),
+                ncvisual: self.ncvisual.unwrap(),
             })
         } else {
             Err(NError::BuildIncomplete(
