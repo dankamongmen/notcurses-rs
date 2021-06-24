@@ -1,17 +1,38 @@
 //!
 
+// TODO:IDEAS
+// - methods: pixelsize() cellsize() size of the plane in pixels, cells
+// size_cells() size_pixels()
+// Notcurses.cell_size() term_size() … instead of PixelGeometry? (like options struct)
+
 use crate::{
     ncresult, // Channels,
     sys::{NcChannels, NcPlane},
-    NotcursesResult,
+    NResult,
+    Notcurses,
     Style,
 };
 
 mod builder;
 pub use builder::PlaneBuilder;
 
-/// A text drawing surface.
+/// A rectilinear surface meant for text drawing.
 ///
+/// Can be larger than the physical screen, or smaller, or the same size; it can
+/// be entirely contained within the physical screen, or overlap in part, or lie
+/// wholly beyond the boundaries, never to be rendered.
+///
+/// a Plane is defined by:
+///
+/// - its *geometry*, its *position* relative to the visible plane and its *z-index*.
+/// - its current *style*, *foreground* [`Channel`], and *background* `Channel`.
+/// - its framebuffer, being a rectilinear matrix of [`Cells`].
+/// - its *base `Cell`*, used for any cell on the plane without a glyph.
+/// - its current *cursor location*.
+// - a configured user curry (a void*),
+// - an optional resize callback,
+// - a name (used only for debugging).
+
 #[derive(Debug)]
 pub struct Plane<'ncplane> {
     pub(crate) raw: &'ncplane mut NcPlane,
@@ -33,6 +54,11 @@ impl<'ncplane> Plane<'ncplane> {
         PlaneBuilder::default()
     }
 
+    /// New `Plane` with the size of the terminal.
+    pub fn with_term_size(nc: &mut Notcurses) -> NResult<Self> {
+        Self::build().term_size(nc).new_pile(nc)
+    }
+
     /// Creates a `Plane` from an existing [`NcPlane`].
     pub fn from_ncplane(plane: &'ncplane mut NcPlane) -> Plane<'ncplane> {
         Self { raw: plane }
@@ -52,12 +78,12 @@ impl<'ncplane> Plane<'ncplane> {
 /// # Methods
 impl<'ncplane> Plane<'ncplane> {
     /// Moves the plane relatively the provided `cols` & `rows`.
-    pub fn move_rel(&mut self, cols: i32, rows: i32) -> NotcursesResult<()> {
+    pub fn move_rel(&mut self, cols: i32, rows: i32) -> NResult<()> {
         ncresult![self.raw.move_rel(rows, cols)]
     }
 
     /// Moves the plane to the absolute coordinates `x`, `y`.
-    pub fn move_abs(&mut self, x: i32, y: i32) -> NotcursesResult<()> {
+    pub fn move_abs(&mut self, x: i32, y: i32) -> NResult<()> {
         ncresult![self.raw.move_yx(y, x)]
     }
 
@@ -69,24 +95,50 @@ impl<'ncplane> Plane<'ncplane> {
         egc: &str,
         style: Style,
         channels: CHANNELS,
-    ) -> NotcursesResult<u32> {
+    ) -> NResult<u32> {
         ncresult![self.raw.set_base(egc, style.bits(), channels.into())]
     }
 
     /// Renders the pile the current `Plane` is part of.
-    pub fn render(&mut self) -> NotcursesResult<()> {
+    pub fn render(&mut self) -> NResult<()> {
         ncresult![self.raw.render()]
     }
 
     /// Rasterizes the pile the current `Plane` is part of.
-    pub fn raster(&mut self) -> NotcursesResult<()> {
+    pub fn raster(&mut self) -> NResult<()> {
         ncresult![self.raw.rasterize()]
     }
 
     /// Renders and rasterizes the pile the current `Plane` is part of.
-    pub fn render_raster(&mut self) -> NotcursesResult<()> {
+    pub fn show(&mut self) -> NResult<()> {
         self.render()?;
         self.raster()?;
         Ok(())
     }
+
+    // /// Resizes this `Plane`.
+    // ///
+    // /// The four parameters `keep_y`, `keep_x`, `keep_len_y`, and `keep_len_x`
+    // /// defines a subset of this NcPlane to keep unchanged. This may be a section
+    // /// of size 0.
+    // ///
+    // /// `keep_x` and `keep_y` are relative to this NcPlane. They must specify a
+    // /// coordinate within the ncplane's totality. If either of `keep_len_y` or
+    // /// `keep_len_x` is non-zero, both must be non-zero.
+    // ///
+    // /// `y_off` and `x_off` are relative to `keep_y` and `keep_x`, and place the
+    // /// upper-left corner of the resized NcPlane.
+    // ///
+    // /// `y_len` and `x_len` are the dimensions of this NcPlane after resizing.
+    // /// `y_len` must be greater than or equal to `keep_len_y`,
+    // /// and `x_len` must be greater than or equal to `keeplenx`.
+    // ///
+    // /// It is an error to attempt to resize the standard plane.
+    // ///
+    // pub fn resize(&mut self, x: u32, y: u32) -> NResult<()> {
+    // }
+
+    // TODO: create a simplified version
+    // pub fn resize_subrect(&mut self, x: u32, y: u32) -> NResult<()> {
+    // }
 }

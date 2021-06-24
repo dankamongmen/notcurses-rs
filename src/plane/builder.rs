@@ -1,6 +1,6 @@
 use crate::{
     sys::{NcPlane, NcPlaneOptions},
-    Notcurses, NotcursesResult, Plane,
+    NResult, Notcurses, Plane,
 };
 
 /// A [`Plane`] builder.
@@ -98,10 +98,7 @@ impl PlaneBuilder {
     /// context.
     //
     // TODO: horizontal alignment
-    pub fn new_pile<'nc, 'ncplane>(
-        self,
-        nc: &mut Notcurses<'nc>,
-    ) -> NotcursesResult<Plane<'ncplane>> {
+    pub fn new_pile<'nc, 'ncplane>(self, nc: &mut Notcurses<'nc>) -> NResult<Plane<'ncplane>> {
         let options = NcPlaneOptions::with_flags(
             self.x,
             self.y,
@@ -120,10 +117,10 @@ impl PlaneBuilder {
     /// provided plane.
     //
     // TODO: horizontal alignment
-    pub fn in_pile<'ncplane1, 'ncplane2>(
+    pub fn into_pile<'ncplane1, 'ncplane2>(
         self,
         plane: &mut Plane<'ncplane1>,
-    ) -> NotcursesResult<Plane<'ncplane2>> {
+    ) -> NResult<Plane<'ncplane2>> {
         let options = NcPlaneOptions::with_flags(
             self.x,
             self.y,

@@ -1,7 +1,7 @@
 //!
 
 use crate::sys::{self, NcVisual, NcVisualOptions};
-use crate::{Align, Blitter, NotcursesError, NotcursesResult as Result, Plane, Scale, Visual};
+use crate::{Align, Blitter, NError, NResult as Result, Plane, Scale, Visual};
 
 /// A [`Visual`] builder.
 #[derive(Default)]
@@ -273,7 +273,7 @@ impl<'ncvisual, 'ncplane, 'plane> VisualBuilder<'ncvisual, 'ncplane, 'plane> {
                 raw: self.ncvisual.unwrap(),
             })
         } else {
-            Err(NotcursesError::BuildIncomplete(
+            Err(NError::BuildIncomplete(
                 "It's necessary to prepare the Visual
                 first by calling one of the `from_*` methods."
                     .into(),

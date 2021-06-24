@@ -10,7 +10,7 @@ macro_rules! ncresult {
                 return Ok(t);
             }
             Err(e) => {
-                return Err(crate::NotcursesError::NcError {
+                return Err(crate::NError::NcError {
                     int: e.int,
                     msg: e.msg,
                 });

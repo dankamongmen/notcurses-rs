@@ -50,9 +50,9 @@ mod visual;
 pub use align::Align;
 pub use cell::{Cell, BACKSTOP};
 pub use channels::{Alpha, Channel, Channels, Rgb};
-pub use error::{NotcursesError, NotcursesResult};
+pub use error::{NError, NResult};
 pub use macros::*;
-pub use mode::{Capabilities, LogLevel, Notcurses, NotcursesDirect};
+pub use mode::{Capabilities, LogLevel, Notcurses, NotcursesD};
 pub use plane::Plane;
 pub use style::Style;
 pub use visual::{Blitter, PixelGeometry, Rgba, Scale, Visual};
@@ -60,7 +60,7 @@ pub use visual::{Blitter, PixelGeometry, Rgba, Scale, Visual};
 pub mod builders {
     //! All the builders
     pub use crate::cell::CellBuilder;
-    pub use crate::mode::{NotcursesBuilder, NotcursesDirectBuilder};
+    pub use crate::mode::{NotcursesBuilder, NotcursesDBuilder};
     pub use crate::plane::PlaneBuilder;
     pub use crate::visual::VisualBuilder;
 }

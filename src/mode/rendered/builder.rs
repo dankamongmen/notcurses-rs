@@ -1,6 +1,6 @@
 use crate::{
     sys::{self, Nc, NcOptions},
-    LogLevel, Notcurses, NotcursesResult,
+    LogLevel, NResult, Notcurses,
 };
 
 /// A [`Notcurses`] builder.
@@ -126,7 +126,7 @@ impl<'nc> NotcursesBuilder {
     }
 
     /// Finishes the build returning the newly configured [`Notcurses`] context.
-    pub fn finish(self) -> NotcursesResult<Notcurses<'nc>> {
+    pub fn finish(self) -> NResult<Notcurses<'nc>> {
         let ncoptions = NcOptions::with_all_options(
             self.loglevel.into(),
             self.margins.0,

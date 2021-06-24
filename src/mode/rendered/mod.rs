@@ -1,6 +1,6 @@
 //! `Notcurses` wrapper struct and traits implementations.
 
-use crate::{ncresult, sys::Nc, Capabilities, NotcursesResult, PixelGeometry};
+use crate::{ncresult, sys::Nc, Capabilities, NResult, PixelGeometry};
 
 mod builder;
 mod loglevel;
@@ -22,7 +22,7 @@ impl<'nc> Drop for Notcurses<'nc> {
 
 impl<'nc> Notcurses<'nc> {
     /// New `Notcurses` instance.
-    pub fn new() -> NotcursesResult<Self> {
+    pub fn new() -> NResult<Self> {
         Ok(Self { raw: Nc::new()? })
     }
 
@@ -46,12 +46,12 @@ impl<'nc> Notcurses<'nc> {
     // pub fn at_yx
 
     /// Disables the terminal cursor, if supported.
-    pub fn cursor_disable(&mut self) -> NotcursesResult<()> {
+    pub fn cursor_disable(&mut self) -> NResult<()> {
         ncresult![self.raw.cursor_disable()]
     }
 
     /// Enables the terminal cursor, if supported, plaxing it at `x`,`y`.
-    pub fn cursor_enable(&mut self, x: u32, y: u32) -> NotcursesResult<()> {
+    pub fn cursor_enable(&mut self, x: u32, y: u32) -> NResult<()> {
         ncresult![self.raw.cursor_enable(y, x)]
     }
 
@@ -77,20 +77,20 @@ impl<'nc> Notcurses<'nc> {
 
     /// Disables signals originating from the terminal's line discipline, i.e.
     /// SIGINT (^C), SIGQUIT (^), and SIGTSTP (^Z). They are enabled by default.
-    pub fn linesigs_disable(&mut self) -> NotcursesResult<()> {
+    pub fn linesigs_disable(&mut self) -> NResult<()> {
         ncresult![self.raw.linesigs_disable()]
     }
 
     /// Restores signals originating from the terminal's line discipline, i.e.
     /// SIGINT (^C), SIGQUIT (^), and SIGTSTP (^Z), if disabled.
-    pub fn linesigs_enable(&mut self) -> NotcursesResult<()> {
+    pub fn linesigs_enable(&mut self) -> NResult<()> {
         ncresult![self.raw.linesigs_enable()]
     }
 
     /// Disables mouse events.
     ///
     /// Any events in the input queue can still be delivered.
-    pub fn mouse_disable(&mut self) -> NotcursesResult<()> {
+    pub fn mouse_disable(&mut self) -> NResult<()> {
         ncresult![self.raw.mouse_disable()]
     }
 
@@ -99,7 +99,7 @@ impl<'nc> Notcurses<'nc> {
     ///
     /// On success, mouse events will be published to
     /// [getc()][Notcurses#method.getc].
-    pub fn mouse_enable(&mut self) -> NotcursesResult<()> {
+    pub fn mouse_enable(&mut self) -> NResult<()> {
         ncresult![self.raw.mouse_enable()]
     }
 
@@ -113,7 +113,7 @@ impl<'nc> Notcurses<'nc> {
     /// [NCKEY_RESIZE][crate::sys::NCKEY_RESIZE] event has been read and you're not
     /// yet ready to render.
     // TODO: sys::NCKEY_RESIZE reference
-    pub fn refresh(&mut self) -> NotcursesResult<(u32, u32)> {
+    pub fn refresh(&mut self) -> NResult<(u32, u32)> {
         let (y, x) = self.raw.refresh()?;
         Ok((x, y))
     }

@@ -1,12 +1,12 @@
-use crate::NotcursesDirect;
+use crate::NotcursesD;
 
-/// A [`NotcursesDirect`] builder.
-pub struct NotcursesDirectBuilder {}
+/// A [`NotcursesD`] builder.
+pub struct NotcursesDBuilder {}
 
-impl Default for NotcursesDirectBuilder {
+impl Default for NotcursesDBuilder {
     fn default() -> Self {
         Self {}
     }
 }
 
-impl NotcursesDirectBuilder {}
+impl NotcursesDBuilder {}

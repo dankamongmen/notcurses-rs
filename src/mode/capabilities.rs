@@ -1,12 +1,12 @@
 //!
 
-use crate::{Notcurses, NotcursesDirect};
+use crate::{Notcurses, NotcursesD};
 
 /// The detected current terminal capabilities.
 ///
 /// It can be generated with
 /// [`Notcurses.capabilities`][crate::Notcurses#method.capabilities] and
-/// [`NotcursesDirect.capabilities`][crate::NotcursesDirect#method.capabilities]
+/// [`NotcursesD.capabilities`][crate::NotcursesD#method.capabilities]
 pub struct Capabilities {
     pub(crate) halfblock: bool,
     pub(crate) quadrant: bool,
@@ -29,8 +29,8 @@ impl Capabilities {
         nc.capabilities()
     }
 
-    /// New `Capabilities` from a [`NotcursesDirect`] context.
-    pub fn from_notcurses_direct(ncd: &NotcursesDirect) -> Self {
+    /// New `Capabilities` from a [`NotcursesD`] context.
+    pub fn from_notcurses_direct(ncd: &NotcursesD) -> Self {
         ncd.capabilities()
     }
 

@@ -1,4 +1,4 @@
-use crate::{sys::NcCell, Cell, Channels, NotcursesError, NotcursesResult, Plane, Style};
+use crate::{sys::NcCell, Cell, Channels, NError, NResult, Plane, Style};
 
 /// A [`Cell`] builder.
 pub struct CellBuilder<'plane, 'ncplane> {
@@ -50,14 +50,14 @@ impl<'plane, 'ncplane> CellBuilder<'plane, 'ncplane> {
 
     /// Finishes the build and returns a [`Cell`].
     // WIP
-    pub fn finish(self) -> NotcursesResult<Cell> {
+    pub fn finish(self) -> NResult<Cell> {
         if self.ch as u32 > 127 {
             if let Some(_plane) = self.plane {
                 // TEMP
                 let nccell = NcCell::from_char7b(self.ch);
                 Ok(Cell { raw: nccell })
             } else {
-                Err(NotcursesError::BuildIncomplete(
+                Err(NError::BuildIncomplete(
                     "Cells with characters bigger than
                     7-bit ASCII needs to have a Plane assigned."
                         .into(),
