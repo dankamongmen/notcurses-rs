@@ -66,7 +66,7 @@ fn main() -> NResult<()> {
             .finish()?;
 
         visual.render_plane(&mut nc)?;
-        plane.show()?;
+        plane.display()?;
         sleep![0, 1000 / FPS as u64];
     }
 }

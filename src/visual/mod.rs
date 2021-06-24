@@ -100,7 +100,9 @@ impl<'ncvisual, 'ncplane, 'plane> Visual<'ncvisual> {
         assert![!self.options.n.is_null()];
         self.options.flags |= sys::NCVISUAL_OPTION_CHILDPLANE as u64;
         let child_plane = NcVisual::render(self.ncvisual, nc.nc, &self.options)?;
-        Ok(Plane::<'ncvisual> { ncplane: child_plane })
+        Ok(Plane::<'ncvisual> {
+            ncplane: child_plane,
+        })
     }
 
     /// Renders the decoded frame as a new [`Plane`][crate::Plane], and returns it.

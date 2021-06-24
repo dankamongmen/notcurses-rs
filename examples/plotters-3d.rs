@@ -28,7 +28,7 @@ fn main() -> NResult<()> {
         .finish()?;
 
     visual.render_plane(&mut nc)?;
-    plane.show()?;
+    plane.display()?;
     sleep![5];
     Ok(())
 }

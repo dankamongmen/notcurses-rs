@@ -20,11 +20,18 @@ impl<'nc> Drop for Notcurses<'nc> {
     }
 }
 
+/// # Constructors and converters.
 impl<'nc> Notcurses<'nc> {
     /// New `Notcurses` instance.
     pub fn new() -> NResult<Self> {
         Ok(Self { nc: Nc::new()? })
     }
+
+    /// New `Notcurses` instance, without an alternate screen.
+    pub fn without_altscreen() -> NResult<Self> {
+        Notcurses::build().altscreen(false).finish()
+    }
+
 
     /// Returns a [`NotcursesBuilder`] used to customize a new
     /// `Notcurses` instance.
@@ -41,7 +48,9 @@ impl<'nc> Notcurses<'nc> {
     pub fn as_nc_mut(&mut self) -> &mut Nc {
         self.nc
     }
+}
 
+impl<'nc> Notcurses<'nc> {
     // pub fn align
     // pub fn at_yx
 

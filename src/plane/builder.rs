@@ -5,14 +5,21 @@ use crate::{
 
 /// A [`Plane`] builder.
 pub struct PlaneBuilder {
-    x: i32,
-    y: i32,
-    rows: u32,
+    // plane offset
+    offset_x: i32,
+    offset_y: i32,
+
+    // plane size
     cols: u32,
+    rows: u32,
+
     // resizecb: Option<NcResizeCb>, // FUTURE
+
     flags: u64,
+
     margin_b: i32,
     margin_r: i32,
+
     // /// A flag to indicate if the plane is horizontally aligned
     // is_horizontally_aligned: bool, // TBD
     // /// A flag to indicate whether the plane is bounded to another plane,
@@ -23,10 +30,10 @@ pub struct PlaneBuilder {
 impl Default for PlaneBuilder {
     fn default() -> Self {
         Self {
-            rows: 1,
             cols: 1,
-            x: 0,
-            y: 0,
+            rows: 1,
+            offset_x: 0,
+            offset_y: 0,
             flags: 0,
             margin_b: 0,
             margin_r: 0,
@@ -56,20 +63,20 @@ impl PlaneBuilder {
 
     /// Sets the vertical placement relative to the parent plane.
     pub fn y(mut self, y: i32) -> Self {
-        self.y = y;
+        self.offset_y = y;
         self
     }
 
     /// Sets the horizontal positioning of the Plane being built.
     pub fn x(mut self, x: i32) -> Self {
-        self.x = x;
+        self.offset_x = x;
         self
     }
 
     /// Sets the horizontal and vertical positioning of the Plane being built.
     pub fn xy(mut self, x: i32, y: i32) -> Self {
-        self.x = x;
-        self.y = y;
+        self.offset_x = x;
+        self.offset_y = y;
         self
     }
 
@@ -84,11 +91,11 @@ impl PlaneBuilder {
         self
     }
 
-    /// Sets the rows and columns to match the terminal size.
+    /// Sets the columns and rows to match the terminal size.
     pub fn term_size(mut self, nc: &Notcurses) -> Self {
-        let (rows, cols) = nc.term_size();
-        self.rows = rows;
+        let (cols, rows) = nc.term_size();
         self.cols = cols;
+        self.rows = rows;
         self
     }
 
@@ -100,8 +107,8 @@ impl PlaneBuilder {
     // TODO: horizontal alignment
     pub fn new_pile<'nc, 'ncplane>(self, nc: &mut Notcurses<'nc>) -> NResult<Plane<'ncplane>> {
         let options = NcPlaneOptions::with_flags(
-            self.x,
-            self.y,
+            self.offset_y,
+            self.offset_x,
             self.rows,
             self.cols,
             None, // TODO resizecb
@@ -122,8 +129,8 @@ impl PlaneBuilder {
         plane: &mut Plane<'ncplane1>,
     ) -> NResult<Plane<'ncplane2>> {
         let options = NcPlaneOptions::with_flags(
-            self.x,
-            self.y,
+            self.offset_y,
+            self.offset_x,
             self.rows,
             self.cols,
             None, // TODO resizecb

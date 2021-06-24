@@ -61,6 +61,17 @@ impl<'ncplane> Plane<'ncplane> {
         Self::build().term_size(nc).new_pile(nc)
     }
 
+    // TODO
+    // /// Duplicates this `Plane`.
+    // ///
+    // /// The new NcPlane will have the same geometry, the same rendering state,
+    // /// and all the same duplicated content.
+    // ///
+    // /// The new plane will be immediately above the old one on the z axis,
+    // /// and will be bound to the same parent. Bound planes are not duplicated;
+    // /// the new plane is bound to the current parent, but has no bound planes.
+    // pub fn dup()
+
     /// Returns a reference to the inner [`NcPlane`].
     pub fn as_ncplane(&self) -> &NcPlane {
         self.ncplane
@@ -72,30 +83,8 @@ impl<'ncplane> Plane<'ncplane> {
     }
 }
 
-/// # Methods
+/// # Plane methods for rendering
 impl<'ncplane> Plane<'ncplane> {
-    /// Moves the plane relatively the provided `cols` & `rows`.
-    pub fn move_rel(&mut self, cols: i32, rows: i32) -> NResult<()> {
-        ncresult![self.ncplane.move_rel(rows, cols)]
-    }
-
-    /// Moves the plane to the absolute coordinates `x`, `y`.
-    pub fn move_abs(&mut self, x: i32, y: i32) -> NResult<()> {
-        ncresult![self.ncplane.move_yx(y, x)]
-    }
-
-    /// Sets the base cell from its components.
-    ///
-    /// Returns the number of bytes copied out of `egc`.
-    pub fn set_base<CHANNELS: Into<NcChannels>>(
-        &mut self,
-        egc: &str,
-        style: Style,
-        channels: CHANNELS,
-    ) -> NResult<u32> {
-        ncresult![self.ncplane.set_base(egc, style.bits(), channels.into())]
-    }
-
     /// Renders the pile the current `Plane` is part of.
     pub fn render(&mut self) -> NResult<()> {
         ncresult![self.ncplane.render()]
@@ -107,12 +96,26 @@ impl<'ncplane> Plane<'ncplane> {
     }
 
     /// Renders and rasterizes the pile the current `Plane` is part of.
-    pub fn show(&mut self) -> NResult<()> {
+    pub fn display(&mut self) -> NResult<()> {
         self.render()?;
         self.raster()?;
         Ok(())
     }
+}
 
+/// # Plane methods for translation and resizing
+impl<'ncplane> Plane<'ncplane> {
+    /// Moves the plane relatively the provided `cols` & `rows`.
+    pub fn move_rel(&mut self, cols: i32, rows: i32) -> NResult<()> {
+        ncresult![self.ncplane.move_rel(rows, cols)]
+    }
+
+    /// Moves the plane to the absolute coordinates `x`, `y`.
+    pub fn move_abs(&mut self, x: i32, y: i32) -> NResult<()> {
+        ncresult![self.ncplane.move_yx(y, x)]
+    }
+
+    // TODO
     // /// Resizes this `Plane`.
     // ///
     // /// The four parameters `keep_y`, `keep_x`, `keep_len_y`, and `keep_len_x`
@@ -138,4 +141,47 @@ impl<'ncplane> Plane<'ncplane> {
     // TODO: create a simplified version
     // pub fn resize_subrect(&mut self, x: u32, y: u32) -> NResult<()> {
     // }
+}
+
+/// # Plane methods for stack reordering (z-axis)
+///
+/// Planes are ordered along an imaginary z-axis, and can be reordered.
+/// New Planes are placed on the top of the stack.
+impl<'ncplane> Plane<'ncplane> {
+    /// Relocates this Plane at the top of the stack.
+    pub fn move_top(&mut self) {
+        self.ncplane.move_top();
+    }
+
+    /// Relocates this Plane at the bottom of the stack.
+    pub fn move_bottom(&mut self) {
+        self.ncplane.move_bottom();
+    }
+
+    // NOTE: these methods can cause having multiple mutable burrows:
+    //
+    // pub fn top(&mut self) -> Plane<'ncplane> {
+    //     Plane { ncplane: ncresult![self.ncplane.top()] }
+    // }
+    //
+    //// pub fn bottom(&mut self) -> Plane<'ncplane> {
+    //     Plane { ncplane: ncresult![self.ncplane.bottom()] }
+    // }
+
+
+}
+
+/// # Plane methods for displaying text
+impl<'ncplane> Plane<'ncplane> {
+    /// Sets the base cell from its components.
+    ///
+    /// Returns the number of bytes copied out of `egc`.
+    pub fn set_base<CHANNELS: Into<NcChannels>>(
+        &mut self,
+        egc: &str,
+        style: Style,
+        channels: CHANNELS,
+    ) -> NResult<u32> {
+        ncresult![self.ncplane.set_base(egc, style.bits(), channels.into())]
+    }
 }

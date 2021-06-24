@@ -10,7 +10,7 @@
 //!     let mut nc = Notcurses::new()?;
 //!     let mut plane = Plane::build().term_size(&mut nc).new_pile(&mut nc)?;
 //!     // plane.print("hello world")?;
-//!     plane.show()?;
+//!     plane.display()?;
 //!     Ok(())
 //! }
 //! ```

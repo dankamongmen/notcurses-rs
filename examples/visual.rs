@@ -1,4 +1,4 @@
-//! Shows how you can manipulate [`Visual`]s.
+//! displays how you can manipulate [`Visual`]s.
 
 use notcurses::*;
 use rand::{distributions::Uniform, Rng};
@@ -24,12 +24,12 @@ fn main() -> NResult<()> {
         .plane(&mut plane)
         .finish()?;
     visual.render_plane(&mut nc)?;
-    plane.show()?;
+    plane.display()?;
     sleep![0, 500];
 
     let mut rng_house = rand::thread_rng();
     for n in 0..50 {
-        // show random house every 10 frames
+        // display random house every 10 frames
         if n % 10 == 9 {
             let random_house = rng_house.gen_range(0..=2);
             match random_house {
@@ -39,14 +39,14 @@ fn main() -> NResult<()> {
             }
 
             visual.render_plane(&mut nc)?;
-            plane.show()?;
+            plane.display()?;
             sleep![0, 200];
 
         } else {
             fill_buffer(&mut buffer, false);
             visual.set_from_rgba(&buffer, W, H)?;
             visual.render_plane(&mut nc)?;
-            plane.show()?;
+            plane.display()?;
             sleep![0, 25];
         }
     }
