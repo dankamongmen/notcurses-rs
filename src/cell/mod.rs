@@ -26,8 +26,8 @@ impl<'plane, 'ncplane> Cell {
         CellBuilder::default()
     }
 
-    /// Returns the `char`.
-    pub fn char(&mut self, plane: &mut Plane<'ncplane>) -> char {
+    /// Returns the string of length 1.
+    pub fn string(&mut self, plane: &mut Plane<'ncplane>) -> String {
         self.nccell.egc(plane.as_ncplane_mut())
     }
 

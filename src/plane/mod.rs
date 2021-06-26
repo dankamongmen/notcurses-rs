@@ -2,11 +2,13 @@
 
 use crate::{
     ncresult, // Channels,
-    sys::{NcChannels, NcPlane},
+    sys::{self, NcChannels, NcPlane},
     NResult,
     Notcurses,
     Style,
 };
+
+use core::ptr::null_mut;
 
 mod builder;
 pub use builder::PlaneBuilder;
@@ -56,21 +58,27 @@ impl<'ncplane> Plane<'ncplane> {
     }
 
     /// New `Plane` with the size of the terminal.
-    // FIXME
     pub fn with_term_size(nc: &mut Notcurses) -> NResult<Self> {
         Self::build().term_size(nc).new_pile(nc)
     }
 
-    // TODO
-    // /// Duplicates this `Plane`.
-    // ///
-    // /// The new NcPlane will have the same geometry, the same rendering state,
-    // /// and all the same duplicated content.
-    // ///
-    // /// The new plane will be immediately above the old one on the z axis,
-    // /// and will be bound to the same parent. Bound planes are not duplicated;
-    // /// the new plane is bound to the current parent, but has no bound planes.
-    // pub fn dup()
+    /// Duplicates this `Plane`.
+    ///
+    /// The new `Plane` will have the same geometry, the same rendering state,
+    /// and all the same duplicated content.
+    ///
+    /// The new `Plane` will be immediately above the old one on the z axis,
+    /// and will be bound to the same parent.
+    ///
+    /// Bound `Plane`s are not duplicated; the new plane is bound to the current
+    /// parent, but has no bound planes.
+    pub fn dup(&mut self) -> Self {
+        // replicates the innards of sys::ncplane_dup because of lifetime issues:
+        // - https://github.com/rust-lang/rust/issues/42868
+        // - rustc --explain E0495
+        // self.ncplane.dup::<'ncplane>().into()
+        unsafe { &mut *sys::ncplane_dup(self.ncplane, null_mut()) }.into()
+    }
 
     /// Returns a reference to the inner [`NcPlane`].
     pub fn as_ncplane(&self) -> &NcPlane {
@@ -167,8 +175,6 @@ impl<'ncplane> Plane<'ncplane> {
     //// pub fn bottom(&mut self) -> Plane<'ncplane> {
     //     Plane { ncplane: ncresult![self.ncplane.bottom()] }
     // }
-
-
 }
 
 /// # Plane methods for displaying text

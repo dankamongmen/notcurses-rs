@@ -13,7 +13,7 @@ use plotters::prelude::*;
 fn main() -> NResult<()> {
     let mut nc = Notcurses::new()?;
 
-    let (cos, rows) = nc.term_size();
+    let (cols, rows) = nc.term_size();
     let geom = nc.term_pixelgeometry();
 
     let mut buffer = vec![0; geom.max_bitmap_x as usize * geom.max_bitmap_y as usize * 3];

@@ -32,7 +32,6 @@ impl<'nc> Notcurses<'nc> {
         Notcurses::build().altscreen(false).finish()
     }
 
-
     /// Returns a [`NotcursesBuilder`] used to customize a new
     /// `Notcurses` instance.
     pub fn build() -> NotcursesBuilder {

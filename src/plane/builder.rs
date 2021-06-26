@@ -14,12 +14,10 @@ pub struct PlaneBuilder {
     rows: u32,
 
     // resizecb: Option<NcResizeCb>, // FUTURE
-
     flags: u64,
 
     margin_b: i32,
     margin_r: i32,
-
     // /// A flag to indicate if the plane is horizontally aligned
     // is_horizontally_aligned: bool, // TBD
     // /// A flag to indicate whether the plane is bounded to another plane,

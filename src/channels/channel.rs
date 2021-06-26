@@ -1,5 +1,7 @@
 #![allow(dead_code)]
 
+use std::fmt;
+
 use crate::{
     sys::{NcChannel, NcChannelMethods},
     Alpha, Channels, Rgb,
@@ -21,6 +23,12 @@ pub struct Channel(pub NcChannel);
 impl Default for Channel {
     fn default() -> Self {
         Self(0)
+    }
+}
+
+impl fmt::Display for Channel {
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        write!(f, "0x{:016X}", self.0)
     }
 }
 
