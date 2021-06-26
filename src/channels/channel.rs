@@ -32,6 +32,8 @@ impl fmt::Display for Channel {
     }
 }
 
+// NcChannel Conversions
+
 impl From<Channel> for NcChannel {
     fn from(c: Channel) -> NcChannel {
         c.0
@@ -52,6 +54,8 @@ impl From<NcChannel> for Channel {
         Channel(nc)
     }
 }
+
+// Rgb Conversions
 
 impl From<Rgb> for Channel {
     fn from(rgb: Rgb) -> Channel {
@@ -86,7 +90,7 @@ where
 impl Channel {
     // constructors
 
-    /// New [`Rgb`] `Channel`.
+    /// New [`Rgb`] `Channel`. Marked as NOT using the "default color".
     pub fn new<RGB: Into<Rgb>>(rgb: RGB) -> Self {
         Self(NcChannel::from_rgb(rgb.into().into()))
     }
@@ -147,5 +151,24 @@ impl Channel {
     /// Is this `Channel` using palette-indexed color rather than RGB?
     pub fn is_palindex(&self) -> bool {
         NcChannel::from(self).palindex_p()
+    }
+}
+
+// Tests
+// -----------------------------------------------------------------------------
+
+#[cfg(test)]
+mod tests {
+    use crate::Channel;
+
+    #[test]
+    fn channel_from_rgb() {
+        assert_eq!(Channel(0x112233), 0x112233.into());
+    }
+
+    #[test]
+    fn channel_new_not_default() {
+        // check it marks as NOT using the default color
+        assert_eq!(Channel(0x40_112233), Channel::new(0x112233));
     }
 }

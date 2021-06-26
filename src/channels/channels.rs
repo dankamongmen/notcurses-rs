@@ -4,7 +4,7 @@ use std::fmt;
 
 use crate::{
     sys::{NcChannels, NcChannelsMethods},
-    Channel,
+    Channel, Rgb,
 };
 
 /// A `u64` of foreground [`Channel`] + background [`Channel`].
@@ -23,7 +23,7 @@ pub struct Channels(pub NcChannels);
 
 impl Default for Channels {
     fn default() -> Self {
-        Self::new(0, 0)
+        Self::new(0_i32, 0_i32)
     }
 }
 
@@ -32,18 +32,19 @@ impl fmt::Display for Channels {
         write!(
             f,
             "0x{0:08X}_{1:08x}",
-            (self.0 & 0xFFFFFFFF00000000) >> 32,
+            (self.0 & 0xFFFFFFFF00000000) >> 32_i32,
             self.0 & 0xFFFFFFFF
         )
     }
 }
+
+// NcChannels Conversions
 
 impl From<Channels> for NcChannels {
     fn from(cp: Channels) -> NcChannels {
         cp.0
     }
 }
-
 impl From<&Channels> for NcChannels {
     fn from(c: &Channels) -> NcChannels {
         c.0
@@ -54,38 +55,38 @@ impl From<&mut Channels> for NcChannels {
         c.0
     }
 }
-
 impl From<NcChannels> for Channels {
     fn from(nc: NcChannels) -> Channels {
         Channels(nc)
     }
 }
 
-impl<C> From<&[C]> for Channels
+// Rgb array, slice & tuple Conversions
+
+impl<RGB> From<[RGB; 2]> for Channels
 where
-    C: Into<Channel> + Copy,
+    RGB: Into<Rgb> + Copy,
 {
-    fn from(channels: &[C]) -> Channels {
-        Channels::new(channels[0], channels[1])
+    fn from(rgb_arr: [RGB; 2]) -> Channels {
+        Channels::new(rgb_arr[0], rgb_arr[1])
+    }
+}
+impl<RGB> From<&[RGB]> for Channels
+where
+    RGB: Into<Rgb> + Copy,
+{
+    fn from(rgb_slice: &[RGB]) -> Channels {
+        Channels::new(rgb_slice[0], rgb_slice[1])
     }
 }
 
-impl<C> From<[C; 2]> for Channels
+impl<FgRgb, BgRgb> From<(FgRgb, BgRgb)> for Channels
 where
-    C: Into<Channel> + Copy,
+    FgRgb: Into<Rgb>,
+    BgRgb: Into<Rgb>,
 {
-    fn from(channels: [C; 2]) -> Channels {
-        Channels::new(channels[0], channels[1])
-    }
-}
-
-impl<FC, BC> From<(FC, BC)> for Channels
-where
-    FC: Into<Channel>,
-    BC: Into<Channel>,
-{
-    fn from(channels: (FC, BC)) -> Channels {
-        Channels::new(channels.0, channels.1)
+    fn from(rgb_tuple: (FgRgb, BgRgb)) -> Channels {
+        Channels::new(rgb_tuple.0, rgb_tuple.1)
     }
 }
 
@@ -93,23 +94,45 @@ impl Channels {
     // constructors
 
     /// New `Channels`.
-    pub fn new<FC, BC>(fg: FC, bg: BC) -> Self
+    pub fn new<F, B>(fg: F, bg: B) -> Self
     where
-        FC: Into<Channel>,
-        BC: Into<Channel>,
+        F: Into<Rgb>,
+        B: Into<Rgb>,
     {
-        Self(NcChannels::combine(fg.into().into(), bg.into().into()))
+        Self(NcChannels::combine(
+            Channel::new(fg.into()).into(),
+            Channel::new(bg.into()).into(),
+        ))
     }
 
     /// New `Channels` marked as using the "default color".
-    pub fn with_default<FC, BC>(fg: FC, bg: BC) -> Self
+    pub fn with_default<F, B>(fg: F, bg: B) -> Self
     where
-        FC: Into<Channel>,
-        BC: Into<Channel>,
+        F: Into<Channel>,
+        B: Into<Channel>,
     {
         Self(NcChannels::combine(fg.into().into(), bg.into().into()).set_default())
     }
 
     // New NcChannels, expects three RGB [`NcComponent`][sys::NcComponent]s
     // per channel.
+}
+
+// Tests
+// -----------------------------------------------------------------------------
+
+#[cfg(test)]
+mod tests {
+    use crate::Channels;
+
+    // #[test]
+    // fn channel_from_rgb() {
+    //     assert_eq!(Channel(0x112233), 0x112233.into());
+    // }
+    //
+    // #[test]
+    // fn channel_new_not_default() {
+    //     // check it marks as NOT using the default color
+    //     assert_eq!(Channel(0x40_112233), Channel::new(0x112233));
+    // }
 }
