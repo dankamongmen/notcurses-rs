@@ -190,4 +190,28 @@ impl<'ncplane> Plane<'ncplane> {
     ) -> NResult<u32> {
         ncresult![self.ncplane.set_base(egc, style.bits(), channels.into())]
     }
+
+    /// Write a string to the current location, using the current `Style`.
+    ///
+    /// Advances the cursor by some positive number of columns (though not
+    /// beyond the end of the plane); this number is returned on success.
+    ///
+    /// On error, a non-positive number is returned, indicating the number of
+    /// columns which were written before the error.
+    ///
+    pub fn putstr(&mut self, string: &str) -> NResult<u32> {
+        ncresult![self.ncplane.putstr(string)]
+    }
+
+    /// Write a string to the provided location, using the current `Style`.
+    ///
+    /// Advances the cursor by some positive number of columns (though not
+    /// beyond the end of the plane); this number is returned on success.
+    ///
+    /// On error, a non-positive number is returned, indicating the number of
+    /// columns which were written before the error.
+    ///
+    pub fn putstr_xy(&mut self, x: u32, y: u32, string: &str) -> NResult<u32> {
+        ncresult![self.ncplane.putstr_yx(y, x, string)]
+    }
 }
