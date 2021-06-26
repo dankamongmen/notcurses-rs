@@ -65,6 +65,24 @@ impl From<Channel> for Rgb {
     }
 }
 
+impl<C> From<&[C]> for Channel
+where
+    C: Into<Channel> + Copy,
+{
+    fn from(c: &[C]) -> Channel {
+        Channel(c[0].into().into())
+    }
+}
+
+impl<C> From<[C; 1]> for Channel
+where
+    C: Into<Channel> + Copy,
+{
+    fn from(c: [C; 1]) -> Channel {
+        Channel(c[0].into().into())
+    }
+}
+
 impl Channel {
     // constructors
 

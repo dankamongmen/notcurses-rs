@@ -61,23 +61,51 @@ impl From<NcChannels> for Channels {
     }
 }
 
+impl<C> From<&[C]> for Channels
+where
+    C: Into<Channel> + Copy,
+{
+    fn from(channels: &[C]) -> Channels {
+        Channels::new(channels[0], channels[1])
+    }
+}
+
+impl<C> From<[C; 2]> for Channels
+where
+    C: Into<Channel> + Copy,
+{
+    fn from(channels: [C; 2]) -> Channels {
+        Channels::new(channels[0], channels[1])
+    }
+}
+
+impl<FC, BC> From<(FC, BC)> for Channels
+where
+    FC: Into<Channel>,
+    BC: Into<Channel>,
+{
+    fn from(channels: (FC, BC)) -> Channels {
+        Channels::new(channels.0, channels.1)
+    }
+}
+
 impl Channels {
     // constructors
 
     /// New `Channels`.
-    pub fn new<C1, C2>(fg: C1, bg: C2) -> Self
+    pub fn new<FC, BC>(fg: FC, bg: BC) -> Self
     where
-        C1: Into<Channel>,
-        C2: Into<Channel>,
+        FC: Into<Channel>,
+        BC: Into<Channel>,
     {
         Self(NcChannels::combine(fg.into().into(), bg.into().into()))
     }
 
     /// New `Channels` marked as using the "default color".
-    pub fn with_default<C1, C2>(fg: C1, bg: C2) -> Self
+    pub fn with_default<FC, BC>(fg: FC, bg: BC) -> Self
     where
-        C1: Into<Channel>,
-        C2: Into<Channel>,
+        FC: Into<Channel>,
+        BC: Into<Channel>,
     {
         Self(NcChannels::combine(fg.into().into(), bg.into().into()).set_default())
     }
