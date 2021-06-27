@@ -3,6 +3,7 @@
 use crate::{
     ncresult, // Channels,
     sys::{self, NcChannels, NcPlane},
+    Align,
     NResult,
     Notcurses,
     Style,
@@ -123,7 +124,13 @@ impl<'ncplane> Plane<'ncplane> {
         ncresult![self.ncplane.move_yx(y, x)]
     }
 
-    // TODO
+    // TODO: Make resize_simple just resize, and the other a longer name.
+    //
+    // Planes can be freely resized, though they must be at least 1 cell high or wide.
+    //
+    // This function allows resizing a Plane, retaining all or a portion of the
+    // plane's existing content, and translating the plane in one step.
+    //
     // /// Resizes this `Plane`.
     // ///
     // /// The four parameters `keep_y`, `keep_x`, `keep_len_y`, and `keep_len_x`
@@ -146,7 +153,14 @@ impl<'ncplane> Plane<'ncplane> {
     // pub fn resize(&mut self, x: u32, y: u32) -> NResult<()> {
     // }
 
-    // TODO: create a simplified version
+    // Resizes this `Plane`, retaining what data we can (everything, unless we're
+    // shrinking in some dimension). Keeps the origin where it is.
+    //
+    // The helper function ncplane_resize_simple() allows resizing an ncplane without movement, retaining all possible data. To move the plane without resizing it or changing its content, use ncplane_move_yx(). It is an error to invoke these functions on the standard plane.
+    // pub fn resize_simple(&mut self, x: u32, y: u32) -> NResult<()> {
+    // }
+
+    // MAYBE
     // pub fn resize_subrect(&mut self, x: u32, y: u32) -> NResult<()> {
     // }
 }
@@ -191,7 +205,7 @@ impl<'ncplane> Plane<'ncplane> {
         ncresult![self.ncplane.set_base(egc, style.bits(), channels.into())]
     }
 
-    /// Write a string to the current location, using the current `Style`.
+    /// Write a string to the current cursor location, using the current `Style`.
     ///
     /// Advances the cursor by some positive number of columns (though not
     /// beyond the end of the plane); this number is returned on success.
@@ -214,4 +228,63 @@ impl<'ncplane> Plane<'ncplane> {
     pub fn putstr_xy(&mut self, x: u32, y: u32, string: &str) -> NResult<u32> {
         ncresult![self.ncplane.putstr_yx(y, x, string)]
     }
+
+    /// Same as [`putstr_xy()`][Plane#method.putstr_xy] but [`Align`]ed on x.
+    ///
+    pub fn putstr_aligned(&mut self, x_align: Align, y: u32, string: &str) -> NResult<u32> {
+        ncresult![self.ncplane.putstr_aligned(y, x_align.into(), string)]
+    }
+
+    /// Replace a string's worth of glyphs at the current cursor location.
+    /// Same as [`putstr()`][Plane#method.putstr] but retain the styling.
+    /// The current styling of the plane will not be changed.
+    ///
+    pub fn putstr_stained(&mut self, string: &str) -> NResult<u32> {
+        ncresult![self.ncplane.putstr_stained(string)]
+    }
+
+    /// Sets the scrolling setting. (`true` to enable, `false` to disable).
+    ///
+    /// All planes are created with scrolling disabled.
+    ///
+    /// Returns true if it was previously enabled, or false if it was disabled.
+    ///
+    /// ## More info
+    ///
+    /// While scrolling is disabled, attempting to print past the end of a line
+    /// will stop at the plane boundary, and indicate an error.
+    ///
+    /// On a plane 10 columns wide and two rows high, printing "0123456789" at the
+    /// origin should succeed, but printing "01234567890" will by default fail at
+    /// the eleventh character. In either case, the cursor will be left at location
+    /// 0x10; it must be moved before further printing can take place.
+    ///
+    /// If scrolling is enabled, the first row will be filled with 01234546789,
+    /// the second row will have 0 written to its first column, and the cursor
+    /// will end up at 1x1. Note that it is still an error to manually attempt
+    /// to move the cursor off-plane, or to specify off-plane output.
+    ///
+    /// Boxes do not scroll; attempting to draw a 2x11 box on our 2x10 plane will
+    /// result in an error and no output.
+    ///
+    /// When scrolling is enabled, and output takes place while the cursor is
+    /// past the end of the last row, the first row is discarded, all other rows
+    /// are moved up, the last row is cleared, and output begins at the beginning
+    /// of the last row. This does not take place until output is generated
+    /// (i.e. it is possible to fill a plane when scrolling is enabled).
+    pub fn scrolling(&mut self, scrolling: bool) -> bool {
+        self.ncplane.set_scrolling(scrolling)
+    }
+
+    /// Is this `Plane` set to scroll?
+    ///
+    /// See also [`scrolling`][Plane#method.scrolling].
+    pub fn is_scrolling(&mut self) -> bool {
+        self.ncplane.scrolling_p()
+    }
+
+    // TODO
+    // Set the given channels throughout the specified region, keeping content and
+    // attributes unchanged. Returns the number of cells set, or -1 on failure.
+    // pub fn stain() {}
 }

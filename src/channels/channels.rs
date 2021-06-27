@@ -123,7 +123,7 @@ impl Channels {
 
 #[cfg(test)]
 mod tests {
-    use crate::Channels;
+    // use crate::Channels;
 
     // #[test]
     // fn channel_from_rgb() {
