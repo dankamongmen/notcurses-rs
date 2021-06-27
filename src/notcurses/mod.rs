@@ -1,13 +1,15 @@
 //! `Notcurses` wrapper struct and traits implementations.
 
-use crate::{ncresult, sys::Nc, Capabilities, NResult, PixelGeometry};
+use crate::{ncresult, sys::Nc, NResult, PixelGeometry};
 
 mod builder;
+mod capabilities;
 mod loglevel;
 pub use builder::NotcursesBuilder;
+pub use capabilities::Capabilities;
 pub use loglevel::LogLevel;
 
-/// The main **notcurses** *rendered mode* context.
+/// The **notcurses** context.
 #[derive(Debug)]
 pub struct Notcurses<'nc> {
     pub(crate) nc: &'nc mut Nc,
