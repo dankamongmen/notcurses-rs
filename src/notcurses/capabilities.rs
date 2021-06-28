@@ -6,6 +6,7 @@ use crate::Notcurses;
 ///
 /// It can also be generated from
 /// [`Notcurses.capabilities`][crate::Notcurses#method.capabilities] and
+#[derive(Clone, Debug)]
 pub struct Capabilities {
     pub(crate) halfblock: bool,
     pub(crate) quadrant: bool,

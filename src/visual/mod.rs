@@ -22,13 +22,11 @@ use crate::{
 
 mod blitter;
 mod builder;
-mod pixelgeometry;
 mod rgba;
 mod scale;
 
 pub use blitter::Blitter;
 pub use builder::VisualBuilder;
-pub use pixelgeometry::PixelGeometry;
 pub use rgba::Rgba;
 pub use scale::Scale;
 

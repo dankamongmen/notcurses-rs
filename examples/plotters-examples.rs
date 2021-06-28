@@ -4,29 +4,27 @@
 //!
 //! Run with:
 //! ```sh
-//! cargo re plotters-slideshow --features="plotters"
+//! cargo re plotters-examples --features="plotters"
 //! ```
 
 use notcurses::*;
 
 fn main() -> NResult<()> {
     let mut nc = Notcurses::new()?;
+    let geom = nc.geometry();
 
-    let (cols, rows) = nc.term_size();
-    let geom = nc.term_pixelgeometry();
+    let mut plot_plane = Plane::build()
+        .cols_rows(geom.cols, geom.rows)
+        .new_pile(&mut nc)?;
+    let mut plot_buffer = vec![0; geom.bmx as usize * geom.bmy as usize * 3];
 
-    let mut plot_plane = Plane::build().cols_rows(cols, rows).new_pile(&mut nc)?;
-    let mut plot_buffer = vec![0; geom.max_bitmap_x as usize * geom.max_bitmap_y as usize * 3];
-
-    // FIXME: BUG with wezterm, plane is black after updating the underlying visual
     let mut info_plane = Plane::build()
         .cols_rows(10, 1)
         .xy(2, 1)
         .into_pile(&mut plot_plane)?;
     info_plane.set_base(" ", Style::BOLD, Channels::new(Rgb::BLACK, Rgb::YELLOW))?;
 
-    // the list of functions, shuffled
-    let pfunctions = {
+    let shuffled_examples = {
         use plotter_examples::*;
         use rand::{seq::SliceRandom, thread_rng};
         let mut rng = thread_rng();
@@ -47,18 +45,22 @@ fn main() -> NResult<()> {
     };
     let mut fcounter = 0;
 
-    for f in pfunctions {
-        f(&mut plot_buffer, geom.max_bitmap_x, geom.max_bitmap_y).expect("plotting failed");
+    for plotter_function in shuffled_examples {
+        plotter_function(&mut plot_buffer, geom.bmx, geom.bmy).expect("plotting failed");
 
         let mut plot_visual = Visual::build()
-            .from_rgb(&plot_buffer, geom.max_bitmap_x, geom.max_bitmap_y, 255)?
+            .from_rgb(&plot_buffer, geom.bmx, geom.bmy, 255)?
             .blitter(Blitter::Pixel)
             .interpolate(false)
             .plane(&mut plot_plane)
             .finish()?;
 
         fcounter += 1;
-        info_plane.putstr_xy(0, 0, &format!["plot {}/{}", fcounter, pfunctions.len()])?;
+        info_plane.putstr_xy(
+            0,
+            0,
+            &format!["plot {}/{}", fcounter, shuffled_examples.len()],
+        )?;
 
         plot_visual.render_plane(&mut nc)?;
         plot_plane.display()?;
@@ -565,11 +567,9 @@ mod plotter_examples {
         ))?;
 
         chart
-            .draw_series(
-                down_sampled.iter().map(|(x, yl, ym, yh)| {
-                    ErrorBar::new_vertical(*x, *yl, *ym, *yh, BLUE.filled(), 20)
-                }),
-            )?
+            .draw_series(down_sampled.iter().map(|(x, yl, ym, yh)| {
+                ErrorBar::new_vertical(*x, *yl, *ym, *yh, BLUE.filled(), 20)
+            }))?
             .label("Down-sampled")
             .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &BLUE));
 
@@ -614,5 +614,4 @@ mod plotter_examples {
             .collect();
         down_sampled
     }
-
 }

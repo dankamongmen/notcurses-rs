@@ -55,6 +55,7 @@ mod align;
 mod cell;
 mod channels;
 mod error;
+mod geometry;
 mod macros;
 mod notcurses;
 mod plane;
@@ -66,10 +67,11 @@ pub use align::Align;
 pub use cell::{Cell, BACKSTOP};
 pub use channels::{Alpha, Channel, Channels, Rgb};
 pub use error::{NError, NResult};
+pub use geometry::Geometry;
 pub use macros::*;
 pub use plane::Plane;
 pub use style::Style;
-pub use visual::{Blitter, PixelGeometry, Rgba, Scale, Visual};
+pub use visual::{Blitter, Rgba, Scale, Visual};
 
 pub mod builders {
     //! All the builders

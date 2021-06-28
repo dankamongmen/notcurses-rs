@@ -1,6 +1,6 @@
 //! `Notcurses` wrapper struct and traits implementations.
 
-use crate::{ncresult, sys::Nc, NResult, PixelGeometry};
+use crate::{ncresult, sys::Nc, Geometry, NResult};
 
 mod builder;
 mod capabilities;
@@ -157,15 +157,25 @@ impl<'nc> Notcurses<'nc> {
         }
     }
 
-    /// Returns the size of the terminal in columns and rows (x, y).
-    pub fn term_size(&self) -> (u32, u32) {
+    /// Returns the size of the terminal in columns and rows.
+    pub fn cols_rows(&self) -> (u32, u32) {
         let (h, w) = self.nc.term_dim_yx();
         (w, h)
     }
 
-    /// Returns the `PixelGeometry` of the terminal.
-    pub fn term_pixelgeometry(&self) -> PixelGeometry {
-        self.nc.stdplane_const().pixelgeom()
+    /// Returns the `Geometry` of the terminal.
+    pub fn geometry(&self) -> Geometry {
+        let pg = self.nc.stdplane_const().pixelgeom();
+        Geometry {
+            cols: pg.term_x,
+            rows: pg.term_y,
+            x: pg.term_x * pg.cell_x,
+            y: pg.term_y * pg.cell_y,
+            bmx: pg.max_bitmap_x,
+            bmy: pg.max_bitmap_y,
+            cx: pg.cell_x,
+            cy: pg.cell_y,
+        }
     }
 
     /// Returns the name of the detected terminal.

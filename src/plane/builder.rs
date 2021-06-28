@@ -91,7 +91,7 @@ impl PlaneBuilder {
 
     /// Sets the columns and rows to match the terminal size.
     pub fn term_size(mut self, nc: &Notcurses) -> Self {
-        let (cols, rows) = nc.term_size();
+        let (cols, rows) = nc.cols_rows();
         self.cols = cols;
         self.rows = rows;
         self
