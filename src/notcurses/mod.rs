@@ -165,16 +165,18 @@ impl<'nc> Notcurses<'nc> {
 
     /// Returns the `Geometry` of the terminal.
     pub fn geometry(&self) -> Geometry {
-        let pg = self.nc.stdplane_const().pixelgeom();
+        let g = self.nc.stdplane_const().pixelgeom();
         Geometry {
-            cols: pg.term_x,
-            rows: pg.term_y,
-            x: pg.term_x * pg.cell_x,
-            y: pg.term_y * pg.cell_y,
-            bmx: pg.max_bitmap_x,
-            bmy: pg.max_bitmap_y,
-            cx: pg.cell_x,
-            cy: pg.cell_y,
+            x: g.term_x,
+            y: g.term_y,
+            cols: g.term_x / g.cell_x,
+            rows: g.term_y / g.cell_y,
+            bx: g.max_bitmap_x,
+            by: g.max_bitmap_y,
+            bcols: g.max_bitmap_x / g.cell_x,
+            brows: g.max_bitmap_y / g.cell_y,
+            cx: g.cell_x,
+            cy: g.cell_y,
         }
     }
 

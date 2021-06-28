@@ -35,7 +35,7 @@ fn main() -> NResult<()> {
     let mut plane = Plane::build()
         .cols_rows(geom.cols, geom.rows)
         .new_pile(&mut nc)?;
-    let mut buffer = vec![0; geom.bmx as usize * geom.bmy as usize * 3];
+    let mut buffer = vec![0; geom.bx as usize * geom.by as usize * 3];
 
     let system = System::new();
     let mut state = State {
@@ -43,8 +43,8 @@ fn main() -> NResult<()> {
         epoch: 0,
         data: vec![],
         system: system,
-        width: geom.bmx,
-        height: geom.bmy,
+        width: geom.bx,
+        height: geom.by,
     };
 
     let mut input = sys::NcInput::new_empty();
@@ -61,7 +61,7 @@ fn main() -> NResult<()> {
         }
 
         let mut visual = Visual::build()
-            .from_rgb(&buffer, geom.bmx, geom.bmy, 255)?
+            .from_rgb(&buffer, geom.bx, geom.by, 255)?
             .blitter(Blitter::Pixel)
             .plane(&mut plane)
             .finish()?;

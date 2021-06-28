@@ -16,7 +16,7 @@ fn main() -> NResult<()> {
     let mut plot_plane = Plane::build()
         .cols_rows(geom.cols, geom.rows)
         .new_pile(&mut nc)?;
-    let mut plot_buffer = vec![0; geom.bmx as usize * geom.bmy as usize * 3];
+    let mut plot_buffer = vec![0; geom.bx as usize * geom.by as usize * 3];
 
     let mut info_plane = Plane::build()
         .cols_rows(10, 1)
@@ -46,10 +46,10 @@ fn main() -> NResult<()> {
     let mut fcounter = 0;
 
     for plotter_function in shuffled_examples {
-        plotter_function(&mut plot_buffer, geom.bmx, geom.bmy).expect("plotting failed");
+        plotter_function(&mut plot_buffer, geom.bx, geom.by).expect("plotting failed");
 
         let mut plot_visual = Visual::build()
-            .from_rgb(&plot_buffer, geom.bmx, geom.bmy, 255)?
+            .from_rgb(&plot_buffer, geom.bx, geom.by, 255)?
             .blitter(Blitter::Pixel)
             .interpolate(false)
             .plane(&mut plot_plane)

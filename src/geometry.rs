@@ -57,24 +57,30 @@
 /// The geometry of a plane, the terminal, or plane. (WIP)
 #[derive(Clone, Debug)]
 pub struct Geometry {
-    /// The terminal width in `Cell` columns.
-    pub cols: u32,
-    /// The terminal height in `Cell` columns.
-    pub rows: u32,
-    /// The terminal width in pixels.
+    /// The total width in pixels.
     pub x: u32,
-    /// The terminal height in pixels.
+    /// The total height in pixels.
     pub y: u32,
 
-    /// The maximum width of a bitmap in pixels.
-    pub bmx: u32,
-    /// The maximum height of a bitmap in pixels.
-    pub bmy: u32,
+    /// The total width in columns of `Cell`s.
+    // x / cx
+    pub cols: u32,
+    /// The total height in rows of `Cell`s.
+    // y / cy
+    pub rows: u32,
 
-    // TODO: (`bmap_x`/`cell_x`), round to the nearest upper cell?
-    // /// The maximum width of a bitmap in cells.
-    // pub bmap_cols: u32,
-    // pub bmap_rows: u32,
+    /// A **b**itmap maximum width in pixels.
+    pub bx: u32,
+    /// A **b**itmap maximum height in pixels.
+    pub by: u32,
+
+    /// A **b**itmap **m**aximum width in number of columns of `Cell`s.
+    // bx / cx
+    pub bcols: u32,
+    /// A **b**itmap **m**aximum height in number of rows of `Cell`s.
+    // bx / cx
+    pub brows: u32,
+
     /// A `Cell` width in pixels.
     pub cx: u32,
     /// A `Cell` height in pixels.
