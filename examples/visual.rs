@@ -41,7 +41,6 @@ fn main() -> NResult<()> {
             visual.render_plane(&mut nc)?;
             plane.display()?;
             sleep![0, 200];
-
         } else {
             fill_buffer(&mut buffer, false);
             visual.set_from_rgba(&buffer, W, H)?;

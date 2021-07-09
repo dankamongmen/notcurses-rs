@@ -3,7 +3,6 @@
 use notcurses::*;
 
 fn main() -> NResult<()> {
-
     let nc = Notcurses::without_altscreen()?;
 
     let caps = nc.capabilities();

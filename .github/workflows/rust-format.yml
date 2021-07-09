@@ -1,0 +1,15 @@
+name: Rust format
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - uses: icepuma/rust-action@master
+        with:
+          args: cargo fmt -- --check
+          # do not use clippy when using relative local dependencies:
+          # args: cargo fmt -- --check && cargo clippy -- -Dwarnings
