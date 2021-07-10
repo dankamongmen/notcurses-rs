@@ -22,8 +22,9 @@ use crate::{
 pub struct Channels(pub NcChannels);
 
 impl Default for Channels {
+    /// Returns a black `Channels` configured to show the default colors.
     fn default() -> Self {
-        Self::new(0_i32, 0_i32)
+        Self::with_default(0_u32, 0_u32)
     }
 }
 

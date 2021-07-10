@@ -138,6 +138,14 @@ impl From<i32> for Rgb {
     }
 }
 
+/// This allows to accept 0_u32 for example.
+#[allow(clippy::useless_conversion)]
+impl From<u32> for Rgb {
+    fn from(int: u32) -> Self {
+        Self(int.try_into().unwrap_or(0))
+    }
+}
+
 // Tests
 // -----------------------------------------------------------------------------
 
