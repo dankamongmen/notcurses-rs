@@ -19,10 +19,11 @@ fn main() -> NResult<()> {
     let mut plot_buffer = vec![0; geom.bx as usize * geom.by as usize * 3];
 
     let mut info_plane = Plane::build()
-        .cols_rows(10, 1)
+        .cols_rows(16, 2)
         .xy(2, 1)
         .into_pile(&mut plot_plane)?;
     info_plane.set_base(" ", Style::BOLD, Channels::new(Rgb::BLACK, Rgb::YELLOW))?;
+    info_plane.scrolling(true);
 
     let shuffled_examples = {
         use plotter_examples::*;
@@ -43,10 +44,19 @@ fn main() -> NResult<()> {
         flist.shuffle(&mut rng);
         flist
     };
+
+    let mut input = sys::NcInput::new_empty();
+
     let mut fcounter = 0;
 
     for plotter_function in shuffled_examples {
         plotter_function(&mut plot_buffer, geom.bx, geom.by).expect("plotting failed");
+
+        let key = sys::notcurses_getc_nblock(nc.as_nc_mut(), &mut input);
+        match key {
+            'q' => break,
+            _ => {}
+        }
 
         let mut plot_visual = Visual::build()
             .from_rgb(&plot_buffer, geom.bx, geom.by, 255)?
@@ -59,7 +69,7 @@ fn main() -> NResult<()> {
         info_plane.putstr_xy(
             0,
             0,
-            &format!["plot {}/{}", fcounter, shuffled_examples.len()],
+            &format!["plot {}/{}\nExit with `q`", fcounter, shuffled_examples.len()],
         )?;
 
         plot_visual.render_plane(&mut nc)?;
