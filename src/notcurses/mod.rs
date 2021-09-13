@@ -5,9 +5,11 @@ use crate::{ncresult, sys::Nc, Geometry, NResult};
 mod builder;
 mod capabilities;
 mod loglevel;
+mod pixel_impl;
 pub use builder::NotcursesBuilder;
 pub use capabilities::Capabilities;
 pub use loglevel::LogLevel;
+pub use pixel_impl::PixelImpl;
 
 /// The **notcurses** context.
 #[derive(Debug)]
@@ -148,7 +150,7 @@ impl<'nc> Notcurses<'nc> {
             utf8: self.nc.canutf8(),
             images: self.nc.canopen_images(),
             videos: self.nc.canopen_videos(),
-            pixel: self.nc.check_pixel_support().unwrap_or(false),
+            pixel: self.nc.check_pixel_support().into(),
             truecolor: self.nc.cantruecolor(),
             fade: self.nc.canfade(),
             palette_change: self.nc.canchangecolor(),

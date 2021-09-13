@@ -1,6 +1,6 @@
 //!
 
-use crate::Notcurses;
+use crate::{Notcurses, PixelImpl};
 
 /// The detected current terminal capabilities.
 ///
@@ -15,7 +15,7 @@ pub struct Capabilities {
     pub(crate) utf8: bool,
     pub(crate) images: bool,
     pub(crate) videos: bool,
-    pub(crate) pixel: bool,
+    pub(crate) pixel: PixelImpl,
     pub(crate) fade: bool,
     pub(crate) truecolor: bool,
     pub(crate) palette_change: bool,
@@ -65,7 +65,7 @@ impl Capabilities {
     }
 
     ///
-    pub fn pixel(&self) -> bool {
+    pub fn pixel(&self) -> PixelImpl {
         self.pixel
     }
 

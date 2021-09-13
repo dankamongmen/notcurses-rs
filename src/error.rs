@@ -16,6 +16,7 @@ pub enum NError {
     // UnknownWindowSize,
     // NotUtf8Input(Vec<u8>),
     // ControlCharInText(char),
+
     /// A generic exit message, mainly for debugging
     ExitMessage(String),
 }

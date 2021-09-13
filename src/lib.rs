@@ -62,7 +62,7 @@ mod plane;
 mod style;
 mod visual;
 
-pub use self::notcurses::{Capabilities, LogLevel, Notcurses};
+pub use self::notcurses::{Capabilities, LogLevel, Notcurses, PixelImpl};
 pub use align::Align;
 pub use cell::{Cell, BACKSTOP};
 pub use channels::{Alpha, Channel, Channels, Rgb};
