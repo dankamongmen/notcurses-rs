@@ -2,6 +2,7 @@ use std::{fmt, io};
 
 /// The Notcurses `Error` type.
 #[derive(Debug)]
+#[non_exhaustive]
 pub enum NError {
     /// An IO error.
     IoError(io::Error),
@@ -13,11 +14,9 @@ pub enum NError {
     },
 
     BuildIncomplete(String),
-    // UnknownWindowSize,
-    // NotUtf8Input(Vec<u8>),
-    // ControlCharInText(char),
-    /// A generic exit message, mainly for debugging
-    ExitMessage(String),
+
+    /// A generic error message, mainly for debugging
+    Message(String),
 }
 
 impl fmt::Display for NError {
@@ -27,17 +26,15 @@ impl fmt::Display for NError {
             IoError(err) => write!(f, "{}", err),
             NcError { int, msg } => write!(f, "NcError<{0}, {1}>", int, msg),
             BuildIncomplete(string) => write!(f, "BuildIncomplete: {}", string),
-            ExitMessage(string) => write!(f, "ExitMessage: {}", string),
-            // UnknownWindowSize => write!(f, "Could not detect terminal window size"),
-            // NotUtf8Input(seq) => {
-            //     write!(f, "Cannot handle non-UTF8 multi-byte input sequence: ")?;
-            //     for byte in seq.iter() {
-            //         write!(f, "\\x{:x}", byte)?;
-            //     }
-            //     Ok(())
-            // }
-            // ControlCharInText(c) => write!(f, "Invalid character for text is included: {:?}", c),
+            Message(string) => write!(f, "Message: {}", string),
         }
+    }
+}
+
+impl NError {
+    /// Returns an `NError::Message` already wraped in a `Result`.
+    pub fn msg(string: &str) -> Result<(), Self> {
+        Err(Self::Message(string.into()))
     }
 }
 
