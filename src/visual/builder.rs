@@ -218,7 +218,7 @@ impl<'ncvisual, 'ncplane, 'plane> VisualBuilder<'ncvisual, 'ncplane, 'plane> {
     }
 
     /// Sets whether the scaling should be done with interpolation or not.
-    /// Default: do interpolate.
+    /// Default: true (interpolate).
     pub fn interpolate(mut self, interpolate: bool) -> Self {
         if interpolate {
             self.flags &= !sys::NCVISUAL_OPTION_NOINTERPOLATE;

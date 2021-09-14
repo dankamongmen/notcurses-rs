@@ -1,14 +1,16 @@
 use crate::sys::{self, NcLogLevel};
 
-/// A `u32` of logging levels for [`Notcurses`][crate::Notcurses].
+/// A `i32` of logging levels for [`Notcurses`][crate::Notcurses].
 ///
 /// These log levels consciously map cleanly to those of libav; notcurses itself
 /// does not use this full granularity. The log level does not affect the opening
 /// and closing banners, which can be disabled via the `NcOptions`
 /// `NCOPTION_SUPPRESS_BANNERS`.
+///
 /// Note that if stderr is connected to the same terminal on which we're
-/// rendering, any kind of logging will disrupt the output.
-#[repr(u32)]
+/// which we're rendering, any kind of logging will disrupt the output (which is
+/// undesirable). The "default" value is `NCLOGLEVEL_PANIC`.
+#[repr(i32)]
 #[derive(Debug, Copy, Clone)]
 pub enum LogLevel {
     /// Default. print nothing once fullscreen service begins.

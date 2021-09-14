@@ -23,7 +23,7 @@ libnotcurses-sys = { path="_deps/notcurses/rust/" } # WIP
 # libnotcurses-sys = "3"
 bitflags = "1.2.1"
 
-# for the examples
+# dev-dependencies, for the examples
 plotters = { version = "^0.3", optional = true }
 systemstat = { version = "^0.1", optional = true }
 

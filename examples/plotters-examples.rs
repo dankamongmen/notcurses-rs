@@ -69,7 +69,11 @@ fn main() -> NResult<()> {
         info_plane.putstr_xy(
             0,
             0,
-            &format!["plot {}/{}\nExit with `q`", fcounter, shuffled_examples.len()],
+            &format![
+                "plot {}/{}\nExit with `q`",
+                fcounter,
+                shuffled_examples.len()
+            ],
         )?;
 
         plot_visual.render_plane(&mut nc)?;

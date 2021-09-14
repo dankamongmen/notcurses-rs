@@ -9,6 +9,9 @@ use crate::{
     Style,
 };
 
+#[allow(unused_imports)]
+use crate::{Cell, Channel};
+
 use core::ptr::null_mut;
 
 mod builder;
@@ -23,9 +26,9 @@ pub use builder::PlaneBuilder;
 /// a Plane is defined by:
 ///
 /// - its *geometry*, its *position* relative to the visible plane and its *z-index*.
-/// - its current *style*, *foreground* [`Channel`], and *background* `Channel`.
-/// - its framebuffer, being a rectilinear matrix of [`Cells`].
-/// - its *base `Cell`*, used for any cell on the plane without a glyph.
+/// - its current *[`Style`]*, *foreground [`Channel`]*, and *background [`Channel`]*.
+/// - its framebuffer, which is a rectilinear matrix of [`Cell`]s.
+/// - its *base [`Cell`]*, used for any cell on the plane without a glyph.
 /// - its current *cursor location*.
 // - a configured user curry (a void*),
 // - an optional resize callback,
@@ -196,11 +199,11 @@ impl<'ncplane> Plane<'ncplane> {
     /// Sets the base cell from its components.
     ///
     /// Returns the number of bytes copied out of `egc`.
-    pub fn set_base<CHANNELS: Into<NcChannels>>(
+    pub fn set_base<C: Into<NcChannels>>(
         &mut self,
         egc: &str,
         style: Style,
-        channels: CHANNELS,
+        channels: C,
     ) -> NResult<u32> {
         ncresult![self.ncplane.set_base(egc, style.bits(), channels.into())]
     }
