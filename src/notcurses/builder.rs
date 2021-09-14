@@ -125,6 +125,16 @@ impl<'nc> NotcursesBuilder {
         self
     }
 
+    /// Handle SIGQUIT, SIGINT, SIGSEGV, SIGABRT? Default: true.
+    pub fn preserve_cursor(mut self, preserve_cursor: bool) -> Self {
+        if preserve_cursor {
+            self.flags |= sys::NCOPTION_PRESERVE_CURSOR;
+        } else {
+            self.flags &= !sys::NCOPTION_PRESERVE_CURSOR;
+        }
+        self
+    }
+
     /// Finishes the build returning the newly configured [`Notcurses`] context.
     pub fn finish(self) -> NResult<Notcurses<'nc>> {
         let ncoptions = NcOptions::with_all_options(
