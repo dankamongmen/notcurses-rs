@@ -55,7 +55,7 @@
 // }
 
 /// The geometry of a plane, the terminal, or plane. (WIP)
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Copy)]
 pub struct Geometry {
     /// The total width in pixels.
     pub x: u32,
@@ -74,10 +74,10 @@ pub struct Geometry {
     /// A **b**itmap maximum height in pixels.
     pub by: u32,
 
-    /// A **b**itmap **m**aximum width in number of columns of `Cell`s.
+    /// A **b**itmap maximum width in columns of `Cell`s.
     // bx / cx
     pub bcols: u32,
-    /// A **b**itmap **m**aximum height in number of rows of `Cell`s.
+    /// A **b**itmap maximum height in rows of `Cell`s.
     // bx / cx
     pub brows: u32,
 
@@ -88,6 +88,46 @@ pub struct Geometry {
 }
 
 impl Geometry {
-    // pub fn new() -> Self {
-    // }
+    /// The total width in pixels.
+    pub fn x(&self) -> u32 {
+        self.x
+    }
+    /// The total height in pixels.
+    pub fn y(&self) -> u32 {
+        self.y
+    }
+    /// The total width in columns of `Cell`s.
+    pub fn cols(&self) -> u32 {
+        self.cols
+    }
+    /// The total height in rows of `Cell`s.
+    pub fn rows(&self) -> u32 {
+        self.rows
+    }
+
+    /// A bitmap maximum width in pixels.
+    pub fn bitmap_x_max(&self) -> u32 {
+        self.bx
+    }
+    /// A bitmap maximum height pixels.
+    pub fn bitmap_y_max(&self) -> u32 {
+        self.by
+    }
+    /// A bitmap maximum width in columns of `Cell`s.
+    pub fn bitmap_cols_max(&self) -> u32 {
+        self.bcols
+    }
+    /// A bitmap maximum height in rows of `Cell`s.
+    pub fn bitmap_rows_max(&self) -> u32 {
+        self.brows
+    }
+
+    /// A `Cell` width in pixels.
+    pub fn cell_x(&self) -> u32 {
+        self.cx
+    }
+    /// A `Cell` height in pixels.
+    pub fn cell_y(&self) -> u32 {
+        self.cy
+    }
 }

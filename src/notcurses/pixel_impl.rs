@@ -6,7 +6,7 @@ use crate::sys::{self, NcPixelImpl};
 //
 // data type in C: u32
 #[repr(u8)]
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum PixelImpl {
     /// No pixel support.
     None = crate::sys::ffi::ncpixelimpl_e_NCPIXEL_NONE as u8,
