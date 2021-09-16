@@ -40,5 +40,9 @@ name = "plotters-examples"
 required-features = ["plotters"]
 
 [[example]]
+name = "plotters-3d-projection"
+required-features = ["plotters"]
+
+[[example]]
 name = "plotters-systemstat"
 required-features = ["plotters", "systemstat"]
