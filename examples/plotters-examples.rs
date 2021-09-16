@@ -45,14 +45,14 @@ fn main() -> NResult<()> {
         flist
     };
 
-    let mut input = sys::NcInput::new_empty();
+    let mut input = Input::new_empty();
 
     let mut fcounter = 0;
 
     for plotter_function in shuffled_examples {
         plotter_function(&mut plot_buffer, geom.bx, geom.by).expect("plotting failed");
 
-        let key = sys::notcurses_getc_nblock(nc.as_nc_mut(), &mut input);
+        let key = sys::notcurses_getc_nblock(nc.as_nc_mut(), &mut input.into());
         match key {
             'q' => break,
             _ => {}
