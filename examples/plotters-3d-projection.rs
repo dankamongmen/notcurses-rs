@@ -20,16 +20,11 @@ use plotters::prelude::*;
 const FPS: u32 = 20;
 const MIN_MOVE: f64 = 0.1;
 
-struct State {
-    pitch: f64,
-    yaw: f64,
-    width: u32,
-    height: u32,
-}
+#[rustfmt::skip]
+struct State {pitch: f64, yaw: f64, width: u32, height: u32}
 
 fn main() -> NResult<()> {
     let mut nc = Notcurses::new()?;
-
     let geom = nc.geometry();
 
     let mut plane = Plane::build()
@@ -37,12 +32,8 @@ fn main() -> NResult<()> {
         .new_pile(&mut nc)?;
     let mut buffer = vec![0; geom.bx as usize * geom.by as usize * 3];
 
-    let mut state = State {
-        pitch: 0.7,
-        yaw: 0.7,
-        width: geom.bx,
-        height: geom.by,
-    };
+    #[rustfmt::skip]
+    let mut state = State {pitch: 0.7, yaw: 0.7, width: geom.bx, height: geom.by};
 
     let mut info_plane = Plane::build()
         .cols_rows(20, 3)
@@ -100,7 +91,7 @@ fn plot(buffer: &mut Vec<u8>, state: &mut State) -> Result<(), Box<dyn std::erro
     root.fill(&BLACK)?;
 
     let mut chart = ChartBuilder::on(&root)
-        .caption("2D Guassian PDF", ("sans-serif", 20))
+        .caption("2D Gaussian PDF", ("sans-serif", 20))
         .build_cartesian_3d(-3.0..3.0, 0.0..6.0, -3.0..3.0)?;
 
     chart.with_projection(|mut p| {

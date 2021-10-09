@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use crate::sys::{self, NcInput};
+use crate::sys::NcInput;
 
 /// Reads and decodes input events.
 ///
@@ -8,7 +8,7 @@ use crate::sys::{self, NcInput};
 /// including synthesized events and mouse events.
 #[derive(Copy, Clone, Debug)]
 pub struct Input {
-    pub(crate) ncinput: NcInput,
+    pub ncinput: NcInput,
 }
 
 impl Input {

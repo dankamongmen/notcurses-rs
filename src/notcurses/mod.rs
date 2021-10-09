@@ -1,6 +1,6 @@
 //! `Notcurses` wrapper struct and traits implementations.
 
-use crate::{ncresult, sys::Nc, Geometry, NResult};
+use crate::{ncresult, sys::Nc, Geometry, Input, NResult};
 
 mod builder;
 mod capabilities;
@@ -78,10 +78,22 @@ impl<'nc> Notcurses<'nc> {
     }
 
     // TODO:
-    // getc
-    // getc_nblock
-    // getc_blocking
+    // getc?
     // inputready_fd
+
+    /// Reads input blocking until an event is processed or a signal is received.
+    ///
+    /// Will optionally write the event details in `input`.
+    pub fn getc_block(&mut self, input: Option<&mut Input>) -> NResult<char> {
+        ncresult![self.nc.getc_blocking(input.map(|i| &mut i.ncinput))]
+    }
+
+    /// Reads input without blocking.
+    ///
+    /// If no event is ready, returns 0.
+    pub fn getc_noblock(&mut self, input: Option<&mut Input>) -> NResult<char> {
+        ncresult![self.nc.getc_nblock(input.map(|i| &mut i.ncinput))]
+    }
 
     // lex_blitter
     // lex_margins
@@ -167,7 +179,7 @@ impl<'nc> Notcurses<'nc> {
 
     /// Returns the `Geometry` of the terminal.
     pub fn geometry(&self) -> Geometry {
-        let g = self.nc.stdplane_const().pixelgeom();
+        let g = self.nc.stdplane_const().pixel_geom();
         Geometry {
             x: g.term_x,
             y: g.term_y,

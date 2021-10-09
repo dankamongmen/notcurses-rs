@@ -81,7 +81,7 @@ impl<'ncplane> Plane<'ncplane> {
         // - https://github.com/rust-lang/rust/issues/42868
         // - rustc --explain E0495
         // self.ncplane.dup::<'ncplane>().into()
-        unsafe { &mut *sys::ncplane_dup(self.ncplane, null_mut()) }.into()
+        unsafe { &mut *sys::fns::ncplane_dup(self.ncplane, null_mut()) }.into()
     }
 
     /// Returns a reference to the inner [`NcPlane`].

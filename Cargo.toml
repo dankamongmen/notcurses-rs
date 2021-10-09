@@ -19,7 +19,7 @@ keywords = ["tui", "cli", "terminal", "ncurses"]
 include = ["src/", "LICENSE-*", "README.md", "examples/"]
 
 [dependencies]
-libnotcurses-sys = { path="_deps/notcurses/rust/" } # WIP
+libnotcurses-sys = { path="../libnotcurses-sys/" } # WIP
 # libnotcurses-sys = "3"
 bitflags = "1.2.1"
 

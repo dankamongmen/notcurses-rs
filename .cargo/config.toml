@@ -1,26 +1,39 @@
 [alias]
 
-# BUILD
-b = "build"
-br = "build --release"
-bq = "build --quiet"
-
 # CHECK
 cl = "clippy"
 
+# DOC
+d = "doc --no-deps"
+do = "doc --no-deps --open"
+dd = "doc"
+ddo = "doc --open"
+
+# BUILD
+b = "build"
+bb = "build --bin"
+be = "build --example"
+bq = "build --quiet"
+br = "build --release"
+bqb = "build --quiet --bin"
+bqe = "build --quiet --example"
+brb = "build --release --bin"
+bre = "build --release --example"
+brqb = "build --release --quiet --bin"
+brqe = "build --release --quiet --example"
+
 # RUN
 r = "run"
-rr = "run --release"
-rq = "run --quiet"
+rb = "run --bin"
 re = "run --example"
+rq = "run --quiet"
+rr = "run --release"
+rqb = "run --quiet --bin"
 rqe = "run --quiet --example"
-req = "rqe"
-
-# DOC
-d = "doc"
-do = "doc --open"
-# d = "doc --no-deps"
-# do = "doc --no-deps --open"
+rrb = "run --release --bin"
+rre = "run --release --example"
+rrqb = "run --release --quiet --bin"
+rrqe = "run --release --quiet --example"
 
 # TEST
 # fix IO errors: https://github.com/dankamongmen/notcurses/issues/766

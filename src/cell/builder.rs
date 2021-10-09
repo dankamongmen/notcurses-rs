@@ -54,7 +54,7 @@ impl<'plane, 'ncplane> CellBuilder<'plane, 'ncplane> {
         if self.ch as u32 > 127 {
             if let Some(_plane) = self.plane {
                 // TEMP
-                let nccell = NcCell::from_char7b(self.ch);
+                let nccell = NcCell::from_char7b(self.ch)?;
                 Ok(Cell { nccell })
             } else {
                 Err(NError::BuildIncomplete(
@@ -65,7 +65,7 @@ impl<'plane, 'ncplane> CellBuilder<'plane, 'ncplane> {
             }
         } else {
             // TEMP
-            let nccell = NcCell::from_char7b(self.ch);
+            let nccell = NcCell::from_char7b(self.ch)?;
             Ok(Cell { nccell })
         }
     }
