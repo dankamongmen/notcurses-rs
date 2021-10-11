@@ -47,12 +47,10 @@ fn main() -> NResult<()> {
         height: geom.by,
     };
 
-    let mut input = Input::new_empty();
-
     loop {
         plot(&mut buffer, &mut state).expect("plotting error");
 
-        let key = sys::notcurses_getc_nblock(nc.as_nc_mut(), &mut input.into());
+        let key = nc.getc_noblock(None)?;
         match key {
             // WIP
             // sys::NCKEY_RESIZE => break Err(NotcursesError::ExitMessage("resize".into())),

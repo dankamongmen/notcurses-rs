@@ -42,12 +42,10 @@ fn main() -> NResult<()> {
     info_plane.set_base(" ", Style::BOLD, Channels::new(Rgb::BLACK, Rgb::YELLOW))?;
     info_plane.scrolling(true);
 
-    let mut input = Input::new_empty();
-
     loop {
         plot(&mut buffer, &mut state).expect("plotting error");
 
-        let key = sys::notcurses_getc_nblock(nc.as_nc_mut(), &mut input.into());
+        let key = nc.getc_noblock(None)?;
         match key {
             sys::NCKEY_UP => {
                 state.pitch -= MIN_MOVE;
@@ -116,6 +114,7 @@ fn plot(buffer: &mut Vec<u8>, state: &mut State) -> Result<(), Box<dyn std::erro
     Ok(())
 }
 
+// CHECK
 fn plotb(buffer: &mut Vec<u8>, state: &mut State) -> Result<(), Box<dyn std::error::Error>> {
     let area = BitMapBackend::with_buffer(buffer, (state.width, state.height)).into_drawing_area();
 
