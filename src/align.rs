@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use crate::sys::{self, NcAlign};
+use crate::sys::{NcAlign, NcAlignApi};
 
 /// A `u8` of alignment within a [`Plane`][crate::Plane] or terminal.
 //
@@ -9,16 +9,16 @@ use crate::sys::{self, NcAlign};
 #[derive(Copy, Clone, Debug)]
 pub enum Align {
     /// Left [`Align`]ment.
-    Left = sys::NCALIGN_LEFT as u8,
+    Left = NcAlign::LEFT as u8,
 
     /// Right [`Align`]ment.
-    Right = sys::NCALIGN_RIGHT as u8,
+    Right = NcAlign::RIGHT as u8,
 
     /// Center [`Align`]ment.
-    Center = sys::NCALIGN_CENTER as u8,
+    Center = NcAlign::CENTER as u8,
 
     /// Not [`Align`]ed.
-    Unaligned = sys::NCALIGN_UNALIGNED as u8,
+    Unaligned = NcAlign::UNALIGNED as u8,
 }
 
 /// Defaults to [`Align::Unaligned`].
@@ -39,10 +39,10 @@ impl From<Align> for NcAlign {
 impl From<NcAlign> for Align {
     fn from(na: NcAlign) -> Align {
         match na {
-            sys::NCALIGN_LEFT => Align::Left,
-            sys::NCALIGN_RIGHT => Align::Right,
-            sys::NCALIGN_CENTER => Align::Center,
-            sys::NCALIGN_UNALIGNED => Align::Unaligned,
+            NcAlign::LEFT => Align::Left,
+            NcAlign::RIGHT => Align::Right,
+            NcAlign::CENTER => Align::Center,
+            NcAlign::UNALIGNED => Align::Unaligned,
             _ => Align::default(),
         }
     }

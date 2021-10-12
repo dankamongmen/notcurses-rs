@@ -1,7 +1,9 @@
 //!
 
-use crate::sys::{self, NcVisual, NcVisualOptions};
-use crate::{Align, Blitter, NError, NResult as Result, Plane, Scale, Visual};
+use crate::{
+    sys::{NcVisual, NcVisualOptions},
+    Align, Blitter, NError, NResult as Result, Plane, Scale, Visual,
+};
 
 /// A [`Visual`] builder.
 #[derive(Default)]
@@ -136,8 +138,8 @@ impl<'ncvisual, 'ncplane, 'plane> VisualBuilder<'ncvisual, 'ncplane, 'plane> {
     pub fn xy(mut self, x: u32, y: u32) -> Self {
         self.x = x;
         self.y = y;
-        self.flags &= !sys::NCVISUAL_OPTION_HORALIGNED;
-        self.flags &= !sys::NCVISUAL_OPTION_VERALIGNED;
+        self.flags &= !NcVisualOptions::HORALIGNED;
+        self.flags &= !NcVisualOptions::VERALIGNED;
         self
     }
 
@@ -148,7 +150,7 @@ impl<'ncvisual, 'ncplane, 'plane> VisualBuilder<'ncvisual, 'ncplane, 'plane> {
     pub fn x(mut self, x: u32) -> Self {
         self.x = x;
         self.halign = None;
-        self.flags &= !sys::NCVISUAL_OPTION_HORALIGNED;
+        self.flags &= !NcVisualOptions::HORALIGNED;
         self
     }
 
@@ -159,7 +161,7 @@ impl<'ncvisual, 'ncplane, 'plane> VisualBuilder<'ncvisual, 'ncplane, 'plane> {
     pub fn y(mut self, y: u32) -> Self {
         self.y = y;
         self.valign = None;
-        self.flags &= !sys::NCVISUAL_OPTION_VERALIGNED;
+        self.flags &= !NcVisualOptions::VERALIGNED;
         self
     }
 
@@ -168,7 +170,7 @@ impl<'ncvisual, 'ncplane, 'plane> VisualBuilder<'ncvisual, 'ncplane, 'plane> {
     /// This will override any absolute [`y`][VisualBuilder#method.y] positioning.
     pub fn halign(mut self, halign: Align) -> Self {
         self.halign = Some(halign);
-        self.flags |= sys::NCVISUAL_OPTION_HORALIGNED;
+        self.flags |= NcVisualOptions::HORALIGNED;
         self
     }
 
@@ -177,7 +179,7 @@ impl<'ncvisual, 'ncplane, 'plane> VisualBuilder<'ncvisual, 'ncplane, 'plane> {
     /// This will override any absolute [`y`][VisualBuilder#method.y] positioning.
     pub fn valign(mut self, valign: Align) -> Self {
         self.valign = Some(valign);
-        self.flags |= sys::NCVISUAL_OPTION_VERALIGNED;
+        self.flags |= NcVisualOptions::VERALIGNED;
         self
     }
 
@@ -208,10 +210,10 @@ impl<'ncvisual, 'ncplane, 'plane> VisualBuilder<'ncvisual, 'ncplane, 'plane> {
     /// Will treat this RGB color as transparent. Default: `None`.
     pub fn transparent_color(mut self, color: Option<u32>) -> Self {
         if let Some(color) = color {
-            self.flags |= sys::NCVISUAL_OPTION_ADDALPHA;
+            self.flags |= NcVisualOptions::ADDALPHA;
             self.transcolor = color;
         } else {
-            self.flags &= !sys::NCVISUAL_OPTION_ADDALPHA;
+            self.flags &= !NcVisualOptions::ADDALPHA;
             self.transcolor = 0;
         }
         self
@@ -221,9 +223,9 @@ impl<'ncvisual, 'ncplane, 'plane> VisualBuilder<'ncvisual, 'ncplane, 'plane> {
     /// Default: true (interpolate).
     pub fn interpolate(mut self, interpolate: bool) -> Self {
         if interpolate {
-            self.flags &= !sys::NCVISUAL_OPTION_NOINTERPOLATE;
+            self.flags &= !NcVisualOptions::NOINTERPOLATE;
         } else {
-            self.flags |= sys::NCVISUAL_OPTION_NOINTERPOLATE;
+            self.flags |= NcVisualOptions::NOINTERPOLATE;
         }
         self
     }

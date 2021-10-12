@@ -6,17 +6,17 @@
 // TODO
 // - NcRgba, NcVGeom...
 // - allow changing the inner options after, with a safe interface
-// - add alpha_color NCVISUAL_OPTION_ADDALPHA
+// - add alpha_color NcVisualOptions::ADDALPHA
 // - add halign & valign
-// - add blend NCVISUAL_OPTION_BLEND
-// - add nodegrade NCVISUAL_OPTION_NODEGRADE
+// - add blend NcVisualOptions::BLEND
+// - add nodegrade NcVisualOptions::NODEGRADE
 //
 // MAYBE
 // - offer the alternative of using a VisualOptions structure. (old: visual3)
 
 use crate::{
     ncresult,
-    sys::{self, NcVisual, NcVisualOptions},
+    sys::{NcVisual, NcVisualOptions},
     NResult, Notcurses, Plane,
 };
 
@@ -48,7 +48,10 @@ impl<'ncvisual> Drop for Visual<'ncvisual> {
 }
 
 /// # Methods
-impl<'ncvisual, 'ncplane, 'plane> Visual<'ncvisual> {
+impl<'ncvisual, 'ncplane, 'plane> Visual<'ncvisual>
+// where
+//     'ncvisual: 'ncplane,
+{
     /// Returns a default [`VisualBuilder`] used to customize a new `Visual`.
     pub fn build() -> VisualBuilder<'ncvisual, 'ncplane, 'plane> {
         VisualBuilder::default()
@@ -84,33 +87,35 @@ impl<'ncvisual, 'ncplane, 'plane> Visual<'ncvisual> {
     /// Renders the decoded frame to the configured [`Plane`][crate::Plane].
     pub fn render_plane(&mut self, nc: &mut Notcurses) -> NResult<()> {
         assert![!self.options.n.is_null()];
-        self.options.flags &= !sys::NCVISUAL_OPTION_CHILDPLANE as u64;
+        self.options.flags &= !NcVisualOptions::CHILDPLANE as u64;
         let _ = NcVisual::render(self.ncvisual, nc.nc, &self.options)?;
         Ok(())
     }
 
-    /// Renders the decoded frame as a new plane, that is a child of the configured
-    /// [`Plane`][crate::Plane], and returns it.
-    pub fn render_child_plane(
-        &'ncvisual mut self,
-        nc: &mut Notcurses,
-    ) -> NResult<Plane<'ncvisual>> {
-        assert![!self.options.n.is_null()];
-        self.options.flags |= sys::NCVISUAL_OPTION_CHILDPLANE as u64;
-        let child_plane = NcVisual::render(self.ncvisual, nc.nc, &self.options)?;
-        Ok(Plane::<'ncvisual> {
-            ncplane: child_plane,
-        })
-    }
+    // /// Renders the decoded frame as a new plane, that is a child of the configured
+    // /// [`Plane`][crate::Plane], and returns it.
+    // // WIP:0 FIXME: visual doesn't live long enough
+    // pub fn render_child_plane(
+    //     &'ncvisual mut self,
+    //     nc: &mut Notcurses,
+    // ) -> NResult<Plane<'ncvisual>> {
+    //     assert![!self.options.n.is_null()];
+    //     self.options.flags |= NcVisualOptions::CHILDPLANE as u64;
+    //     let child_plane = NcVisual::render(self.ncvisual, nc.nc, &self.options)?;
+    //     Ok(Plane::<'ncplane> {
+    //         ncplane: child_plane,
+    //     })
+    // }
 
-    /// Renders the decoded frame as a new [`Plane`][crate::Plane], and returns it.
-    ///
-    /// Doesn't need to have a plane configured.
-    pub fn render_new_plane(&'ncvisual mut self, nc: &mut Notcurses) -> NResult<Plane<'ncvisual>> {
-        self.options.flags |= sys::NCVISUAL_OPTION_CHILDPLANE as u64;
-        let child_ncplane = NcVisual::render(self.ncvisual, nc.nc, &self.options)?;
-        Ok(child_ncplane.into())
-    }
+    // /// Renders the decoded frame as a new [`Plane`][crate::Plane], and returns it.
+    // ///
+    // /// Doesn't need to have a plane configured.
+    // // WIP:1 FIXME: visual doesn't live long enough
+    // pub fn render_new_plane(&'ncvisual mut self, nc: &mut Notcurses) -> NResult<Plane<'ncplane>> {
+    //     self.options.flags &= !NcVisualOptions::CHILDPLANE as u64;
+    //     let ncplane = NcVisual::render(self.ncvisual, nc.nc, &self.options)?;
+    //     Ok(ncplane.into())
+    // }
 }
 
 /// # Post-Builder Configuration Methods
@@ -174,19 +179,19 @@ impl<'ncvisual, 'ncplane> Visual<'ncvisual> {
     /// The default is to interpolate.
     pub fn set_interpolate(&mut self, interpolate: bool) {
         if interpolate {
-            self.options.flags &= !sys::NCVISUAL_OPTION_NOINTERPOLATE as u64;
+            self.options.flags &= !NcVisualOptions::NOINTERPOLATE as u64;
         } else {
-            self.options.flags |= sys::NCVISUAL_OPTION_NOINTERPOLATE as u64;
+            self.options.flags |= NcVisualOptions::NOINTERPOLATE as u64;
         }
     }
 
     /// Sets the RGB color to be treated as transparent. Default: `None`.
     pub fn set_transparent_color(mut self, color: Option<u32>) -> Self {
         if let Some(color) = color {
-            self.options.flags |= sys::NCVISUAL_OPTION_ADDALPHA as u64;
+            self.options.flags |= NcVisualOptions::ADDALPHA as u64;
             self.options.transcolor = color;
         } else {
-            self.options.flags &= !sys::NCVISUAL_OPTION_ADDALPHA as u64;
+            self.options.flags &= !NcVisualOptions::ADDALPHA as u64;
             self.options.transcolor = 0;
         }
         self

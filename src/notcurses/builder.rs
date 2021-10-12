@@ -1,5 +1,5 @@
 use crate::{
-    sys::{self, Nc, NcOptions},
+    sys::{Nc, NcOptions},
     LogLevel, NResult, Notcurses,
 };
 
@@ -17,7 +17,7 @@ impl Default for NotcursesBuilder {
         Self {
             margins: (0, 0, 0, 0),
             loglevel: LogLevel::default(),
-            flags: sys::NCOPTION_SUPPRESS_BANNERS,
+            flags: NcOptions::SUPPRESS_BANNERS,
         }
     }
 }
@@ -46,9 +46,9 @@ impl<'nc> NotcursesBuilder {
     /// The previoius terminal contents will be restored after notcurses stops.
     pub fn altscreen(mut self, altscreen: bool) -> Self {
         if altscreen {
-            self.flags &= !sys::NCOPTION_NO_ALTERNATE_SCREEN;
+            self.flags &= !NcOptions::NO_ALTERNATE_SCREEN;
         } else {
-            self.flags |= sys::NCOPTION_NO_ALTERNATE_SCREEN;
+            self.flags |= NcOptions::NO_ALTERNATE_SCREEN;
         }
         self
     }
@@ -59,9 +59,9 @@ impl<'nc> NotcursesBuilder {
     /// on shutdown.
     pub fn banners(mut self, banners: bool) -> Self {
         if banners {
-            self.flags &= !sys::NCOPTION_SUPPRESS_BANNERS;
+            self.flags &= !NcOptions::SUPPRESS_BANNERS;
         } else {
-            self.flags |= sys::NCOPTION_SUPPRESS_BANNERS;
+            self.flags |= NcOptions::SUPPRESS_BANNERS;
         }
         self
     }
@@ -69,9 +69,9 @@ impl<'nc> NotcursesBuilder {
     /// Handle SIGQUIT, SIGINT, SIGSEGV, SIGABRT? Default: true.
     pub fn sigquit(mut self, sighandlers: bool) -> Self {
         if sighandlers {
-            self.flags &= !sys::NCOPTION_NO_QUIT_SIGHANDLERS;
+            self.flags &= !NcOptions::NO_QUIT_SIGHANDLERS;
         } else {
-            self.flags |= sys::NCOPTION_NO_QUIT_SIGHANDLERS;
+            self.flags |= NcOptions::NO_QUIT_SIGHANDLERS;
         }
         self
     }
@@ -82,9 +82,9 @@ impl<'nc> NotcursesBuilder {
     /// With this flag, the handler will not be installed.
     pub fn sigwinch(mut self, sighandlers: bool) -> Self {
         if sighandlers {
-            self.flags &= !sys::NCOPTION_NO_WINCH_SIGHANDLER;
+            self.flags &= !NcOptions::NO_WINCH_SIGHANDLER;
         } else {
-            self.flags |= sys::NCOPTION_NO_WINCH_SIGHANDLER;
+            self.flags |= NcOptions::NO_WINCH_SIGHANDLER;
         }
         self
     }
@@ -93,9 +93,9 @@ impl<'nc> NotcursesBuilder {
     ///
     pub fn set_locale(mut self, setlocale: bool) -> Self {
         if setlocale {
-            self.flags &= !sys::NCOPTION_INHIBIT_SETLOCALE;
+            self.flags &= !NcOptions::INHIBIT_SETLOCALE;
         } else {
-            self.flags |= sys::NCOPTION_INHIBIT_SETLOCALE;
+            self.flags |= NcOptions::INHIBIT_SETLOCALE;
         }
         self
     }
@@ -103,9 +103,9 @@ impl<'nc> NotcursesBuilder {
     /// try to clear any preexisting bitmaps? Default: true.
     pub fn clear_bitmaps(mut self, clear_bitmaps: bool) -> Self {
         if clear_bitmaps {
-            self.flags &= !sys::NCOPTION_NO_CLEAR_BITMAPS;
+            self.flags &= !NcOptions::NO_CLEAR_BITMAPS;
         } else {
-            self.flags |= sys::NCOPTION_NO_CLEAR_BITMAPS;
+            self.flags |= NcOptions::NO_CLEAR_BITMAPS;
         }
         self
     }
@@ -118,9 +118,9 @@ impl<'nc> NotcursesBuilder {
     /// anything but the virtual console/terminal in which notcurses is running.
     pub fn modify_font(mut self, modify_font: bool) -> Self {
         if modify_font {
-            self.flags &= !sys::NCOPTION_NO_FONT_CHANGES;
+            self.flags &= !NcOptions::NO_FONT_CHANGES;
         } else {
-            self.flags |= sys::NCOPTION_NO_FONT_CHANGES;
+            self.flags |= NcOptions::NO_FONT_CHANGES;
         }
         self
     }
@@ -128,9 +128,9 @@ impl<'nc> NotcursesBuilder {
     /// Handle SIGQUIT, SIGINT, SIGSEGV, SIGABRT? Default: true.
     pub fn preserve_cursor(mut self, preserve_cursor: bool) -> Self {
         if preserve_cursor {
-            self.flags |= sys::NCOPTION_PRESERVE_CURSOR;
+            self.flags |= NcOptions::PRESERVE_CURSOR;
         } else {
-            self.flags &= !sys::NCOPTION_PRESERVE_CURSOR;
+            self.flags &= !NcOptions::PRESERVE_CURSOR;
         }
         self
     }

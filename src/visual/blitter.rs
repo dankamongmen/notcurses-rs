@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use crate::sys::{self, NcBlitter};
+use crate::sys::{NcBlitter, NcBlitterApi};
 
 /// A `u16` of [`Visual`][crate::Visual] blitter mode for rasterizing.
 ///
@@ -20,37 +20,37 @@ use crate::sys::{self, NcBlitter};
 #[derive(Copy, Clone, Debug)]
 pub enum Blitter {
     /// Blitter mode where the blitter is automatically chosen.
-    Default = sys::NCBLIT_DEFAULT as u16,
+    Default = NcBlitter::DEFAULT as u16,
 
     /// Blitter mode using space (compatible with ASCII).
-    Space = sys::NCBLIT_1x1 as u16,
+    Space = NcBlitter::_1x1 as u16,
 
     /// Blitter mode using halves + 1x1 (space).
     /// ▄▀
-    Half = sys::NCBLIT_2x1 as u16,
+    Half = NcBlitter::_2x1 as u16,
 
     /// Blitter mode using quadrants + 2x1.
     /// ▗▐ ▖▀▟▌▙
-    Quadrant = sys::NCBLIT_2x2 as u16,
+    Quadrant = NcBlitter::_2x2 as u16,
 
     /// Blitter mode using sextants.
     /// 🬀🬁🬂🬃🬄🬅🬆🬇🬈🬉🬊🬋🬌🬍🬎🬏🬐🬑🬒🬓🬔🬕🬖🬗🬘🬙🬚🬛🬜🬝🬞🬟🬠🬡🬢🬣🬤🬥🬦🬧🬨🬩🬪🬫🬬🬭🬮🬯🬰🬱🬲🬳🬴🬵🬶🬷🬸🬹🬺🬻
-    Sextant = sys::NCBLIT_3x2 as u16,
+    Sextant = NcBlitter::_3x2 as u16,
 
     /// Blitter mode using braille (4 rows, 2 cols).
     /// ⡀⡄⡆⡇⢀⣀⣄⣆⣇⢠⣠⣤⣦⣧⢰⣰⣴⣶⣷⢸⣸⣼⣾⣿
-    Braille = sys::NCBLIT_BRAILLE as u16,
+    Braille = NcBlitter::BRAILLE as u16,
 
     /// Blitter mode using pixels/sixels.
-    Pixel = sys::NCBLIT_PIXEL as u16,
+    Pixel = NcBlitter::PIXEL as u16,
 
     /// Blitter mode using four vertical levels.
     /// █▆▄▂
-    Four = sys::NCBLIT_4x1 as u16,
+    Four = NcBlitter::_4x1 as u16,
 
     /// Blitter mode using eight vertical levels.
     /// █▇▆▅▄▃▂▁
-    Eight = sys::NCBLIT_8x1 as u16,
+    Eight = NcBlitter::_8x1 as u16,
 }
 
 /// Defaults to [`Blitter::Default`].
@@ -71,14 +71,14 @@ impl From<Blitter> for NcBlitter {
 impl From<NcBlitter> for Blitter {
     fn from(na: NcBlitter) -> Blitter {
         match na {
-            sys::NCBLIT_DEFAULT => Blitter::Default,
-            sys::NCBLIT_PIXEL => Blitter::Pixel,
-            sys::NCBLIT_2x2 => Blitter::Quadrant,
-            sys::NCBLIT_3x2 => Blitter::Sextant,
-            sys::NCBLIT_1x1 => Blitter::Space,
-            sys::NCBLIT_BRAILLE => Blitter::Braille,
-            sys::NCBLIT_4x1 => Blitter::Four,
-            sys::NCBLIT_8x1 => Blitter::Eight,
+            NcBlitter::DEFAULT => Blitter::Default,
+            NcBlitter::PIXEL => Blitter::Pixel,
+            NcBlitter::_2x2 => Blitter::Quadrant,
+            NcBlitter::_3x2 => Blitter::Sextant,
+            NcBlitter::_1x1 => Blitter::Space,
+            NcBlitter::BRAILLE => Blitter::Braille,
+            NcBlitter::_4x1 => Blitter::Four,
+            NcBlitter::_8x1 => Blitter::Eight,
             _ => Blitter::Default,
         }
     }

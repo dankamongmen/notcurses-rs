@@ -134,7 +134,7 @@ impl<'nc> Notcurses<'nc> {
     /// Returns the current terminal size (`x`, `y`).
     ///
     /// This is primarily useful if the screen is externally corrupted, or if an
-    /// [NCKEY_RESIZE][crate::sys::NCKEY_RESIZE] event has been read and you're not
+    /// [NcKey::RESIZE][crate::sys::NcKey::RESIZE] event has been read and you're not
     /// yet ready to render.
     // TODO: sys::NCKEY_RESIZE reference
     pub fn refresh(&mut self) -> NResult<(u32, u32)> {

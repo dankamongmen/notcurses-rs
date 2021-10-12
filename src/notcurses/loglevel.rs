@@ -1,4 +1,4 @@
-use crate::sys::{self, NcLogLevel};
+use crate::sys::{NcLogLevel, NcLogLevelApi};
 
 /// A `i32` of logging levels for [`Notcurses`][crate::Notcurses].
 ///
@@ -9,36 +9,36 @@ use crate::sys::{self, NcLogLevel};
 ///
 /// Note that if stderr is connected to the same terminal on which we're
 /// which we're rendering, any kind of logging will disrupt the output (which is
-/// undesirable). The "default" value is `NCLOGLEVEL_PANIC`.
+/// undesirable). The "default" value is `NcLogLevel::PANIC`.
 #[repr(i32)]
 #[derive(Debug, Copy, Clone)]
 pub enum LogLevel {
     /// Default. print nothing once fullscreen service begins.
-    Silent = sys::NCLOGLEVEL_SILENT,
+    Silent = NcLogLevel::SILENT,
 
     /// Print diagnostics immediately related to crashing.
-    Panic = sys::NCLOGLEVEL_PANIC,
+    Panic = NcLogLevel::PANIC,
 
     /// We're hanging around, but we've had a horrible fault.
-    Fatal = sys::NCLOGLEVEL_FATAL,
+    Fatal = NcLogLevel::FATAL,
 
     /// We can't keep doing this, but we can do other things.
-    Error = sys::NCLOGLEVEL_ERROR,
+    Error = NcLogLevel::ERROR,
 
     /// You probably don't want what's happening to happen.
-    Warning = sys::NCLOGLEVEL_WARNING,
+    Warning = NcLogLevel::WARNING,
 
     /// "Standard information".
-    Info = sys::NCLOGLEVEL_INFO,
+    Info = NcLogLevel::INFO,
 
     /// "Detailed information".
-    Verbose = sys::NCLOGLEVEL_VERBOSE,
+    Verbose = NcLogLevel::VERBOSE,
 
     /// This is honestly a bit much.
-    Debug = sys::NCLOGLEVEL_DEBUG,
+    Debug = NcLogLevel::DEBUG,
 
     /// There's probably a better way to do what you want.
-    Trace = sys::NCLOGLEVEL_TRACE,
+    Trace = NcLogLevel::TRACE,
 }
 
 impl Default for LogLevel {
