@@ -1,4 +1,4 @@
-use crate::sys::{NcLogLevel, NcLogLevelApi};
+use crate::sys::NcLogLevel;
 
 /// A `i32` of logging levels for [`Notcurses`][crate::Notcurses].
 ///
@@ -14,31 +14,31 @@ use crate::sys::{NcLogLevel, NcLogLevelApi};
 #[derive(Debug, Copy, Clone)]
 pub enum LogLevel {
     /// Default. print nothing once fullscreen service begins.
-    Silent = NcLogLevel::SILENT,
+    Silent = NcLogLevel::Silent as i32,
 
     /// Print diagnostics immediately related to crashing.
-    Panic = NcLogLevel::PANIC,
+    Panic = NcLogLevel::Panic as i32,
 
     /// We're hanging around, but we've had a horrible fault.
-    Fatal = NcLogLevel::FATAL,
+    Fatal = NcLogLevel::Fatal as i32,
 
     /// We can't keep doing this, but we can do other things.
-    Error = NcLogLevel::ERROR,
+    Error = NcLogLevel::Error as i32,
 
     /// You probably don't want what's happening to happen.
-    Warning = NcLogLevel::WARNING,
+    Warning = NcLogLevel::Warning as i32,
 
     /// "Standard information".
-    Info = NcLogLevel::INFO,
+    Info = NcLogLevel::Info as i32,
 
     /// "Detailed information".
-    Verbose = NcLogLevel::VERBOSE,
+    Verbose = NcLogLevel::Verbose as i32,
 
     /// This is honestly a bit much.
-    Debug = NcLogLevel::DEBUG,
+    Debug = NcLogLevel::Debug as i32,
 
     /// There's probably a better way to do what you want.
-    Trace = NcLogLevel::TRACE,
+    Trace = NcLogLevel::Trace as i32,
 }
 
 impl Default for LogLevel {

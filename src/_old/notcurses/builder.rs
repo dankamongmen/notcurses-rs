@@ -1,5 +1,5 @@
 use crate::{
-    sys::{Nc, NcOptions},
+    sys::{Nc, NcOptions, NcFlags},
     LogLevel, NResult, Notcurses,
 };
 

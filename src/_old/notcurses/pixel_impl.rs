@@ -1,6 +1,6 @@
 // #![allow(dead_code)]
 
-use crate::sys::{NcPixelImpl, NcPixelImplApi};
+use crate::sys::NcPixelImpl;
 
 /// A `u8` of pixel blitting implementation. (Informative only)
 //
@@ -9,19 +9,19 @@ use crate::sys::{NcPixelImpl, NcPixelImplApi};
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum PixelImpl {
     /// No pixel support.
-    None = NcPixelImpl::NOPIXEL as u8,
+    None = NcPixelImpl::None as u8,
     /// Sixel
-    Sixel = NcPixelImpl::SIXEL as u8,
+    Sixel = NcPixelImpl::Sixel as u8,
     /// Linux framebuffer.
-    LinuxFb = NcPixelImpl::LINUXFB as u8,
+    LinuxFb = NcPixelImpl::LinuxFb as u8,
     /// iTerm2
-    Iterm2 = NcPixelImpl::ITERM2 as u8,
+    Iterm2 = NcPixelImpl::Iterm2 as u8,
     /// Kitty prior to C=1 and animation.
-    KittyStatic = NcPixelImpl::KITTY_STATIC as u8,
+    KittyStatic = NcPixelImpl::KittyStatic as u8,
     /// Kitty with animation but not reflexive composition.
-    KittyAnimated = NcPixelImpl::KITTY_ANIMATED as u8,
+    KittyAnimated = NcPixelImpl::KittyAnimated as u8,
     /// Kitty with reflexive composition.
-    KittySelfRef = NcPixelImpl::KITTY_SELFREF as u8,
+    KittySelfRef = NcPixelImpl::KittySelfRef as u8,
 }
 
 impl Default for PixelImpl {

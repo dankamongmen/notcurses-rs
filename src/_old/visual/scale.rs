@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use crate::sys::{NcScale, NcScaleApi};
+use crate::sys::NcScale;
 
 /// A `u8` of [`Visual`][crate::Visual] scaling during rendering.
 //
@@ -9,21 +9,21 @@ use crate::sys::{NcScale, NcScaleApi};
 #[derive(Copy, Clone, Debug)]
 pub enum Scale {
     /// Maintains the original size.
-    None = NcScale::NOSCALE as u8,
+    None = NcScale::None as u8,
 
     /// Maintains the aspect ratio.
-    Scale = NcScale::SCALE as u8,
+    Scale = NcScale::Scale as u8,
 
     /// Throws away the aspect ratio.
-    Stretch = NcScale::STRETCH as u8,
+    Stretch = NcScale::Stretch as u8,
 
     /// Maintains the original size, admitting high-resolution blitters
     /// that don't preserve aspect ratio.
-    NoneHires = NcScale::NONE_HIRES as u8,
+    NoneHiRes = NcScale::NoneHiRes as u8,
 
     /// Maintains the aspect ratio, admitting high-resolution blitters
     /// that don't preserve aspect ratio.
-    ScaleHires = NcScale::SCALE_HIRES as u8,
+    ScaleHiRes = NcScale::ScaleHiRes as u8,
 }
 
 impl Default for Scale {
@@ -43,11 +43,11 @@ impl From<Scale> for NcScale {
 impl From<NcScale> for Scale {
     fn from(na: NcScale) -> Scale {
         match na {
-            NcScale::NOSCALE => Scale::None,
-            NcScale::SCALE => Scale::Scale,
-            NcScale::STRETCH => Scale::Stretch,
-            NcScale::NONE_HIRES => Scale::NoneHires,
-            NcScale::SCALE_HIRES => Scale::ScaleHires,
+            NcScale::None => Scale::None,
+            NcScale::Scale => Scale::Scale,
+            NcScale::Stretch => Scale::Stretch,
+            NcScale::NoneHiRes => Scale::NoneHiRes,
+            NcScale::ScaleHiRes => Scale::ScaleHiRes,
             _ => Scale::None,
         }
     }

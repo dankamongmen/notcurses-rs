@@ -15,26 +15,26 @@ use crate::sys::NcRgb;
 pub struct Rgb(pub NcRgb);
 
 impl Rgb {
-    pub const WHITE: Rgb = Self(0xFFFFFF);
-    pub const SILVER: Rgb = Self(0xC0C0C0);
-    pub const LIGHT_GREY: Rgb = Self(0xA0A0A0);
-    pub const GREY: Rgb = Self(0x808080);
-    pub const DARK_GREY: Rgb = Self(0x404040);
-    pub const BLACK: Rgb = Self(0x000000);
+    pub const White: Rgb = Self(0xFFFFFF);
+    pub const Silver: Rgb = Self(0xC0C0C0);
+    pub const LightGrey: Rgb = Self(0xA0A0A0);
+    pub const Grey: Rgb = Self(0x808080);
+    pub const DarkGrey: Rgb = Self(0x404040);
+    pub const Black: Rgb = Self(0x000000);
 
-    pub const RED: Rgb = Self(0xFF0000);
-    pub const GREEN: Rgb = Self(0x00FF00);
-    pub const BLUE: Rgb = Self(0x0000FF);
-    pub const YELLOW: Rgb = Self(0xFFFF00);
-    pub const CYAN: Rgb = Self(0x00FFFF);
-    pub const MAGENTA: Rgb = Self(0xFF00FF);
+    pub const Red: Rgb = Self(0xFF0000);
+    pub const Green: Rgb = Self(0x00FF00);
+    pub const Blue: Rgb = Self(0x0000FF);
+    pub const Yellow: Rgb = Self(0xFFFF00);
+    pub const Cyan: Rgb = Self(0x00FFFF);
+    pub const Magenta: Rgb = Self(0xFF00FF);
 
-    pub const DARK_RED: Rgb = Self(0x800000);
-    pub const DARK_GREEN: Rgb = Self(0x008000);
-    pub const DARK_BLUE: Rgb = Self(0x000080);
-    pub const DARK_YELLOW: Rgb = Self(0x808000);
-    pub const DARK_CYAN: Rgb = Self(0x008080);
-    pub const DARK_MAGENTA: Rgb = Self(0x800080);
+    pub const DarkRed: Rgb = Self(0x800000);
+    pub const DarkGreen: Rgb = Self(0x008000);
+    pub const DarkBlue: Rgb = Self(0x000080);
+    pub const DarkYellow: Rgb = Self(0x808000);
+    pub const DarkCyan: Rgb = Self(0x008080);
+    pub const DarkMagenta: Rgb = Self(0x800080);
 
     /// Returns the red component.
     pub const fn r(&self) -> u8 {

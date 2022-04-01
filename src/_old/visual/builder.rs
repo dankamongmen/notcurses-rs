@@ -241,6 +241,20 @@ impl<'ncvisual, 'ncplane, 'plane> VisualBuilder<'ncvisual, 'ncplane, 'plane> {
     //      ncvisual options inside this method as a new private Visual method.
     pub fn finish(self) -> Result<Visual<'ncvisual>> {
         if self.ncvisual.is_some() {
+
+            // WIP
+            // let section = if
+
+            let ncvisualopt = NcVisualOptions::new(
+                self.plane,
+                self.scale as u32,
+                self.y,
+                self.x,
+                Some(self.begy, self.begx, self.leny, self.lenx),
+
+            );
+
+
             let ncvisualopt = if let Some(plane) = self.plane {
                 NcVisualOptions::with_plane(
                     plane.as_ncplane_mut(),

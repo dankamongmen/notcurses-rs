@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use crate::sys::{NcBlitter, NcBlitterApi};
+use crate::sys::NcBlitter;
 
 /// A `u16` of [`Visual`][crate::Visual] blitter mode for rasterizing.
 ///
@@ -20,7 +20,7 @@ use crate::sys::{NcBlitter, NcBlitterApi};
 #[derive(Copy, Clone, Debug)]
 pub enum Blitter {
     /// Blitter mode where the blitter is automatically chosen.
-    Default = NcBlitter::DEFAULT as u16,
+    Default = NcBlitter::Default as u16,
 
     /// Blitter mode using space (compatible with ASCII).
     Space = NcBlitter::_1x1 as u16,
@@ -39,10 +39,10 @@ pub enum Blitter {
 
     /// Blitter mode using braille (4 rows, 2 cols).
     /// ⡀⡄⡆⡇⢀⣀⣄⣆⣇⢠⣠⣤⣦⣧⢰⣰⣴⣶⣷⢸⣸⣼⣾⣿
-    Braille = NcBlitter::BRAILLE as u16,
+    Braille = NcBlitter::Braille as u16,
 
     /// Blitter mode using pixels/sixels.
-    Pixel = NcBlitter::PIXEL as u16,
+    Pixel = NcBlitter::Pixel as u16,
 
     /// Blitter mode using four vertical levels.
     /// █▆▄▂
@@ -71,12 +71,12 @@ impl From<Blitter> for NcBlitter {
 impl From<NcBlitter> for Blitter {
     fn from(na: NcBlitter) -> Blitter {
         match na {
-            NcBlitter::DEFAULT => Blitter::Default,
-            NcBlitter::PIXEL => Blitter::Pixel,
+            NcBlitter::Default => Blitter::Default,
+            NcBlitter::Pixel => Blitter::Pixel,
             NcBlitter::_2x2 => Blitter::Quadrant,
             NcBlitter::_3x2 => Blitter::Sextant,
             NcBlitter::_1x1 => Blitter::Space,
-            NcBlitter::BRAILLE => Blitter::Braille,
+            NcBlitter::Braille => Blitter::Braille,
             NcBlitter::_4x1 => Blitter::Four,
             NcBlitter::_8x1 => Blitter::Eight,
             _ => Blitter::Default,

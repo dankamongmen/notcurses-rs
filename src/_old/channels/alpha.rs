@@ -1,4 +1,4 @@
-use crate::sys::{NcAlpha, NcAlphaApi};
+use crate::sys::{NcAlpha, c_api::NcAlpha_u32};
 
 /// A `u8` of 2bit alpha, part of a [`Channel`][crate::Channel].
 ///
@@ -16,20 +16,20 @@ use crate::sys::{NcAlpha, NcAlphaApi};
 pub enum Alpha {
     /// The [`Cell`][crate::Cell]'s foreground or background color will be a
     /// composite between its color and the corresponding colors underneath it.
-    Blend = (NcAlpha::BLEND >> 24_u8) as u8,
+    Blend = (NcAlpha::Blend as u32 >> 24) as u8,
 
     /// The [`Cell`][crate::Cell]'s foreground color will be high-contrast
     /// (relative to the computed background).
     ///
     /// Note that the background cannot be highcontrast.
-    HighContrast = (NcAlpha::HIGHCONTRAST >> 24_u8) as u8,
+    HighContrast = (NcAlpha::HighContrast as u32 >> 24) as u8,
 
     /// The [`Cell`][crate::Cell]'s foreground or background color is used unchanged.
-    Opaque = (NcAlpha::OPAQUE >> 24_u8) as u8,
+    Opaque = (NcAlpha::Opaque as u32 >> 24) as u8,
 
     /// The [`Cell`][crate::Cell]'s foreground or background color is derived
     /// entirely from the `Cell`s underneath it.
-    Transparent = (NcAlpha::TRANSPARENT >> 24_u8) as u8,
+    Transparent = (NcAlpha::Transparent as u32 >> 24) as u8,
 }
 
 /// Defaults to [`Alpha::Opaque`].
@@ -41,7 +41,7 @@ impl Default for Alpha {
 
 impl From<Alpha> for NcAlpha {
     fn from(alpha: Alpha) -> NcAlpha {
-        (alpha as NcAlpha) << 24_u8
+        ((alpha as u8 as NcAlpha_u32) << 24).into()
     }
 }
 
@@ -50,10 +50,10 @@ impl From<Alpha> for NcAlpha {
 impl From<NcAlpha> for Alpha {
     fn from(na: NcAlpha) -> Alpha {
         match na {
-            NcAlpha::OPAQUE => Alpha::Opaque,
-            NcAlpha::BLEND => Alpha::Blend,
-            NcAlpha::TRANSPARENT => Alpha::Transparent,
-            NcAlpha::HIGHCONTRAST => Alpha::HighContrast,
+            NcAlpha::Opaque => Alpha::Opaque,
+            NcAlpha::Blend => Alpha::Blend,
+            NcAlpha::Transparent => Alpha::Transparent,
+            NcAlpha::HighContrast => Alpha::HighContrast,
             _ => Alpha::default(),
         }
     }
@@ -61,15 +61,15 @@ impl From<NcAlpha> for Alpha {
 
 #[cfg(test)]
 mod test {
-    use super::{Alpha, NcAlpha, NcAlphaApi};
+    use super::{Alpha, NcAlpha};
     #[test]
     fn alpha_shifts() {
-        assert_eq![NcAlpha::BLEND, u32::from(Alpha::Blend)];
-        assert_eq![NcAlpha::BLEND, Alpha::Blend.into()];
-        assert_eq![NcAlpha::BLEND, Alpha::from(NcAlpha::BLEND).into()];
+        assert_eq![NcAlpha::Blend, u32::from(Alpha::Blend)];
+        assert_eq![NcAlpha::Blend, Alpha::Blend.into()];
+        assert_eq![NcAlpha::Blend, Alpha::from(NcAlpha::Blend).into()];
     }
     #[test]
     fn alpha_default_conversion_opaque() {
-        assert_eq![NcAlpha::OPAQUE, Alpha::from(1337).into()];
+        assert_eq![NcAlpha::Opaque, Alpha::from(1337).into()];
     }
 }

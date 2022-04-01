@@ -1,48 +1,31 @@
 [package]
 name = "notcurses"
-version = "2.0.0"
+version = "3.0.0-dev"
+edition = "2021"
+rust-version = "1.58.1"
 authors = ["José Luis Cruz <joseluis@andamira.net>", "nick black <dankamongmen@gmail.com>"]
 license = "MIT OR Apache-2.0"
-description = "A higher level wrapper for the notcurses C library"
+description = "A high level Rust wrapper for the notcurses C library"
 repository = "https://github.com/dankamongmen/notcurses-rs"
 homepage = "https://nick-black.com/dankwiki/index.php/Notcurses"
 readme = "./README.md"
-edition = "2018"
 categories = [
 	"api-bindings",
 	"command-line-interface",
 	"visualization",
-	"multimedia",
 	"rendering",
 	]
 keywords = ["tui", "cli", "terminal", "ncurses"]
-include = ["src/", "LICENSE-*", "README.md", "examples/"]
+include = [
+	"src/**/*rs",
+	"Cargo.toml",
+	"LICENSE-*",
+	"README.md",
+]
+publish = false # TEMP
 
 [dependencies]
-libnotcurses-sys = { path="../libnotcurses-sys/" } # WIP
-# libnotcurses-sys = "3"
-bitflags = "1.2.1"
+libnotcurses-sys = "3.3.0"
 
-# dev-dependencies, for the examples
-plotters = { version = "^0.3", optional = true }
-systemstat = { version = "^0.1", optional = true }
-
-[dev-dependencies]
-project-root = "^0.2"
-rand = "^0.8"
-rand_distr = "0.4.0"
-rand_xorshift = "0.3.0"
-num-traits = "0.2.14"
-itertools = "0.10.1"
-
-[[example]]
-name = "plotters-examples"
-required-features = ["plotters"]
-
-[[example]]
-name = "plotters-3d-projection"
-required-features = ["plotters"]
-
-[[example]]
-name = "plotters-systemstat"
-required-features = ["plotters", "systemstat"]
+[badges]
+maintenance = { status = "actively-developed" }

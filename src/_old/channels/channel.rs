@@ -3,7 +3,7 @@
 use std::fmt;
 
 use crate::{
-    sys::{NcChannel, NcChannelApi},
+    sys::NcChannel,
     Alpha, Channels, Rgb,
 };
 

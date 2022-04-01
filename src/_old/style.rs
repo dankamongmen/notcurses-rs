@@ -1,34 +1,34 @@
 //!
 
-use crate::sys::{NcStyle, NcStyleApi};
+use crate::sys::NcStyle;
 
 bitflags! {
     /// A `u16` bitfield of all the styles you can apply to text.
     pub struct Style: u16 {
         /// Undercurl.
-        const UNDERCURL= NcStyle::UNDERCURL as u16;
+        const Undercurl= NcStyle::Undercurl.into();
 
         /// Strikethrough.
-        const STRUCK = NcStyle::STRUCK as u16;
+        const Struck = NcStyle::Struck.into();
 
         /// Italic.
-        const ITALIC = NcStyle::ITALIC as u16;
+        const Italic = NcStyle::Italic.into();
 
         /// Underline.
-        const UNDERLINE = NcStyle::UNDERLINE as u16;
+        const Underline = NcStyle::Underline.into();
 
         /// Extra bright or bold.
-        const BOLD = NcStyle::BOLD as u16;
+        const Bold = NcStyle::Bold.into();
 
         /// No styles.
-        const NONE = NcStyle::NOSTYLE as u16;
+        const None = NcStyle::None.into();
     }
 }
 
-/// Defaults to [`Style::NONE`].
+/// Defaults to [`Style::None`].
 impl Default for Style {
     fn default() -> Self {
-        Style::NONE
+        Style::None
     }
 }
 
@@ -43,12 +43,12 @@ impl From<Style> for NcStyle {
 impl From<NcStyle> for Style {
     fn from(na: NcStyle) -> Style {
         match na {
-            NcStyle::UNDERCURL => Style::UNDERCURL,
-            NcStyle::STRUCK => Style::STRUCK,
-            NcStyle::ITALIC => Style::ITALIC,
-            NcStyle::UNDERLINE => Style::UNDERLINE,
-            NcStyle::BOLD => Style::BOLD,
-            NcStyle::NOSTYLE => Style::NONE,
+            NcStyle::Undercurl => Style::Undercurl,
+            NcStyle::Struck => Style::Struck,
+            NcStyle::Italic => Style::Italic,
+            NcStyle::Underline => Style::Underline,
+            NcStyle::Bold => Style::Bold,
+            NcStyle::None => Style::None,
             _ => Style::default(),
         }
     }
