@@ -2,7 +2,8 @@
 //!
 //
 
-use libnotcurses_sys::{Nc, NcResult};
+use crate::NcResult;
+use libnotcurses_sys::Nc;
 
 /// Notcurses state for a given terminal, composed of [`Plane`][crate::Plane]s.
 #[derive(Debug)]
