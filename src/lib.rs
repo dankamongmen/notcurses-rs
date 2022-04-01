@@ -13,7 +13,7 @@
 )]
 #![allow(dead_code)] // TEMP
 
-/// Re-export of the `libnotcurses-sys` [crate](https://crates.io/crates/libnotcurses-sys).
+/// Re-export of [`libnotcurses-sys`](https://crates.io/crates/libnotcurses-sys).
 ///
 /// ---
 ///
