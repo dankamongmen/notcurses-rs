@@ -3,26 +3,29 @@
 //!
 //
 
-use libnotcurses_sys::NcVisual;
+use crate::{sys::NcVisual, Result};
 
-///
+/// A visual bit of multimedia.
 #[derive(Debug)]
 pub struct Visual {
     nc: *mut NcVisual,
 }
 
+/// # `Visual` constructors and deconstructors.
 impl Visual {
-    pub(crate) fn nc_ref(&self) -> &NcVisual {
+    /// Returns a shared reference to the inner [`NcVisual`].
+    pub fn into_ref(&self) -> &NcVisual {
         unsafe { &*self.nc }
     }
 
-    pub(crate) fn nc_ref_mut(&mut self) -> &mut NcVisual {
+    /// Returns an exclusive reference to the inner [`NcVisual`].
+    pub fn into_ref_mut(&mut self) -> &mut NcVisual {
         unsafe { &mut *self.nc }
     }
 }
 
 impl Drop for Visual {
     fn drop(&mut self) {
-        self.nc_ref_mut().destroy()
+        self.into_ref_mut().destroy()
     }
 }

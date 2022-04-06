@@ -26,6 +26,6 @@ mod plane;
 mod visual;
 
 pub use self::notcurses::Notcurses;
-pub use error::{NcError, NcResult};
+pub use error::{Error, Result};
 pub use plane::Plane;
 pub use visual::Visual;

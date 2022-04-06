@@ -5,26 +5,26 @@
 
 use std::fmt;
 
-use libnotcurses_sys::NcError as SysNcError;
+use libnotcurses_sys::NcError;
 
 /// The Notcurses `Result` type.
-pub type NcResult<T> = std::result::Result<T, NcError>;
+pub type Result<T> = std::result::Result<T, Error>;
 
 /// The Notcurses `Error` type.
 #[derive(Debug)]
 #[non_exhaustive]
-pub enum NcError {
-    /// A libnotcurses-sys error.
-    Sys(SysNcError),
+pub enum Error {
+    /// A `libnotcurses-sys` error.
+    NcError(NcError),
 
     /// A generic error message (WIP).
     Message(String),
 }
 
 /// # Methods
-impl NcError {
+impl Error {
     /// Returns an `Error::Message` already wraped in a `Result`.
-    pub fn msg(string: &str) -> NcResult<()> {
+    pub fn msg(string: &str) -> Result<()> {
         Err(Self::Message(string.into()))
     }
 }
@@ -32,19 +32,19 @@ impl NcError {
 mod std_impls {
     use super::*;
 
-    impl fmt::Display for NcError {
+    impl fmt::Display for Error {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            use NcError::*;
+            use Error::*;
             match self {
-                Sys(e) => e.fmt(f),
+                NcError(e) => e.fmt(f),
                 Message(string) => write!(f, "Message: {}", string),
             }
         }
     }
 
-    impl From<SysNcError> for NcError {
-        fn from(e: SysNcError) -> Self {
-            Self::Sys(e)
+    impl From<NcError> for Error {
+        fn from(e: NcError) -> Self {
+            Self::NcError(e)
         }
     }
 }

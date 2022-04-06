@@ -25,7 +25,8 @@ include = [
 publish = false # TEMP
 
 [dependencies]
-libnotcurses-sys = "3.3.0"
+# libnotcurses-sys = "3.4.0"
+libnotcurses-sys = { path = "../libnotcurses-sys" }
 
 [badges]
 maintenance = { status = "actively-developed" }
