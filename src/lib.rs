@@ -11,7 +11,6 @@
     clippy::blanket_clippy_restriction_lints,
     clippy::pattern_type_mismatch
 )]
-#![allow(dead_code)] // TEMP
 
 /// Re-export of [`libnotcurses-sys`](https://crates.io/crates/libnotcurses-sys).
 ///
@@ -25,7 +24,7 @@ mod notcurses;
 mod plane;
 mod visual;
 
-pub use self::notcurses::Notcurses;
+pub use self::notcurses::{Capabilities, Notcurses};
 pub use error::{Error, Result};
 pub use plane::Plane;
 pub use visual::Visual;

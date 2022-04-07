@@ -3,7 +3,7 @@
 //!
 //
 
-use crate::{sys::NcVisual, Result};
+use libnotcurses_sys::NcVisual;
 
 /// A visual bit of multimedia.
 #[derive(Debug)]

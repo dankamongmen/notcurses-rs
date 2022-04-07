@@ -3,10 +3,8 @@
 //!
 //
 
-use crate::{
-    sys::{NcPlane, NcPlaneOptions},
-    Notcurses, Result,
-};
+use crate::{Notcurses, Result};
+use libnotcurses_sys::{NcPlane, NcPlaneOptions};
 
 /// A drawable text surface, composed of `Cell`s.
 #[derive(Debug)]

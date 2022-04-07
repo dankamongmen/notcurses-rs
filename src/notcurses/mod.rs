@@ -2,7 +2,11 @@
 //!
 //
 
-use crate::{sys::Nc, Result};
+use crate::Result;
+use libnotcurses_sys::Nc;
+
+mod capabilities;
+pub use capabilities::Capabilities;
 
 /// `Notcurses` state for a given terminal, composed of [`Plane`][crate::Plane]s.
 ///
@@ -67,4 +71,24 @@ impl Notcurses {
 impl Notcurses {}
 
 /// # Methods
-impl Notcurses {}
+impl Notcurses {
+    /// Returns the capabilities of the terminal.
+    pub fn capabilities(&self) -> Capabilities {
+        Capabilities {
+            halfblock: self.into_ref().canhalfblock(),
+            quadrant: self.into_ref().canquadrant(),
+            sextant: self.into_ref().cansextant(),
+            braille: self.into_ref().canbraille(),
+            utf8: self.into_ref().canutf8(),
+            images: self.into_ref().canopen_images(),
+            videos: self.into_ref().canopen_videos(),
+            pixel: self.into_ref().canpixel(),
+            pixel_impl: self.into_ref().check_pixel_support(),
+            truecolor: self.into_ref().cantruecolor(),
+            fade: self.into_ref().canfade(),
+            palette_change: self.into_ref().canchangecolor(),
+            palette_size: self.into_ref().palette_size().unwrap_or(0),
+            cursor: true,
+        }
+    }
+}
