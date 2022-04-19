@@ -1,7 +1,6 @@
 //!
 
-use crate::Notcurses;
-use libnotcurses_sys::NcPixelImpl;
+use crate::{sys::NcPixelImpl, Notcurses};
 
 /// The detected current terminal capabilities.
 ///

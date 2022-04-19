@@ -3,8 +3,7 @@
 //!
 //
 
-use crate::{Notcurses, Result};
-use libnotcurses_sys::{NcPlane, NcPlaneOptions};
+use crate::{sys::NcPlane, Notcurses, Result};
 
 mod builder;
 pub use builder::PlaneBuilder;
@@ -28,13 +27,16 @@ impl Plane {
         PlaneBuilder::new()
     }
 
-    /// New `Plane`.
-    ///
+    /// New `Plane` with default options.
     pub fn new(nc: &mut Notcurses) -> Result<Self> {
-        let options = NcPlaneOptions::builder().build();
-        Ok(Self {
-            nc: NcPlane::new_pile(nc.into_ref_mut(), &options)?,
-        })
+        Self::builder().build(nc)
+    }
+
+    //
+
+    /// New child `Plane` with default options.
+    pub fn new_child(&mut self) -> Result<Self> {
+        Self::builder().build_child(self)
     }
 
     /// Returns a shared reference to the inner [`NcPlane`].

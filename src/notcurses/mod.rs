@@ -2,8 +2,7 @@
 //!
 //
 
-use crate::Result;
-use libnotcurses_sys::Nc;
+use crate::{sys::Nc, Result};
 
 mod capabilities;
 pub use capabilities::Capabilities;

@@ -145,7 +145,7 @@ impl PlaneBuilder {
     ///
     /// See also: [`sys::NcPlaneFlag::Marginalized`].
     ///
-    /// [`sys::NcPlaneFlag::Marginalized`]: libnotcurses_sys::NcPlaneFlag#associatedconstant.Marginalized
+    /// [`sys::NcPlaneFlag::Marginalized`]: crate::sys::NcPlaneFlag#associatedconstant.Marginalized
     pub fn maximize(mut self, bottom: u32, right: u32) -> Self {
         self.options.set_margins(bottom, right);
         self
@@ -159,7 +159,7 @@ impl PlaneBuilder {
     ///
     /// See also: [`sys::NcPlaneFlag::Fixed`].
     ///
-    /// [`sys::NcPlaneFlag::Fixed`]: libnotcurses_sys::NcPlaneFlag#associatedconstant.Fixed
+    /// [`sys::NcPlaneFlag::Fixed`]: crate::sys::NcPlaneFlag#associatedconstant.Fixed
     pub fn fixed(mut self, fixed: bool) -> Self {
         self.options.set_fixed(fixed);
         self

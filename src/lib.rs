@@ -18,6 +18,7 @@
 ///
 #[doc(inline)]
 pub use libnotcurses_sys as sys;
+pub use sys::NcAlign as Align;
 
 mod error;
 mod notcurses;
@@ -28,6 +29,3 @@ pub use self::notcurses::{Capabilities, Notcurses};
 pub use error::{Error, Result};
 pub use plane::{Plane, PlaneBuilder};
 pub use visual::Visual;
-
-// reexports of reused types
-pub use libnotcurses_sys::NcAlign as Align;

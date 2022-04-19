@@ -5,7 +5,7 @@
 
 use std::fmt;
 
-use libnotcurses_sys::NcError;
+use crate::sys::NcError;
 
 /// The Notcurses `Result` type.
 pub type Result<T> = std::result::Result<T, Error>;
