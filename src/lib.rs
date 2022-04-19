@@ -12,7 +12,7 @@
     clippy::pattern_type_mismatch
 )]
 
-/// Re-export of [`libnotcurses-sys`](https://crates.io/crates/libnotcurses-sys).
+/// Reexport of [`libnotcurses-sys`](https://crates.io/crates/libnotcurses-sys).
 ///
 /// ---
 ///
@@ -26,5 +26,8 @@ mod visual;
 
 pub use self::notcurses::{Capabilities, Notcurses};
 pub use error::{Error, Result};
-pub use plane::Plane;
+pub use plane::{Plane, PlaneBuilder};
 pub use visual::Visual;
+
+// reexports of reused types
+pub use libnotcurses_sys::NcAlign as Align;

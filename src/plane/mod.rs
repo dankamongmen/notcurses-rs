@@ -6,6 +6,9 @@
 use crate::{Notcurses, Result};
 use libnotcurses_sys::{NcPlane, NcPlaneOptions};
 
+mod builder;
+pub use builder::PlaneBuilder;
+
 /// A drawable text surface, composed of `Cell`s.
 #[derive(Debug)]
 pub struct Plane {
@@ -20,6 +23,11 @@ impl Drop for Plane {
 
 /// # `Plane` constructors and deconstructors.
 impl Plane {
+    /// Returns a new [`PlaneBuilder`].
+    pub fn builder() -> PlaneBuilder {
+        PlaneBuilder::new()
+    }
+
     /// New `Plane`.
     ///
     pub fn new(nc: &mut Notcurses) -> Result<Self> {

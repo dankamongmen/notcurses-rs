@@ -15,7 +15,6 @@ It is not yet in a usable state.
 <!--
 Main API differences with `libnotcurses-sys`:
 - All types have the `Drop` trait implemented.
-- All coordinate pairs (`X`,`Y`), (`cols`,`rows`) are in alphabetic order.
 -->
 
 <!--
