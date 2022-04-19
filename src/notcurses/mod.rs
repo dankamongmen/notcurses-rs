@@ -2,12 +2,12 @@
 //!
 //
 
-use crate::{sys::Nc, Result};
+use crate::{sys::Nc, Geometry, Result};
 
 mod capabilities;
 pub use capabilities::Capabilities;
 
-/// `Notcurses` state for a given terminal, composed of [`Plane`][crate::Plane]s.
+/// *Notcurses* state for a given terminal, composed of *planes*.
 ///
 /// There can only be a single `Notcurses` instance per thread at any given moment.
 #[derive(Debug)]
@@ -58,18 +58,7 @@ impl Notcurses {
     }
 }
 
-/// # `Plane` constructors
-impl Notcurses {
-    // Returns a new plane.
-    // pub fn plane_new(&mut self) -> Plane {
-    //     Plane::new(self)
-    // }
-}
-
-/// # `Visual` constructors
-impl Notcurses {}
-
-/// # Methods
+/// # `Notcurses` general information methods.
 impl Notcurses {
     /// Returns the capabilities of the terminal.
     pub fn capabilities(&self) -> Capabilities {
@@ -90,4 +79,61 @@ impl Notcurses {
             cursor: true,
         }
     }
+
+    /// Returns the geometry of the terminal.
+    pub fn geometry(&self) -> Geometry {
+        let g = unsafe { self.into_ref().stdplane_const().pixel_geom() };
+        Geometry {
+            x: g.term_x,
+            y: g.term_y,
+            cols: g.term_x / g.cell_x,
+            rows: g.term_y / g.cell_y,
+            bx: g.max_bitmap_x,
+            by: g.max_bitmap_y,
+            bcols: g.max_bitmap_x / g.cell_x,
+            brows: g.max_bitmap_y / g.cell_y,
+            cx: g.cell_x,
+            cy: g.cell_y,
+        }
+    }
+
+    /// Returns the terminal dimensions in `(rows, columns)`.
+    pub fn rows_cols(&self) -> (u32, u32) {
+        self.into_ref().term_dim_yx()
+    }
+
+    // TODO: visual_geometry
+
+    /// Returns a human-readable string describing the running notcurses version.
+    pub fn version() -> String {
+        Nc::version()
+    }
+
+    /// Returns the running notcurses version components
+    /// (major, minor, patch, tweak).
+    pub fn version_components() -> (u32, u32, u32, u32) {
+        Nc::version_components()
+    }
+
+    /// Returns the name of the user under which we are running.
+    pub fn accountname() -> String {
+        Nc::accountname()
+    }
+
+    /// Returns the name of the local hostname.
+    pub fn hostname() -> String {
+        Nc::hostname()
+    }
+
+    /// Returns the name of the detected terminal.
+    pub fn detected_terminal(&self) -> String {
+        self.into_ref().detected_terminal()
+    }
+
+    /// Returns the name of the detected OS version.
+    pub fn osversion(&self) -> String {
+        self.into_ref().osversion()
+    }
+
+    // TODO: supported_styles
 }

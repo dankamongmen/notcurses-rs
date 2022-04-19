@@ -1,6 +1,6 @@
 // notcurses::lib
 //
-//! A rusty, high level notcurses wrapper.
+//! A simple high level notcurses wrapper.
 //
 
 #![warn(clippy::all)]
@@ -19,13 +19,18 @@
 #[doc(inline)]
 pub use libnotcurses_sys as sys;
 pub use sys::NcAlign as Align;
+pub use sys::NcAlpha as Alpha;
+pub use sys::NcBlitter as Blitter;
+pub use sys::NcScale as Scale;
 
 mod error;
+mod geometry;
 mod notcurses;
 mod plane;
 mod visual;
 
 pub use self::notcurses::{Capabilities, Notcurses};
 pub use error::{Error, Result};
+pub use geometry::Geometry;
 pub use plane::{Plane, PlaneBuilder};
 pub use visual::Visual;
