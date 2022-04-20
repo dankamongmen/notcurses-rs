@@ -3,7 +3,7 @@
 //!
 //
 
-/// The geometry of a plane or the terminal.
+/// The geometry of a [`Plane`][crate::Plane] or terminal.
 #[derive(Clone, Copy, Debug)]
 pub struct Geometry {
     /// The total height in rows of `Cell`s.

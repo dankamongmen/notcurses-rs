@@ -3,12 +3,18 @@
 //!
 //
 
-use crate::{sys::NcVisual, Result};
+use crate::sys::NcVisual;
 
 /// A visual bit of multimedia.
 #[derive(Debug)]
 pub struct Visual {
     nc: *mut NcVisual,
+}
+
+impl Drop for Visual {
+    fn drop(&mut self) {
+        self.into_ref_mut().destroy()
+    }
 }
 
 /// # `Visual` constructors and deconstructors.
@@ -21,11 +27,5 @@ impl Visual {
     /// Returns an exclusive reference to the inner [`NcVisual`].
     pub fn into_ref_mut(&mut self) -> &mut NcVisual {
         unsafe { &mut *self.nc }
-    }
-}
-
-impl Drop for Visual {
-    fn drop(&mut self) {
-        self.into_ref_mut().destroy()
     }
 }

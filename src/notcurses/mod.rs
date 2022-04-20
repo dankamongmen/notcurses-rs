@@ -1,13 +1,14 @@
+// notcurses::notcurses
 //
 //!
 //
 
-use crate::{sys::Nc, Geometry, Result};
+use crate::{sys::Nc, Geometry, Result, Style};
 
 mod capabilities;
 pub use capabilities::Capabilities;
 
-/// *Notcurses* state for a given terminal, composed of *planes*.
+/// *Notcurses* state for a given terminal, composed of [`Plane`][crate::Plane]s.
 ///
 /// There can only be a single `Notcurses` instance per thread at any given moment.
 #[derive(Debug)]
@@ -55,6 +56,26 @@ impl Notcurses {
     /// Returns an exclusive reference to the inner [`Nc`].
     pub fn into_ref_mut(&mut self) -> &mut Nc {
         unsafe { &mut *self.nc }
+    }
+}
+
+/// # `Notcurses` methods.
+impl Notcurses {
+    /// Refreshes the physical screen to match what was last rendered (i.e.,
+    /// without reflecting any changes since the last call to
+    /// [`render`][crate::Notcurses#method.render]).
+    ///
+    /// Returns the current screen geometry (`y`, `x`).
+    ///
+    /// This is primarily useful if the screen is externally corrupted, or if a
+    /// resize] event has been read and you're not yet ready to render.
+    pub fn refresh(&mut self) -> Result<(u32, u32)> {
+        Ok(self.into_ref_mut().refresh()?)
+    }
+
+    /// Renders and rasterizes the standard pile in one shot. Blocking call.
+    pub fn render(&mut self) -> Result<()> {
+        Ok(self.into_ref_mut().render()?)
     }
 }
 
@@ -135,5 +156,11 @@ impl Notcurses {
         self.into_ref().osversion()
     }
 
-    // TODO: supported_styles
+    /// Returns an [`Style`] with the supported curses-style attributes.
+    ///
+    /// The attribute is only indicated as supported if the terminal can support
+    /// it together with color.
+    pub fn supported_styles(&self) -> Style {
+        self.into_ref().supported_styles()
+    }
 }

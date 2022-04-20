@@ -8,7 +8,7 @@ use crate::{sys::NcPlane, Align, Notcurses, Result};
 mod builder;
 pub use builder::PlaneBuilder;
 
-/// A drawable text surface, composed of *cells*.
+/// A drawable text surface, composed of [`Cell`]s.
 #[derive(Debug)]
 pub struct Plane {
     nc: *mut NcPlane,

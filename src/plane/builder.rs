@@ -8,7 +8,7 @@ use crate::{
     Align, Notcurses, Plane, Result,
 };
 
-/// A *plane* builder.
+/// A [`Plane`] builder.
 #[derive(Debug, Default)]
 pub struct PlaneBuilder {
     options: NcPlaneOptionsBuilder,
