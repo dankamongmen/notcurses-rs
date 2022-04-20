@@ -3,9 +3,9 @@
 //!
 //
 
-/// The geometry of a [`Plane`][crate::Plane] or terminal.
+/// The pixel/cell geometry of a [`Plane`][crate::Plane] or the terminal.
 #[derive(Clone, Copy, Debug)]
-pub struct Geometry {
+pub struct PixelGeometry {
     /// The total height in rows of `Cell`s.
     // y / cy
     pub(crate) rows: u32,
@@ -36,7 +36,7 @@ pub struct Geometry {
     pub(crate) cx: u32,
 }
 
-impl Geometry {
+impl PixelGeometry {
     /// The total width in pixels.
     pub fn x(&self) -> u32 {
         self.x
@@ -78,5 +78,40 @@ impl Geometry {
     /// A `Cell` height in pixels.
     pub fn cell_y(&self) -> u32 {
         self.cy
+    }
+}
+
+mod std_impls {
+    use super::PixelGeometry;
+    use crate::sys::NcPixelGeometry;
+
+    impl From<NcPixelGeometry> for PixelGeometry {
+        fn from(g: NcPixelGeometry) -> PixelGeometry {
+            PixelGeometry {
+                x: g.term_x,
+                y: g.term_y,
+                cols: g.term_x / g.cell_x,
+                rows: g.term_y / g.cell_y,
+                bx: g.max_bitmap_x,
+                by: g.max_bitmap_y,
+                bcols: g.max_bitmap_x / g.cell_x,
+                brows: g.max_bitmap_y / g.cell_y,
+                cx: g.cell_x,
+                cy: g.cell_y,
+            }
+        }
+    }
+
+    impl From<PixelGeometry> for NcPixelGeometry {
+        fn from(g: PixelGeometry) -> NcPixelGeometry {
+            NcPixelGeometry  {
+                term_y: g.y,
+                term_x: g.x,
+                cell_y: g.cy,
+                cell_x: g.cx,
+                max_bitmap_y: g.by,
+                max_bitmap_x: g.bx,
+            }
+        }
     }
 }

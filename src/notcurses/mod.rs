@@ -3,7 +3,7 @@
 //!
 //
 
-use crate::{sys::Nc, Geometry, Result, Style};
+use crate::{sys::Nc, PixelGeometry, Result, Style};
 
 mod capabilities;
 pub use capabilities::Capabilities;
@@ -101,29 +101,15 @@ impl Notcurses {
         }
     }
 
-    /// Returns the geometry of the terminal.
-    pub fn geometry(&self) -> Geometry {
-        let g = unsafe { self.into_ref().stdplane_const().pixel_geom() };
-        Geometry {
-            x: g.term_x,
-            y: g.term_y,
-            cols: g.term_x / g.cell_x,
-            rows: g.term_y / g.cell_y,
-            bx: g.max_bitmap_x,
-            by: g.max_bitmap_y,
-            bcols: g.max_bitmap_x / g.cell_x,
-            brows: g.max_bitmap_y / g.cell_y,
-            cx: g.cell_x,
-            cy: g.cell_y,
-        }
+    /// Returns the pixel geometry of the terminal.
+    pub fn geometry(&self) -> PixelGeometry {
+        unsafe { self.into_ref().stdplane_const().pixel_geom() }.into()
     }
 
     /// Returns the terminal dimensions in `(rows, columns)`.
     pub fn rows_cols(&self) -> (u32, u32) {
         self.into_ref().term_dim_yx()
     }
-
-    // TODO: visual_geometry
 
     /// Returns a human-readable string describing the running notcurses version.
     pub fn version() -> String {
