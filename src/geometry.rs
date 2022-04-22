@@ -37,47 +37,47 @@ pub struct PixelGeometry {
 }
 
 impl PixelGeometry {
-    /// The total width in pixels.
-    pub fn x(&self) -> u32 {
-        self.x
-    }
     /// The total height in pixels.
     pub fn y(&self) -> u32 {
         self.y
     }
-    /// The total width in columns of `Cell`s.
-    pub fn cols(&self) -> u32 {
-        self.cols
+    /// The total width in pixels.
+    pub fn x(&self) -> u32 {
+        self.x
     }
     /// The total height in rows of `Cell`s.
     pub fn rows(&self) -> u32 {
         self.rows
     }
-
-    /// A bitmap maximum width in pixels.
-    pub fn bitmap_x_max(&self) -> u32 {
-        self.bx
+    /// The total width in columns of `Cell`s.
+    pub fn cols(&self) -> u32 {
+        self.cols
     }
+
     /// A bitmap maximum height pixels.
     pub fn bitmap_y_max(&self) -> u32 {
         self.by
     }
-    /// A bitmap maximum width in columns of `Cell`s.
-    pub fn bitmap_cols_max(&self) -> u32 {
-        self.bcols
+    /// A bitmap maximum width in pixels.
+    pub fn bitmap_x_max(&self) -> u32 {
+        self.bx
     }
     /// A bitmap maximum height in rows of `Cell`s.
     pub fn bitmap_rows_max(&self) -> u32 {
         self.brows
     }
-
-    /// A `Cell` width in pixels.
-    pub fn cell_x(&self) -> u32 {
-        self.cx
+    /// A bitmap maximum width in columns of `Cell`s.
+    pub fn bitmap_cols_max(&self) -> u32 {
+        self.bcols
     }
+
     /// A `Cell` height in pixels.
     pub fn cell_y(&self) -> u32 {
         self.cy
+    }
+    /// A `Cell` width in pixels.
+    pub fn cell_x(&self) -> u32 {
+        self.cx
     }
 }
 
@@ -88,23 +88,23 @@ mod std_impls {
     impl From<NcPixelGeometry> for PixelGeometry {
         fn from(g: NcPixelGeometry) -> PixelGeometry {
             PixelGeometry {
-                x: g.term_x,
                 y: g.term_y,
-                cols: g.term_x / g.cell_x,
+                x: g.term_x,
                 rows: g.term_y / g.cell_y,
-                bx: g.max_bitmap_x,
+                cols: g.term_x / g.cell_x,
                 by: g.max_bitmap_y,
-                bcols: g.max_bitmap_x / g.cell_x,
+                bx: g.max_bitmap_x,
                 brows: g.max_bitmap_y / g.cell_y,
-                cx: g.cell_x,
+                bcols: g.max_bitmap_x / g.cell_x,
                 cy: g.cell_y,
+                cx: g.cell_x,
             }
         }
     }
 
     impl From<PixelGeometry> for NcPixelGeometry {
         fn from(g: PixelGeometry) -> NcPixelGeometry {
-            NcPixelGeometry  {
+            NcPixelGeometry {
                 term_y: g.y,
                 term_x: g.x,
                 cell_y: g.cy,

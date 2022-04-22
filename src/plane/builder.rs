@@ -77,8 +77,8 @@ impl PlaneBuilder {
     /// Default: *[`Align::Top`]*.
     ///
     /// Effect: Sets *`v`* alignment.
-    pub fn valign(mut self, v: Align) -> Self {
-        self.options.set_valign(v);
+    pub fn valign(mut self, vertical: Align) -> Self {
+        self.options.set_valign(vertical);
         self
     }
 
@@ -87,8 +87,8 @@ impl PlaneBuilder {
     /// Default: *[`Align::Left`]*.
     ///
     /// Effect: Sets *`h`* alignment.
-    pub fn halign(mut self, h: Align) -> Self {
-        self.options.set_halign(h);
+    pub fn halign(mut self, horizontal: Align) -> Self {
+        self.options.set_halign(horizontal);
         self
     }
 
@@ -97,40 +97,40 @@ impl PlaneBuilder {
     /// Default: *`0`*, *`0`*.
     ///
     /// Effect: Sets both horizontal and vertical alignment.
-    pub fn align(mut self, v: Align, h: Align) -> Self {
-        self.options.set_align(v, h);
+    pub fn align(mut self, vertical: Align, horizontal: Align) -> Self {
+        self.options.set_align(vertical, horizontal);
         self
     }
 
     //
 
-    /// Sets the numbers of rows for the plane.
+    /// Sets the height of the plane (rows).
     ///
     /// Default: *`0`*.
     ///
     /// Effect: Sets the height of the plane and *unmaximizes* it.
-    pub fn rows(mut self, rows: u32) -> Self {
-        self.options.set_rows(rows);
+    pub fn height(mut self, height: u32) -> Self {
+        self.options.set_rows(height);
         self
     }
 
-    /// Sets the numbers of columns for the plane.
+    /// Sets the width for the plane (columns).
     ///
     /// Default: *`0`*.
     ///
     /// Effect: Sets the width of the plane and *unmaximizes* it.
-    pub fn cols(mut self, cols: u32) -> Self {
-        self.options.set_cols(cols);
+    pub fn width(mut self, width: u32) -> Self {
+        self.options.set_cols(width);
         self
     }
 
-    /// Sets the numbers of rows and columns for the plane.
+    /// Sets the size of the plane (rows, columns).
     ///
     /// Default: *`0`*.
     ///
     /// Effect: Sets the height and width of the plane and *unmaximizes* it.
-    pub fn rows_cols(mut self, rows: u32, cols: u32) -> Self {
-        self.options.set_rows_cols(rows, cols);
+    pub fn size(mut self, height: u32, width: u32) -> Self {
+        self.options.set_rows_cols(height, width);
         self
     }
 

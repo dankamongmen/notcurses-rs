@@ -72,11 +72,6 @@ impl Notcurses {
     pub fn refresh(&mut self) -> Result<(u32, u32)> {
         Ok(self.into_ref_mut().refresh()?)
     }
-
-    /// Renders and rasterizes the standard pile in one shot. Blocking call.
-    pub fn render(&mut self) -> Result<()> {
-        Ok(self.into_ref_mut().render()?)
-    }
 }
 
 /// # `Notcurses` general information methods.
@@ -106,8 +101,8 @@ impl Notcurses {
         unsafe { self.into_ref().stdplane_const().pixel_geom() }.into()
     }
 
-    /// Returns the terminal dimensions in `(rows, columns)`.
-    pub fn rows_cols(&self) -> (u32, u32) {
+    /// Returns the terminal size `(height, width)`.
+    pub fn size(&self) -> (u32, u32) {
         self.into_ref().term_dim_yx()
     }
 
