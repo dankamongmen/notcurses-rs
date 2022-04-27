@@ -3,12 +3,12 @@
 //!
 //
 
-use std::fmt;
+use std::{fmt, io::Error as IoError, result};
 
 use crate::sys::NcError;
 
 /// *Notcurses* result type.
-pub type Result<T> = std::result::Result<T, Error>;
+pub type Result<T> = result::Result<T, Error>;
 
 /// *Notcurses* error type.
 #[derive(Debug)]
@@ -16,6 +16,8 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     /// A `libnotcurses-sys` error.
     NcError(NcError),
+
+    IoError(IoError),
 
     /// A generic error message (WIP).
     Message(String),
@@ -39,6 +41,7 @@ mod std_impls {
             use Error::*;
             match self {
                 NcError(e) => e.fmt(f),
+                IoError(e) => e.fmt(f),
                 Message(string) => write!(f, "Message: {}", string),
             }
         }

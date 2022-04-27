@@ -20,7 +20,8 @@ mod visual;
 
 pub use self::notcurses::{Capabilities, Notcurses};
 pub use error::{Error, Result};
-pub use geometry::PixelGeometry;
+pub use geometry::{Coord, Geometry, Offset, Size};
+
 pub use plane::{Plane, PlaneBuilder};
 pub use visual::{Visual, VisualBuilder};
 

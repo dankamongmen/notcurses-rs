@@ -1,6 +1,6 @@
 //!
 
-use crate::{sys::NcPixelImpl, Notcurses};
+use crate::{sys::NcPixelImpl, Blitter, Notcurses};
 
 /// The detected current terminal capabilities.
 ///
@@ -28,6 +28,23 @@ impl Capabilities {
     /// New `Capabilities` from a [`Notcurses`] context.
     pub fn new(nc: &Notcurses) -> Self {
         nc.capabilities()
+    }
+
+    /// Returns true if the provided [`Blitter`] is among the capabilities.
+    pub fn can_blitter(&self, blitter: Blitter) -> bool {
+        use Blitter::*;
+        match blitter {
+            Default => true,
+            Ascii => true,
+            Half => self.halfblock,
+            Quadrant => self.quadrant,
+            Sextant => self.sextant,
+            Braille => self.braille,
+            Pixel => self.pixel,
+            _4x1 => self.utf8,
+            _8x1 => self.utf8,
+            _ => false,
+        }
     }
 
     ///

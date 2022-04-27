@@ -3,7 +3,7 @@
 //!
 //
 
-use crate::{sys::Nc, PixelGeometry, Result, Style};
+use crate::{sys::Nc, Blitter, Geometry, Result, Size, Style};
 
 mod capabilities;
 pub use capabilities::Capabilities;
@@ -96,9 +96,27 @@ impl Notcurses {
         }
     }
 
-    /// Returns the pixel geometry of the terminal.
-    pub fn geometry(&self) -> PixelGeometry {
-        unsafe { self.into_ref().stdplane_const().pixel_geom() }.into()
+    /// Returns the terminal geometry with the best resolution blitter available,
+    /// by following the [*rules of blitter degradation*].
+    ///
+    /// [*rules of blitter degradation*]: crate::sys::NcBlitter#degradation
+    pub fn geometry_best(&self) -> Geometry {
+        todo![]
+    }
+
+    /// Returns the terminal geometry using the requested blitter, if supported.
+    pub fn geometry_if(&self, blitter: Blitter) -> Option<Geometry> {
+        todo![]
+    }
+
+    /// Returns the first supported terminal geometry from the provided list.
+    pub fn geometry_first(&self, blitters: Vec<Blitter>) -> Geometry {
+        todo![]
+    }
+
+    /// Returns all the supported terminal geometries from the provided list.
+    pub fn geometries_any(&self, blitters: Vec<Blitter>) -> Vec<Geometry> {
+        todo![]
     }
 
     /// Returns the terminal size `(height, width)`.

@@ -27,6 +27,10 @@ publish = false # TEMP
 [dependencies]
 # libnotcurses-sys = "3.4.0"
 libnotcurses-sys = { path = "../libnotcurses-sys" }
+paste = "1.0.7"
+
+[dev-dependencies]
+rand = "0.8"
 
 [badges]
 maintenance = { status = "actively-developed" }

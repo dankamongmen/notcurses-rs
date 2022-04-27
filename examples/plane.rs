@@ -39,7 +39,7 @@ fn main() -> Result<()> {
     assert_eq![p1.translate_abs(2, 2), (-8, -8, false)];
     assert_eq![p1.translate_abs(20, 20), (10, 10, false)];
 
-    if p1.translate_abs(20,20).2 {
+    if p1.translate_abs(20, 20).2 {
         println!("yes");
     } else {
         println!("no");
@@ -48,9 +48,7 @@ fn main() -> Result<()> {
     // let abs = p1.translate_abs(12, 9);
     // println!("{abs:?}");
 
-
     // # cursor
-
 
     Ok(())
 }
