@@ -5,7 +5,7 @@
 
 use crate::{
     sys::{self, NcVisual},
-    Align, Blitter, Notcurses, Plane, Result, Rgba, Scale,
+    Align, Blitter, Notcurses, Plane, Result, Rgba, Scale, Size,
 };
 
 mod builder;
@@ -35,28 +35,28 @@ impl Visual {
     }
 
     /// Returns a new `Visual` from a byte buffer with RGBA content.
-    pub fn from_rgba(rgba: &[u8], rows: u32, cols: u32) -> Result<Visual> {
-        Visual::builder().build_from_rgba(rgba, rows, cols)
+    pub fn from_rgba(rgba: &[u8], size: impl Into<Size>) -> Result<Visual> {
+        Visual::builder().build_from_rgba(rgba, size.into())
     }
 
     /// Builds a new `Visual` from a byte buffer with RGB content, providing
     /// the alpha to assign to all the pixels.
-    pub fn from_rgb(rgb: &[u8], rows: u32, cols: u32, alpha: u8) -> Result<Visual> {
-        Visual::builder().build_from_rgb(rgb, rows, cols, alpha)
+    pub fn from_rgb(rgb: &[u8], size: impl Into<Size>, alpha: u8) -> Result<Visual> {
+        Visual::builder().build_from_rgb(rgb, size.into(), alpha)
     }
 
     /// Builds a new `Visual` from a byte buffer with RGBX content, overriding
     /// the alpha byte *X* for all the pixels.
-    pub fn from_rgbx(rgbx: &[u8], rows: u32, cols: u32, alpha: u8) -> Result<Visual> {
-        Visual::builder().build_from_rgbx(rgbx, rows, cols, alpha)
+    pub fn from_rgbx(rgbx: &[u8], size: impl Into<Size>, alpha: u8) -> Result<Visual> {
+        Visual::builder().build_from_rgbx(rgbx, size.into(), alpha)
     }
 
     /// Builds a new `Visual` from a byte buffer with BGRA content.
     ///
     /// This is slower than [`build_from_rgba`][VisualBuilder#method.build_fromrgba],
     /// since it has to convert the pixels to the rgba format used internally.
-    pub fn from_bgra(bgra: &[u8], rows: u32, cols: u32) -> Result<Visual> {
-        Visual::builder().build_from_bgra(bgra, rows, cols)
+    pub fn from_bgra(bgra: &[u8], size: impl Into<Size>) -> Result<Visual> {
+        Visual::builder().build_from_bgra(bgra, size.into())
     }
 
     /// Builds a new `Visual` from a `file`, extracts the codec and parameters

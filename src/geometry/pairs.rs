@@ -81,7 +81,123 @@ macro_rules! create_pair {
     };
 }
 
-/// Creates `Size`.
+/// Macro for implementing `ops` traits over pairs. (saturates)
+///
+macro_rules! impl_ops {
+    // non-assign ops:
+
+    // implements a single `non-assign` operator. Saturating.
+    (op: $op:tt, $fn:ident, $for: ty, $rhs:ty, =$result:ty) => {
+        impl core::ops::$op<$rhs> for $for {
+            type Output = $result;
+            fn $fn(self, rhs: $rhs) -> Self::Output {
+                paste::paste! {
+                    <$result>::new(
+                        self.0.[< saturating_ $fn >](rhs.0),
+                        self.1.[< saturating_ $fn >](rhs.1),
+                    )
+                }
+            }
+        }
+    };
+
+    // implements a single `non-assign` operator.
+    (op_cast: $c1:ty, $c2:ty, $op:tt, $fn:ident, $for: ty, $rhs:ty, =$result:ty) => {
+        impl core::ops::$op<$rhs> for $for {
+            type Output = $result;
+            fn $fn(self, rhs: $rhs) -> Self::Output {
+                use az::SaturatingAs;
+                paste::paste! {
+                    <$result>::new(
+                        ((self.0.saturating_as::<$c1>()).[< saturating_ $fn >](
+                            rhs.0.saturating_as::<$c1>())).saturating_as::<$c2>(),
+                        ((self.1.saturating_as::<$c1>()).[< saturating_ $fn >](
+                            rhs.1.saturating_as::<$c1>())).saturating_as::<$c2>(),
+                    )
+                }
+            }
+        }
+    };
+
+    // assign ops:
+
+    // implements a single `assign` operator. Saturating.
+    (opa: $op:tt, $fn:ident, $for:ty, $rhs:ty) => {
+        impl core::ops::$op<$rhs> for $for {
+            paste::paste! {
+                fn [< $fn _assign >](&mut self, rhs: $rhs) {
+                    paste::paste! {
+                        <$for>::new(
+                            self.0.[< saturating_ $fn >](rhs.0),
+                            self.1.[< saturating_ $fn >](rhs.1),
+                        );
+                    }
+                }
+            }
+        }
+    };
+
+    // implements a single `non-assign` operator. Saturating.
+    // WIP
+    (opa_cast: $c1:ty, $c2:ty, $op:tt, $fn: ident, $for:ty, $rhs:ty) => {
+        impl core::ops::$op<$rhs> for $for {
+            fn $fn(&mut self, rhs: $rhs) {
+                use az::SaturatingAs;
+                <$for>::new(
+                    (self.0.saturating_as::<$c1>().[< saturating_ $fn >](
+                        rhs.0.saturating_as::<$c1>())).saturating_as::<$c2>(),
+                    (self.1.saturating_as::<$c1>().[< saturating_ $fn >](
+                        rhs.1.saturating_as::<$c1>())).saturating_as::<$c2>(),
+                );
+
+            }
+        }
+    };
+}
+
+/// Implements `From<($element, $element)>` and `From<[$element; 2]>` for `$pair` and viceversa.
+macro_rules! impl_from_tuple_array {
+    // multiple types
+    ($pair:ty, $pair_type:ty, list: $( $element:ty ),+ ) => {
+        $(
+            impl_from_tuple_array![$pair, $pair_type, $element];
+        )+
+    };
+
+    // single type
+    ($pair:ty, $pair_type:ty, $element:ty) => {
+        // tuples
+        impl From<($element, $element)> for $pair {
+            fn from(tuple: ($element, $element)) -> $pair {
+                use az::SaturatingAs;
+                <$pair>::new(tuple.0.saturating_as::<$pair_type>(), tuple.1.saturating_as::<$pair_type>())
+            }
+        }
+        impl From<$pair> for ($element, $element) {
+            fn from(pair: $pair) -> ($element, $element) {
+                use az::SaturatingAs;
+                (pair.0.saturating_as::<$element>(), pair.1.saturating_as::<$element>())
+            }
+        }
+
+        // arrays:
+        impl From<[$element; 2]> for $pair {
+            fn from(array: [$element; 2]) -> $pair {
+                use az::SaturatingAs;
+                <$pair>::new(array[0].saturating_as::<$pair_type>(), array[1].saturating_as::<$pair_type>())
+            }
+        }
+        impl From<$pair> for [$element; 2] {
+            fn from(pair: $pair) -> [$element; 2] {
+                use az::SaturatingAs;
+                [pair.0.saturating_as::<$element>(), pair.1.saturating_as::<$element>()]
+            }
+        }
+    }
+}
+
+// Creates `Size`.
+// -----------------------------------------------------------------------------
 create_pair![
     "A size from a pair of dimensions.\n\n`(height, width)` | `(vertical, horizontal)`.",
     "dimension",
@@ -98,7 +214,20 @@ create_pair![
     (horizontal, horizontal, 1)
 ];
 
-/// Creates `Coord`.
+impl_ops![op: Add, add, Size, Size, =Size];
+impl_ops![op: Sub, sub, Size, Size, =Size];
+impl_ops![op: Mul, mul, Size, Size, =Size];
+impl_ops![op: Div, div, Size, Size, =Size];
+impl_ops![opa: AddAssign, add, Size, Size];
+impl_ops![opa: SubAssign, sub, Size, Size];
+impl_ops![opa: MulAssign, mul, Size, Size];
+impl_ops![opa: DivAssign, div, Size, Size];
+impl_ops![op_cast: i64, u32, Add, add, Size, Offset, =Size];
+
+impl_from_tuple_array![Size, u32, list: u8, u16, u32, i32];
+
+// Creates `Coord`.
+// -----------------------------------------------------------------------------
 create_pair![
     "A coordinate pair.\n\n`(y, x)` | `(row, column)` | `(vertical, horizontal)`.",
     "coordinate",
@@ -120,7 +249,16 @@ create_pair![
     (horizontal, horizontal, 1)
 ];
 
-/// Creates `Offset`.
+impl_ops![op: Add, add, Coord, Coord, =Coord];
+impl_ops![op: Sub, sub, Coord, Coord, =Coord];
+impl_ops![opa: AddAssign, add, Coord, Coord];
+impl_ops![opa: SubAssign, sub, Coord, Coord];
+impl_ops![op_cast: i64, u32, Add, add, Coord, Offset, =Coord];
+
+impl_from_tuple_array![Coord, u32, list: u8, u16, u32];
+
+// Creates `Offset`.
+// -----------------------------------------------------------------------------
 create_pair![
     "An offset pair.\n\n`(y, x)` | `(rows, columns)` | `(vertical, horizontal)`",
     "offset",
@@ -141,3 +279,29 @@ create_pair![
     (vertical, vertical, 0),
     (horizontal, horizontal, 1)
 ];
+
+// Offset
+impl_ops![op: Add, add, Offset, Offset, =Offset];
+impl_ops![op: Sub, sub, Offset, Offset, =Offset];
+impl_ops![opa: AddAssign, add, Offset, Offset];
+impl_ops![opa: SubAssign, sub, Offset, Offset];
+
+impl_from_tuple_array![Offset, i32, list: i8, i16, i32];
+
+// TESTS
+// -----------------------------------------------------------------------------
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn ops_coord_offset() {
+        assert_eq![Coord::new(8, 14), Coord::new(10, 10) + Offset::new(-2, 4)];
+        assert_eq![Coord::new(0, 0), Coord::new(10, 10) + Offset::new(-20, -20)];
+    }
+
+    fn ops_size_saturating() {
+        assert_eq![Size::new(0, 0), (-10, -10).into()];
+    }
+}

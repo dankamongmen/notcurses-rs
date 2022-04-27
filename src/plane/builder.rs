@@ -5,7 +5,7 @@
 
 use crate::{
     sys::{NcPlane, NcPlaneOptionsBuilder},
-    Align, Notcurses, Plane, Result,
+    Align, Notcurses, Plane, Result, Size,
 };
 
 /// A [`Plane`] builder.
@@ -129,8 +129,9 @@ impl PlaneBuilder {
     /// Default: *`0`*.
     ///
     /// Effect: Sets the height and width of the plane and *unmaximizes* it.
-    pub fn size(mut self, height: u32, width: u32) -> Self {
-        self.options.set_rows_cols(height, width);
+    pub fn size(mut self, size: impl Into<Size> + Copy) -> Self {
+        self.options
+            .set_rows_cols(size.into().height(), size.into().width());
         self
     }
 

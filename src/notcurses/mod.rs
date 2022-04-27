@@ -104,24 +104,24 @@ impl Notcurses {
         todo![]
     }
 
-    /// Returns the terminal geometry using the requested blitter, if supported.
+    /// Returns the terminal geometry using the requested blitter, if available.
     pub fn geometry_if(&self, blitter: Blitter) -> Option<Geometry> {
         todo![]
     }
 
-    /// Returns the first supported terminal geometry from the provided list.
-    pub fn geometry_first(&self, blitters: Vec<Blitter>) -> Geometry {
+    /// Returns the first terminal geometry available from the provided list.
+    pub fn geometry_first(&self, blitters: Vec<Blitter>) -> Option<Geometry> {
         todo![]
     }
 
-    /// Returns all the supported terminal geometries from the provided list.
-    pub fn geometries_any(&self, blitters: Vec<Blitter>) -> Vec<Geometry> {
+    /// Returns all the availeble terminal geometries from the provided list.
+    pub fn geometries_all(&self, blitters: Vec<Blitter>) -> Vec<Geometry> {
         todo![]
     }
 
     /// Returns the terminal size `(height, width)`.
-    pub fn size(&self) -> (u32, u32) {
-        self.into_ref().term_dim_yx()
+    pub fn size(&self) -> Size {
+        self.into_ref().term_dim_yx().into()
     }
 
     /// Returns a human-readable string describing the running notcurses version.
