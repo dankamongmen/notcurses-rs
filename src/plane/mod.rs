@@ -3,7 +3,9 @@
 //!
 //
 
-use crate::{sys::NcPlane, Align, Notcurses, Position, Result, Size};
+use crate::{
+    sys::NcPlane, Align, Blitter, Capabilities, Notcurses, PlaneGeometry, Position, Result, Size,
+};
 
 mod builder;
 mod cell;
@@ -200,8 +202,42 @@ impl Plane {
     // }
 }
 
-/// # `Plane` size
+/// # `Plane` size, geometry.
 impl Plane {
+    // convenience function to get the capabilities directly from a Plane.
+    fn capabilities(&self) -> Capabilities {
+        let nc = unsafe { self.into_ref().notcurses_const() }.expect("notcurses_const");
+
+        Capabilities {
+            halfblock: nc.canhalfblock(),
+            quadrant: nc.canquadrant(),
+            sextant: nc.cansextant(),
+            braille: nc.canbraille(),
+            utf8: nc.canutf8(),
+            images: nc.canopen_images(),
+            videos: nc.canopen_videos(),
+            pixel: nc.canpixel(),
+            pixel_impl: nc.check_pixel_support(),
+            truecolor: nc.cantruecolor(),
+            fade: nc.canfade(),
+            palette_change: nc.canchangecolor(),
+            palette_size: nc.palette_size().unwrap_or(0),
+        }
+    }
+
+    /// Returns the geometry of the plane, using the best blitter available.
+    pub fn geometry_best(&self) -> PlaneGeometry {
+        let blitter = self.capabilities().best_blitter();
+        let ncgeom = self.into_ref().pixel_geom();
+        (ncgeom, blitter).into()
+    }
+
+    /// Returns the geometry of the plane, using the provided blitter.
+    pub fn geometry_with(&self, blitter: Blitter) -> PlaneGeometry {
+        let ncgeom = self.into_ref().pixel_geom();
+        (ncgeom, blitter).into()
+    }
+
     /// Returns the size of the plane.
     pub fn size(&self) -> Size {
         self.into_ref().dim_yx().into()
@@ -240,8 +276,8 @@ impl Plane {
         )?)
     }
 
-    /// Resizes this `NcPlane`, retaining what data we can (everything, unless we're
-    /// shrinking in some dimension). Keeps the origin where it is.
+    /// Resizes this `NcPlane`, retaining what data we can (everything, unless
+    /// we're shrinking in some dimension). Keeps the origin where it is.
     pub fn resize_simple(&mut self, size: Size) -> Result<()> {
         Ok(self
             .into_ref_mut()

@@ -184,7 +184,7 @@ macro_rules! impl_methods {
 // Creates `Size`.
 // -----------------------------------------------------------------------------
 create_pair![
-    "A pair of positive dimensions.\n\n`(height, width)` | `(vertical, horizontal)`.",
+    "A pair of positive lengths.\n\n`(height, width)` | `(vertical, horizontal)`.",
     "dimension",
     Size,
     u32,

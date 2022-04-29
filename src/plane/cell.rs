@@ -3,7 +3,7 @@
 //!
 //
 
-use crate::{sys::NcCell, Plane};
+use crate::sys::NcCell;
 
 /// A `Cell` corresponds to a single *[grapheme cluster]* on some [`Plane`],
 ///
@@ -37,9 +37,7 @@ mod std_impls {
 }
 
 /// Constructors.
-impl Cell {
-}
+impl Cell {}
 
 /// Methods.
-impl Cell {
-}
+impl Cell {}

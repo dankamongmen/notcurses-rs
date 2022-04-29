@@ -8,101 +8,76 @@ use crate::{sys::NcPixelGeometry, Blitter, Notcurses};
 mod tuples;
 pub use tuples::{Position, Size};
 
-/// The geometry of a [`Plane`][crate::Plane] or terminal.
+/// The geometry of a [`Plane`][crate::Plane] or a terminal.
 #[derive(Clone, Copy, Default, PartialEq, Eq)]
 pub struct PlaneGeometry {
     /// The selected blitter.
     blitter: Blitter,
 
-    /// Total size, in `Cell`s.
-    in_cells: Size,
-
-    /// Total size, in `blitter` dots.
-    in_blits: Size,
-
     /// Total size, in pixels.
-    in_pixels: Size,
+    pixels: Size,
 
-    // /// A `Cell`s size, in `blitter` dots.
-    // cell_in_blits: Size,
     /// A `Cell`'s size, in pixels.
-    cell_in_pixels: Size,
+    pixels_per_cell: Size,
 
     /// The maximum supported bitmap size, in pixels.
     ///
     /// Or None if bitmaps are not supported.
-    pub max_bitmap_in_pixels: Option<Size>,
+    max_bitmap_pixels: Option<Size>,
 }
 
-/// # Getters
-// WIP
-impl PlaneGeometry {
-    /// The associated blitter.
-    #[inline]
-    pub const fn blitter(&self) -> Blitter {
-        self.blitter
-    }
+mod std_impls {
+    use crate::{sys::NcPixelGeometry, Blitter, PlaneGeometry, Size};
+    use std::fmt;
 
-    /// Total size, in `Cell`s.
-    #[inline]
-    pub const fn in_cells(&self) -> Size {
-        todo![]
-    }
-
-    /// Total size, in `blitter` dots.
-    #[inline]
-    pub const fn in_blits(&self) -> Size {
-        todo![]
-    }
-
-    /// Total size, in pixels.
-    #[inline]
-    pub const fn in_pixels(&self) -> Size {
-        todo![]
-    }
-
-    /// A `Cell`s size, in `blitter` dots.
-    #[inline]
-    pub const fn cell_in_blits(&self) -> Size {
-        todo![]
-        // self.blitter()
-    }
-
-    /// A `Cell`'s size, in pixels.
-    #[inline]
-    pub const fn cell_in_pixels(&self) -> Size {
-        self.cell_in_pixels
-    }
-
-    /// Returns the maximum supported bitmap size,
-    /// in pixels, or none if bitmaps are not supported.
-    pub const fn max_bitmap_in_pixels(&self) -> Option<Size> {
-        self.max_bitmap_in_pixels
-    }
-
-    /// Returns the maximum supported bitmap size, in `blitter` *blits*,
-    /// or none if bitmaps are not supported.
-    pub fn max_bitmap_in_blits(&self, blitter: Blitter) -> Option<Size> {
-        if let Some(size) = self.max_bitmap_in_pixels {
-            blitter
-                .cell_size()
-                .map(|cell_size| size * Size::from(cell_size))
-        } else {
-            None
+    #[rustfmt::skip]
+    impl fmt::Debug for PlaneGeometry {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            write!(f,
+                "PlaneGeometry {{ b:{:?}, s:{:?}, p:{:?}, m:{:?} }}",
+                self.blitter,
+                self.pixels.into_tuple(),
+                self.pixels_per_cell.into_tuple(),
+                self.max_bitmap_pixels.map(|p| Some(p.into_tuple())),
+            )
         }
     }
 
-    /// Returns the maximum supported bitmap size, in `Cell`s,
-    /// or none if bitmaps are not supported.
-    pub fn max_bitmap_in_cells(&self) -> Option<Size> {
-        self.max_bitmap_in_pixels
-            .map(|size| size * self.cell_in_pixels)
+    /// needs both geometry & blitter information.
+    impl From<(NcPixelGeometry, Blitter)> for PlaneGeometry {
+        fn from(geom_blitter: (NcPixelGeometry, Blitter)) -> PlaneGeometry {
+            let (g, blitter) = geom_blitter;
+
+            let max_bitmap_pixels = if g.max_bitmap_x + g.max_bitmap_y != 0 {
+                Some(Size(g.max_bitmap_y, g.max_bitmap_x))
+            } else {
+                None
+            };
+
+            PlaneGeometry {
+                blitter,
+                pixels: Size(g.term_y, g.term_x),
+                pixels_per_cell: Size(g.cell_y, g.cell_x),
+                max_bitmap_pixels,
+            }
+        }
+    }
+
+    impl From<PlaneGeometry> for NcPixelGeometry {
+        fn from(g: PlaneGeometry) -> NcPixelGeometry {
+            let (max_bitmap_y, max_bitmap_x) = g.max_bitmap_pixels.unwrap_or(Size(0, 0)).into();
+
+            NcPixelGeometry {
+                term_y: g.pixels.h(),
+                term_x: g.pixels.w(),
+                cell_y: g.pixels_per_cell.h(),
+                cell_x: g.pixels_per_cell.w(),
+                max_bitmap_y,
+                max_bitmap_x,
+            }
+        }
     }
 }
-
-///
-// WIP
-impl PlaneGeometry {}
 
 /// # Constructors
 impl PlaneGeometry {
@@ -110,18 +85,13 @@ impl PlaneGeometry {
     pub fn from_term(nc: &Notcurses, blitter: Blitter) -> Self {
         let pg: NcPixelGeometry = unsafe { nc.into_ref().stdplane_const().pixel_geom() };
 
-        let cell_in_pixels = Size::new(pg.cell_y, pg.cell_x);
-        let in_pixels = Size::new(pg.term_y, pg.term_x);
-        let in_cells = Size::new(pg.term_y / pg.cell_y, pg.term_x / pg.cell_x);
+        let pixels_per_cell = Size::new(pg.cell_y, pg.cell_x);
+        let pixels = Size::new(pg.term_y, pg.term_x);
+        let cells = pixels / pixels_per_cell;
+        let cells2 = Size::new(pg.term_y / pg.cell_y, pg.term_x / pg.cell_x);
+        assert_eq![cells, cells2];
 
-        let cell_in_blits = Size::from((
-            blitter.cell_height().unwrap_or(0),
-            blitter.cell_width().unwrap_or(0),
-        ));
-
-        let in_blits = in_cells * cell_in_blits;
-
-        let max_bitmap_in_pixels = if pg.max_bitmap_y + pg.max_bitmap_x > 0 {
+        let max_bitmap_pixels = if pg.max_bitmap_y + pg.max_bitmap_x > 0 {
             Some(Size::from((pg.max_bitmap_y, pg.max_bitmap_x)))
         } else {
             None
@@ -129,12 +99,9 @@ impl PlaneGeometry {
 
         Self {
             blitter,
-            in_cells,
-            in_blits,
-            in_pixels,
-            // cell_in_blits,
-            cell_in_pixels,
-            max_bitmap_in_pixels,
+            pixels,
+            pixels_per_cell,
+            max_bitmap_pixels,
         }
     }
 
@@ -168,3 +135,81 @@ impl PlaneGeometry {
         all
     }
 }
+
+/// # Methods
+impl PlaneGeometry {
+    /// The current blitter.
+    #[inline]
+    pub const fn blitter(&self) -> Blitter {
+        self.blitter
+    }
+
+    /// Total size, in `Cell`s.
+    #[inline]
+    pub fn cells(&self) -> Size {
+        self.pixels / self.pixels_per_cell
+    }
+
+    /// Total size, in `blitter` blits.
+    #[inline]
+    pub fn blits(&self) -> Size {
+        self.cells() * self.blits_per_cell()
+    }
+
+    /// Total size, in pixels.
+    #[inline]
+    pub const fn pixels(&self) -> Size {
+        self.pixels
+    }
+
+    /// A `Cell`s size, in `blitter` *blits*.
+    #[inline]
+    pub fn blits_per_cell(&self) -> Size {
+        if self.blitter == Blitter::Pixel {
+            self.pixels_per_cell()
+        } else {
+            Size::from((
+                self.blitter.cell_height().unwrap_or(0),
+                self.blitter.cell_width().unwrap_or(0),
+            ))
+        }
+    }
+
+    /// A `Cell`'s size, in pixels.
+    #[inline]
+    pub const fn pixels_per_cell(&self) -> Size {
+        self.pixels_per_cell
+    }
+
+    /// Returns the maximum supported bitmap size,
+    /// in pixels, or none if bitmaps are not supported.
+    #[inline]
+    pub const fn max_bitmap_pixels(&self) -> Option<Size> {
+        self.max_bitmap_pixels
+    }
+
+    /// Returns the maximum supported bitmap size, in `blitter` *blits*,
+    /// or none if bitmaps are not supported.
+    #[inline]
+    pub fn max_bitmap_blits(&self, blitter: Blitter) -> Option<Size> {
+        if let Some(size) = self.max_bitmap_pixels {
+            blitter
+                .cell_size()
+                .map(|cell_size| size * Size::from(cell_size))
+        } else {
+            None
+        }
+    }
+
+    /// Returns the maximum supported bitmap size, in `Cell`s,
+    /// or none if bitmaps are not supported.
+    #[inline]
+    pub fn max_bitmap_cells(&self) -> Option<Size> {
+        self.max_bitmap_pixels
+            .map(|size| size * self.pixels_per_cell)
+    }
+}
+
+/// The geometry of a [`Visual`][crate::Visual].
+#[derive(Clone, Copy, Default, PartialEq, Eq)]
+pub struct VisualGeometry {}

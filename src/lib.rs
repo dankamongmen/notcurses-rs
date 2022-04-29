@@ -12,6 +12,7 @@
     clippy::pattern_type_mismatch
 )]
 
+mod color;
 mod error;
 mod geometry;
 mod notcurses;
@@ -19,10 +20,11 @@ mod plane;
 mod visual;
 
 pub use self::notcurses::{Capabilities, Notcurses};
+
+pub use color::{Channel, Channels, Palette};
 pub use error::{Error, Result};
 pub use geometry::{PlaneGeometry, Position, Size, VisualGeometry};
-
-pub use plane::{Plane, PlaneBuilder};
+pub use plane::{Cell, Plane, PlaneBuilder};
 pub use visual::{Visual, VisualBuilder};
 
 // reexports
@@ -45,7 +47,7 @@ pub use libnotcurses_sys as sys;
 #[doc = reexport_doc!("Align", "NcAlign")]
 pub use sys::NcAlign as Align;
 
-/// Alpha information, part of a *channel*, applies to a [`Cell`]'s fg|bg color.
+/// Alpha information, part of a [`Channel`].
 #[doc = reexport_doc!("Alpha", "NcAlpha")]
 pub use sys::NcAlpha as Alpha;
 
@@ -53,17 +55,25 @@ pub use sys::NcAlpha as Alpha;
 #[doc = reexport_doc!("Blitter", "NcBlitter")]
 pub use sys::NcBlitter as Blitter;
 
-/// 24 bits broken into 3x RGB components.
+/// A bitmap of styles.
+#[doc = reexport_doc!("PixelImplementation", "NcPixelImpl")]
+pub use sys::NcPixelImpl as PixelImplementation;
+
+/// A 24-bit RGB value.
 #[doc = reexport_doc!("Rgb", "NcRgb")]
 pub use sys::NcRgb as Rgb;
 
-/// 32 bits broken into 3x RGB components + alpha component.
+/// A 32-bit RGBA value.
 #[doc = reexport_doc!("Rgba", "NcRgba")]
 pub use sys::NcRgba as Rgba;
 
 /// Indicates how to scale a [`Visual`] during rendering.
 #[doc = reexport_doc!("Scale", "NcScale")]
 pub use sys::NcScale as Scale;
+
+/// Runtime statistics
+#[doc = reexport_doc!("Statistics", "NcStats")]
+pub use sys::NcStats as Statistics;
 
 /// A bitmap of styles.
 #[doc = reexport_doc!("Style", "NcStyle")]

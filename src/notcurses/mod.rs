@@ -3,7 +3,7 @@
 //!
 //
 
-use crate::{sys::Nc, Blitter, Palette, PlaneGeometry, Result, Size, Style};
+use crate::{sys::Nc, Blitter, Palette, PlaneGeometry, Result, Rgb, Size, Statistics, Style};
 
 mod capabilities;
 pub use capabilities::Capabilities;
@@ -16,9 +16,13 @@ pub struct Notcurses {
     nc: *mut Nc,
 }
 
-impl Drop for Notcurses {
-    fn drop(&mut self) {
-        let _ = unsafe { self.into_ref_mut().stop().expect("Notcurses.drop()") };
+mod std_impls {
+    use super::Notcurses;
+
+    impl Drop for Notcurses {
+        fn drop(&mut self) {
+            let _ = unsafe { self.into_ref_mut().stop().expect("Notcurses.drop()") };
+        }
     }
 }
 
@@ -103,26 +107,36 @@ impl Notcurses {
     }
 
     /// Returns the terminal geometry with the best resolution blitter available,
-    /// by following the [*rules of blitter degradation*].
+    /// using the following rules of *graceful degradation*:
     ///
-    /// [*rules of blitter degradation*]: crate::sys::NcBlitter#degradation
+    /// [`Pixel`] > [`Sextant`] > [`Quadrant`] > [`Half`] > [`Ascii`].
+    ///
+    /// [`Pixel`]: crate::sys::NcBlitter#variant.Pixel
+    /// [`Sextant`]: crate::sys::NcBlitter#variant.Sextant
+    /// [`Quadrant`]: crate::sys::NcBlitter#variant.Quadrant
+    /// [`Half`]: crate::sys::NcBlitter#variant.Half
+    /// [`Ascii`]: crate::sys::NcBlitter#variant.Ascii
     pub fn geometry_best(&self) -> PlaneGeometry {
-        todo![]
+        PlaneGeometry::from_term(self, self.capabilities().best_blitter())
     }
 
     /// Returns the terminal geometry using the requested blitter, if available.
-    pub fn geometry_if(&self, blitter: Blitter) -> Option<PlaneGeometry> {
-        todo![]
+    pub fn geometry_try(&self, blitter: Blitter) -> Option<PlaneGeometry> {
+        if self.capabilities().can_blitter(blitter) {
+            Some(PlaneGeometry::from_term(self, blitter))
+        } else {
+            None
+        }
     }
 
     /// Returns the first terminal geometry available from the provided list.
     pub fn geometry_first(&self, blitters: Vec<Blitter>) -> Option<PlaneGeometry> {
-        todo![]
+        PlaneGeometry::from_term_first(self, blitters)
     }
 
     /// Returns all the availeble terminal geometries from the provided list.
     pub fn geometries_all(&self, blitters: Vec<Blitter>) -> Vec<PlaneGeometry> {
-        todo![]
+        PlaneGeometry::from_term_all(self, blitters)
     }
 
     /// Returns the terminal size `(height, width)`.
@@ -167,5 +181,36 @@ impl Notcurses {
     /// it together with color.
     pub fn supported_styles(&self) -> Style {
         self.into_ref().supported_styles()
+    }
+
+    /// Returns the default background color, if it is known.
+    pub fn default_background(&self) -> Option<Rgb> {
+        self.into_ref().default_background()
+    }
+
+    /// Returns the default foreground color, if it is known.
+    pub fn default_foreground(&self) -> Option<Rgb> {
+        self.into_ref().default_foreground()
+    }
+}
+
+/// # Methods
+impl Notcurses {
+    /// Acquires an atomic snapshot of the notcurses object's stats.
+    pub fn stats(&mut self, stats: &mut Statistics) {
+        self.into_ref_mut().stats(stats)
+    }
+
+    /// Allocates an [`NcStats`] object.
+    ///
+    /// Use this rather than allocating your own, since future versions of
+    /// notcurses might enlarge this structure.
+    pub fn stats_alloc(&mut self) -> &mut Statistics {
+        self.into_ref_mut().stats_alloc()
+    }
+
+    /// Resets all cumulative stats (immediate ones, such as fbbytes, are not reset).
+    pub fn stats_reset(&mut self, stats: &mut Statistics) {
+        self.into_ref_mut().stats_reset(stats)
     }
 }

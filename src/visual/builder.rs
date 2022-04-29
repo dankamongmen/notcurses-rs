@@ -4,8 +4,8 @@
 //
 
 use crate::{
-    sys::NcVisual, visual::VisualOptions, Align, Blitter, Palette, Plane, Result, Rgba, Scale,
-    Size, Visual,
+    sys::NcVisual, visual::VisualOptions, Align, Blitter, Palette, Plane, Position, Result, Rgba,
+    Scale, Size, Visual,
 };
 
 /// A [`Visual`] builder.
@@ -159,6 +159,12 @@ impl VisualBuilder {
         self
     }
 
+    /// Convenience wrapper around [`yx`][VisualBuilder#method.yx].
+    pub fn position(self, position: Position) -> Self {
+        let (y, x) = position.into();
+        self.yx(y, x)
+    }
+
     /// Sets the vertical alignment. Default: *[`Align::Top`]*.
     pub fn valign(mut self, vertical: Align) -> Self {
         self.options.set_valign(vertical);
@@ -189,6 +195,21 @@ impl VisualBuilder {
         self
     }
 
+    /// Sets the [`Pixel`][Blitter::Pixel] blitter.
+    pub fn pixel(mut self) -> Self {
+        self.options.set_blitter(Blitter::Pixel);
+        self
+    }
+
+    /// Choose between gracefully degrading the blitter, or fail if the choosen
+    /// `Blitter` is not supported by the terminal.
+    ///
+    /// Default: true (degrade).
+    pub fn degrade(mut self, degrade: bool) -> Self {
+        self.options.set_degrade(degrade);
+        self
+    }
+
     /// (Un)Sets some color as transparent. Default: `None`.
     pub fn transparency(mut self, color: Option<Rgba>) -> Self {
         self.options.set_transparency(color);
@@ -204,15 +225,6 @@ impl VisualBuilder {
     /// [`Alpha::Blend`]: crate::Alpha#associatedconstant.Blend
     pub fn blend(mut self, blend: bool) -> Self {
         self.options.set_blend(blend);
-        self
-    }
-
-    /// Choose between gracefully degrading the blitter, or fail if the choosen
-    /// `Blitter` is not supported by the terminal.
-    ///
-    /// Default: true (degrade).
-    pub fn degrade(mut self, degrade: bool) -> Self {
-        self.options.set_degrade(degrade);
         self
     }
 

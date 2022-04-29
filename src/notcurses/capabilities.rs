@@ -29,6 +29,30 @@ impl Capabilities {
         nc.capabilities()
     }
 
+    /// Returns the best Blitter available, using the following rules
+    /// of *graceful degradation*:
+    ///
+    /// [`Pixel`] > [`Sextant`] > [`Quadrant`] > [`Half`] > [`Ascii`].
+    ///
+    /// [`Pixel`]: crate::sys::NcBlitter#variant.Pixel
+    /// [`Sextant`]: crate::sys::NcBlitter#variant.Sextant
+    /// [`Quadrant`]: crate::sys::NcBlitter#variant.Quadrant
+    /// [`Half`]: crate::sys::NcBlitter#variant.Half
+    /// [`Ascii`]: crate::sys::NcBlitter#variant.Ascii
+    pub fn best_blitter(&self) -> Blitter {
+        if self.pixel {
+            Blitter::Pixel
+        } else if self.sextant {
+            Blitter::Sextant
+        } else if self.quadrant {
+            Blitter::Quadrant
+        } else if self.halfblock {
+            Blitter::Half
+        } else {
+            Blitter::Ascii
+        }
+    }
+
     /// Returns true if the provided [`Blitter`] is among the capabilities.
     pub fn can_blitter(&self, blitter: Blitter) -> bool {
         use Blitter::*;

@@ -3,12 +3,15 @@
 //!
 //
 
-use crate::{sys::NcPalette, Channel, Notcurses, Result, Rgb};
+use crate::{
+    sys::{NcChannel, NcPalette},
+    Channel, Notcurses, Result, Rgb,
+};
 
 /// An array of 256 `Channel`s.
 #[derive(Clone, PartialEq, Eq)]
 pub struct Palette {
-    nc: *mut NcPalette, // TODO FIX
+    nc: *mut NcPalette,
 }
 
 mod std_impls {
@@ -26,10 +29,18 @@ mod std_impls {
             write!(
                 f,
                 "Palette {{ {:?}, {:?}, {:?}, … }}",
-                self.channel(0),
-                self.channel(1),
-                self.channel(2),
+                self.get_channel(0),
+                self.get_channel(1),
+                self.get_channel(2),
             )
+        }
+    }
+
+    impl From<&mut NcPalette> for Palette {
+        fn from(ncplane: &mut NcPalette) -> Palette {
+            Palette {
+                nc: ncplane as *mut NcPalette,
+            }
         }
     }
 }
@@ -40,7 +51,7 @@ impl Palette {
     /// knowledge of the currently configured palette.
     pub fn new(terminal: &mut Notcurses) -> Palette {
         Self {
-            nc: NcPalette::new(terminal.into_ref_mut())
+            nc: NcPalette::new(terminal.into_ref_mut()),
         }
     }
 
@@ -57,7 +68,6 @@ impl Palette {
     }
 }
 
-
 /// # Methods
 impl Palette {
     /// Attempts to use this palette in the `terminal`.
@@ -65,8 +75,24 @@ impl Palette {
         Ok(self.into_ref().r#use(terminal.into_ref_mut())?)
     }
 
-    /// Returns the `Channel` value at `index`.
-    pub fn channel(&self, index: impl Into<u8>) -> Channel {
-        crate::sys::NcChannel::from(self.into_ref().chans[index.into() as usize]).into()
+    /// Returns the `Rgb` value at `index`.
+    pub fn get(&self, index: impl Into<u8>) -> Rgb {
+        self.into_ref().get(index.into())
+    }
+
+    /// Sets the `Rgb` value at `index`.
+    pub fn set(&mut self, index: impl Into<u8>, rgb: impl Into<Rgb>) {
+        self.into_ref_mut().set(index.into(), rgb);
+    }
+
+    /// Returns the channel at `index`.
+    pub fn get_channel(&self, index: impl Into<u8>) -> Channel {
+        NcChannel::from(self.into_ref().chans[index.into() as usize]).into()
+    }
+
+    /// Sets the `channel` value at `index`.
+    pub fn set_channel(&mut self, index: impl Into<u8>, channel: impl Into<Channel>) {
+        let ncc = NcChannel::from(channel.into());
+        self.into_ref_mut().chans[index.into() as usize] = ncc.into();
     }
 }

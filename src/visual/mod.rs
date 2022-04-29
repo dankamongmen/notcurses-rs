@@ -5,7 +5,7 @@
 
 use crate::{
     sys::{self, NcVisual},
-    Align, Blitter, Notcurses, Plane, Result, Rgba, Scale, Size,
+    Align, Blitter, Notcurses, Plane, Position, Result, Rgba, Scale, Size,
 };
 
 mod builder;
@@ -156,6 +156,12 @@ impl Visual {
         self.options.set_x(x);
     }
 
+    /// Convenience wrapper around [`set_yx`][Visual#method.yx].
+    pub fn set_position(&mut self, position: Position) {
+        let (y, x) = position.into();
+        self.set_yx(y, x);
+    }
+
     /// Sets the vertical alignment.
     ///
     /// Default: *[`Align::Top`]*.
@@ -192,6 +198,21 @@ impl Visual {
         self.options.set_blitter(blitter);
     }
 
+    /// Sets the [`Pixel`][Blitter::Pixel] blitter.
+    pub fn set_pixel(&mut self) {
+        self.options.set_blitter(Blitter::Pixel);
+    }
+
+    /// (Un)Sets graful degradation.
+    ///
+    /// Choose between gracefully degrading the blitter, or fail if the choosen
+    /// `Blitter` is not supported by the terminal.
+    ///
+    /// Default: true (degrade).
+    pub fn set_degrade(&mut self, degrade: bool) {
+        self.options.set_degrade(degrade);
+    }
+
     /// (Un)Sets this color as transparent.
     ///
     /// Default: `None`.
@@ -199,6 +220,8 @@ impl Visual {
         self.options.set_transparency(color);
     }
 
+    /// (Un)Sets alpha blending.
+    ///
     /// Choose whether to use [`Alpha::Blend`] with the [`Visual`], so that
     /// the foreground or background colors can be a composite between
     /// a color and the corresponding colors underneath it.
@@ -210,15 +233,7 @@ impl Visual {
         self.options.set_blend(blend);
     }
 
-    /// Choose between gracefully degrading the blitter, or fail if the choosen
-    /// `Blitter` is not supported by the terminal.
-    ///
-    /// Default: true (degrade).
-    pub fn set_degrade(&mut self, degrade: bool) {
-        self.options.set_degrade(degrade);
-    }
-
-    /// Sets whether the scaling should be done with interpolation or not.
+    /// (Un)Sets scaling interpolation.
     ///
     /// Default: true (interpolate).
     pub fn set_interpolate(&mut self, interpolate: bool) {
