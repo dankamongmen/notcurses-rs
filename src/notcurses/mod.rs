@@ -3,7 +3,7 @@
 //!
 //
 
-use crate::{sys::Nc, Blitter, Geometry, Result, Size, Style};
+use crate::{sys::Nc, Blitter, Palette, PlaneGeometry, Result, Size, Style};
 
 mod capabilities;
 pub use capabilities::Capabilities;
@@ -59,6 +59,13 @@ impl Notcurses {
     }
 }
 
+/// # Constructors for other types.
+impl Notcurses {
+    pub fn new_palette(&mut self) -> Palette {
+        Palette::new(self)
+    }
+}
+
 /// # `Notcurses` methods.
 impl Notcurses {
     /// Refreshes the physical screen to match what was last rendered (i.e.,
@@ -92,7 +99,6 @@ impl Notcurses {
             fade: self.into_ref().canfade(),
             palette_change: self.into_ref().canchangecolor(),
             palette_size: self.into_ref().palette_size().unwrap_or(0),
-            cursor: true,
         }
     }
 
@@ -100,22 +106,22 @@ impl Notcurses {
     /// by following the [*rules of blitter degradation*].
     ///
     /// [*rules of blitter degradation*]: crate::sys::NcBlitter#degradation
-    pub fn geometry_best(&self) -> Geometry {
+    pub fn geometry_best(&self) -> PlaneGeometry {
         todo![]
     }
 
     /// Returns the terminal geometry using the requested blitter, if available.
-    pub fn geometry_if(&self, blitter: Blitter) -> Option<Geometry> {
+    pub fn geometry_if(&self, blitter: Blitter) -> Option<PlaneGeometry> {
         todo![]
     }
 
     /// Returns the first terminal geometry available from the provided list.
-    pub fn geometry_first(&self, blitters: Vec<Blitter>) -> Option<Geometry> {
+    pub fn geometry_first(&self, blitters: Vec<Blitter>) -> Option<PlaneGeometry> {
         todo![]
     }
 
     /// Returns all the availeble terminal geometries from the provided list.
-    pub fn geometries_all(&self, blitters: Vec<Blitter>) -> Vec<Geometry> {
+    pub fn geometries_all(&self, blitters: Vec<Blitter>) -> Vec<PlaneGeometry> {
         todo![]
     }
 

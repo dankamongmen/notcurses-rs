@@ -4,7 +4,8 @@
 //
 
 use crate::{
-    sys::NcVisual, visual::VisualOptions, Align, Blitter, Plane, Result, Rgba, Scale, Size, Visual,
+    sys::NcVisual, visual::VisualOptions, Align, Blitter, Palette, Plane, Result, Rgba, Scale,
+    Size, Visual,
 };
 
 /// A [`Visual`] builder.
@@ -128,9 +129,10 @@ impl VisualBuilder {
         x: u32,
         palsize: u8,
         pstride: u32,
-        palette: &[crate::sys::NcChannel], // TEMP
+        palette: Palette,
     ) -> Result<Visual> {
-        let ncvisual = NcVisual::from_palidx(data, y, stride, x, palsize, pstride, palette)?;
+        let ncvisual =
+            NcVisual::from_palidx(data, y, stride, x, palsize, pstride, palette.into_ref())?;
         Ok(Visual {
             nc: ncvisual,
             options: self.options,

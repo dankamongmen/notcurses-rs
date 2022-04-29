@@ -1,11 +1,8 @@
-//! info
+// notcurses::examples::info
 
 use notcurses::*;
 
-fn main() -> Result<()> {
-    let nc = Notcurses::new_cli_silent()?;
-
-    println!("{:#?}", nc.capabilities());
-
-    Ok(())
+#[rustfmt::skip]
+fn main() {
+    println!("{:#?}", Notcurses::new_cli_silent().unwrap().capabilities());
 }

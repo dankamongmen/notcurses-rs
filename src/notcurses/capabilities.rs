@@ -21,7 +21,6 @@ pub struct Capabilities {
     pub(crate) truecolor: bool,
     pub(crate) palette_change: bool,
     pub(crate) palette_size: u32,
-    pub(crate) cursor: bool,
 }
 
 impl Capabilities {
@@ -47,57 +46,62 @@ impl Capabilities {
         }
     }
 
-    ///
+    /// Returns *true* if we can reliably use Unicode half blocks.
     pub fn halfblock(&self) -> bool {
         self.halfblock
     }
 
-    ///
+    /// Returns *true* if we can reliably use Unicode quadrant blocks.
     pub fn quadrant(&self) -> bool {
         self.quadrant
     }
 
-    ///
+    /// Returns *true* if we can reliably use Unicode sextant blocks.
     pub fn sextant(&self) -> bool {
         self.sextant
     }
 
-    ///
+    /// Returns *true* if we can reliably use Unicode Braille.
     pub fn braille(&self) -> bool {
         self.braille
     }
 
-    ///
+    /// Returns *true* if the encoding is UTF-8.
     pub fn utf8(&self) -> bool {
         self.utf8
     }
 
+    /// Returns *true* if loading images is possible.
     ///
+    /// This requires that notcurse is built against FFmpeg/OIIO.
     pub fn images(&self) -> bool {
         self.images
     }
 
+    /// Returns *true* if loading videos is possible.
     ///
+    /// This requires that notcurse is built against FFmpeg/OIIO.
     pub fn videos(&self) -> bool {
         self.videos
     }
 
-    ///
+    /// Returns *true* if we can blit pixel-accurate bitmaps.
     pub fn pixel(&self) -> bool {
         self.pixel
     }
 
-    ///
+    /// Returns the detected pixel-blitting mechanism.
     pub fn pixel_impl(&self) -> NcPixelImpl {
         self.pixel_impl
     }
 
-    ///
+    /// Returns *true* if fading is possible.
     pub fn fade(&self) -> bool {
         self.fade
     }
 
-    ///
+    /// Returns *true* if it's possible to directly specify RGB values per Cell,
+    /// or *false* if it's only possible to use palettes.
     pub fn truecolor(&self) -> bool {
         self.truecolor
     }
@@ -107,13 +111,12 @@ impl Capabilities {
         self.palette_change
     }
 
+    /// Returns the number of simultaneous colors claimed to be supported,
+    /// if there is color support.
     ///
+    /// Note that several terminal emulators advertise more colors than they
+    /// actually support, downsampling internally.
     pub fn palette_size(&self) -> u32 {
         self.palette_size
-    }
-
-    ///
-    pub fn cursor(&self) -> bool {
-        self.cursor
     }
 }

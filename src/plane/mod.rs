@@ -3,23 +3,37 @@
 //!
 //
 
-use crate::{sys::NcPlane, Align, Notcurses, Offset, Result, Size};
+use crate::{sys::NcPlane, Align, Notcurses, Position, Result, Size};
 
 mod builder;
+mod cell;
+
 pub use builder::PlaneBuilder;
+pub use cell::Cell;
 
 /// A drawable text surface, composed of [`Cell`]s.
-#[derive(Debug)]
 pub struct Plane {
     nc: *mut NcPlane,
 }
 
 mod std_impls {
     use super::{NcPlane, Plane};
+    use std::fmt;
 
     impl Drop for Plane {
         fn drop(&mut self) {
             let _ = self.into_ref_mut().destroy();
+        }
+    }
+
+    impl fmt::Debug for Plane {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            write!(
+                f,
+                "Plane {{ {:?}, {:?} }}",
+                self.size(),
+                self.position(),
+            )
         }
     }
 
@@ -41,53 +55,75 @@ impl Plane {
 
     //
 
-    /// Returns a new standalone plane with default options.
+    /// Returns a new root plane with default options.
+    ///
+    /// The plane will be positioned at `(0, 0)` and have the size of the terminal.
     pub fn new(nc: &mut Notcurses) -> Result<Self> {
         Self::builder().build(nc)
     }
 
-    /// Returns a new standalone plane with a specific position.
-    pub fn new_at(nc: &mut Notcurses, y: i32, x: i32) -> Result<Self> {
-        Self::builder().yx(y, x).build(nc)
+    /// Returns a new root plane at a specific `position`.
+    ///
+    /// The plane will have the size of the terminal.
+    pub fn new_at(nc: &mut Notcurses, position: impl Into<Position>) -> Result<Self> {
+        Self::builder().position(position).build(nc)
     }
 
-    /// Returns a new standalone plane with a specific size.
+    /// Returns a new root plane with a specific size.
+    ///
+    /// - `size` must be greater than `0` in both dimensions.
+    /// - The plane will be positioned at `(0, 0)`.
     pub fn new_sized(nc: &mut Notcurses, size: impl Into<Size>) -> Result<Self> {
-        Self::builder().size(size.into()).build(nc)
+        Self::builder().size(size).build(nc)
     }
 
-    /// Returns a new standalone plane with specific size and position.
-    pub fn new_sized_at(nc: &mut Notcurses, size: impl Into<Size>, y: i32, x: i32) -> Result<Self> {
-        Self::builder().size(size.into()).yx(y, x).build(nc)
+    /// Returns a new root plane with a specific `size` and `position`.
+    ///
+    /// `size` must be greater than `0` in both dimensions.
+    pub fn new_sized_at(
+        nc: &mut Notcurses,
+        size: impl Into<Size>,
+        position: impl Into<Position>,
+    ) -> Result<Self> {
+        Self::builder().size(size).position(position).build(nc)
     }
 
     //
 
     /// Returns a new child plane with default options.
+    ///
+    /// The plane will be positioned at `(0, 0)` and have the size of the terminal.
     pub fn new_child(&mut self) -> Result<Self> {
         Self::builder().build_child(self)
     }
 
-    /// Returns a new child plane with a specific position.
-    pub fn new_child_at(&mut self, y: i32, x: i32) -> Result<Self> {
-        Self::builder().yx(y, x).build_child(self)
+    /// Returns a new child plane at a specific `position`.
+    ///
+    /// The plane will be terminal sized.
+    pub fn new_child_at(&mut self, position: impl Into<Position>) -> Result<Self> {
+        Self::builder().position(position).build_child(self)
     }
 
-    /// Returns a new child plane with a specific size.
+    /// Returns a new child plane with a specific `size`.
+    ///
+    /// - `size` must be greater than `0` in both dimensions.
+    /// - The plane will be positioned at `(0, 0)`.
     pub fn new_child_sized(&mut self, size: impl Into<Size>) -> Result<Self> {
-        Self::builder().size(size.into()).build_child(self)
+        Self::builder().size(size).build_child(self)
     }
 
-    /// Returns a new child plane with specific position and size.
-    pub fn new_child_sized_at(&mut self, y: i32, x: i32, size: impl Into<Size>) -> Result<Self> {
-        Self::builder().size(size.into()).yx(y, x).build_child(self)
-    }
-
-    //
-
-    /// Returns a new standalone `Plane` with the size of the terminal.
-    pub fn with_termsize(nc: &mut Notcurses) -> Result<Self> {
-        Self::builder().size(nc.size()).build(nc)
+    /// Returns a new child plane with a specific `position` and `size`.
+    ///
+    /// `size` must be greater than `0` in both dimensions.
+    pub fn new_child_sized_at(
+        &mut self,
+        size: impl Into<Size>,
+        position: impl Into<Position>,
+    ) -> Result<Self> {
+        Self::builder()
+            .size(size)
+            .position(position)
+            .build_child(self)
     }
 
     //
@@ -143,25 +179,32 @@ impl Plane {
     pub fn rasterize(&mut self) -> Result<()> {
         Ok(self.into_ref_mut().rasterize()?)
     }
+
+    // TODO
+    // /// Performs the rendering and rasterization portion of
+    // /// [`render`][Plane#method.render]
+    // /// but does not write the resulting buffer out to the terminal.
+    // ///
+    // /// Using this function, the user can control the writeout process.
+    // /// The returned buffer must be freed by the caller.
+    // ///
+    // pub fn render_to_buffer(&mut self, buffer: &mut Vec<u8>) -> Result<()> {
+    //     Ok(self.into_ref_mut().render_to_buffer(buffer)?)
+    // }
+
+    // TODO
+    // /// Writes the last rendered frame, in its entirety, to `file`.
+    // ///
+    // pub fn render_to_file(&mut self, file: &mut File) -> Result<()> {
+    //     Ok(self.into_ref_mut().render_to_file(file)?)
+    // }
 }
 
 /// # `Plane` size
 impl Plane {
-    /// Returns the `(height, width)` dimensions of the plane (`(rows, columns)`).
-    pub fn size(&self) -> (u32, u32) {
-        self.into_ref().dim_yx()
-    }
-
-    /// Returns the `height` dimension of the plane (`rows`).
-    #[inline]
-    pub fn height(&self) -> u32 {
-        self.into_ref().dim_y()
-    }
-
-    /// Returns the `width` dimension of the plane (`columns`).
-    #[inline]
-    pub fn width(&self) -> u32 {
-        self.into_ref().dim_x()
+    /// Returns the size of the plane.
+    pub fn size(&self) -> Size {
+        self.into_ref().dim_yx().into()
     }
 
     /// Resizes the plane.
@@ -199,74 +242,44 @@ impl Plane {
 
     /// Resizes this `NcPlane`, retaining what data we can (everything, unless we're
     /// shrinking in some dimension). Keeps the origin where it is.
-    pub fn resize_simple(&mut self, len_y: u32, len_x: u32) -> Result<()> {
-        Ok(self.into_ref_mut().resize_simple(len_y, len_x)?)
+    pub fn resize_simple(&mut self, size: Size) -> Result<()> {
+        Ok(self
+            .into_ref_mut()
+            .resize_simple(size.height(), size.width())?)
     }
 }
 
 /// # `Plane` position
 impl Plane {
-    /// Returns the vertical `y` position of the plane, relative to its parent.
+    /// Returns the current position of this plane, relative to its parent.
     ///
-    /// In the case of a root (parentless) plane, it will be relative to the pile.
+    /// In the case of a root (parentless) plane, it will be the same as
+    /// [`root_position`][Position#method.root_position].
     #[inline]
-    pub fn y(&self) -> i32 {
-        self.into_ref().y()
-    }
-
-    /// Returns the horizontal `x` position of the plane, relative to its parent.
-    ///
-    /// In the case of a root (parentless) plane, it will be relative to the pile.
-    #[inline]
-    pub fn x(&self) -> i32 {
-        self.into_ref().x()
-    }
-
-    /// Returns the `(y, x)` position of the plane, relative to its parent.
-    ///
-    /// In the case of a root (parentless) plane, it will be relative to the pile.
-    #[inline]
-    pub fn yx(&self) -> Offset {
+    pub fn position(&self) -> Position {
         self.into_ref().yx().into()
     }
 
-    //
-
-    /// Returns the absolute vertical `y` coordinate of this plane,
-    /// which is relative to the root of the pile.
+    /// Returns the root position of this plane,
+    /// which is relative to the root of the pile this plane is part of.
     #[inline]
-    pub fn abs_y(&self) -> i32 {
-        self.into_ref().abs_y()
-    }
-
-    /// Returns the horizontal `x` coordinate of this plane,
-    /// which is relative to the root of the pile.
-    #[inline]
-    pub fn abs_x(&self) -> i32 {
-        self.into_ref().abs_x()
-    }
-
-    /// Returns the `(y, x)` position coordinates of this plane,
-    /// which is relative to the root of the pile.
-    #[inline]
-    pub fn abs_yx(&self) -> Offset {
+    pub fn root_position(&self) -> Position {
         self.into_ref().abs_yx().into()
     }
 
-    //
-
-    /// Move this plane relative to its parent
-    /// (or to its pile, if it's a root plane).
-    pub fn move_yx(&mut self, pos: Offset) -> Result<()> {
-        Ok(self.into_ref_mut().move_yx(pos.y(), pos.x())?)
+    /// Moves this plane relative to its parent (or to its pile, if it's a root plane).
+    pub fn move_to(&mut self, position: impl Into<Position>) -> Result<()> {
+        let (y, x) = position.into().into();
+        Ok(self.into_ref_mut().move_yx(y, x)?)
     }
 
-    /// Move this plane relative to its current location.
+    /// Moves this plane relative to its current position.
     ///
-    /// Negative values move up and left, respectively.
-    /// Pass 0 to hold an axis constant.
-    pub fn move_rel(&mut self, offset: Offset) -> Result<()> {
-        Ok(self.into_ref_mut().move_rel(offset.rows(), offset.cols())?)
+    /// - Negative values move up and left, respectively.
+    /// - Pass 0 to hold an axis constant.
+    pub fn move_rel(&mut self, offset: impl Into<Position>) -> Result<()> {
+        let (rows, cols) = offset.into().into();
+        Ok(self.into_ref_mut().move_rel(rows, cols)?)
     }
 
     /// Moves the plane such that it is entirely within its parent, if possible.
@@ -276,22 +289,51 @@ impl Plane {
         Ok(self.into_ref_mut().resize_placewithin()?)
     }
 
-    /// Maps the specified coordinates relative to the origin of this plane,
-    /// to the same absolute coordinates relative to the origin of `target`.
-    pub fn translate(&self, target: &Plane, coords: impl Into<Offset>) -> Offset {
-        let (mut y, mut x) = coords.into().into();
+    /// Translates a `position` relative to this plane,
+    /// into a position relative to the `target` plane.
+    ///
+    /// # Example
+    /// ```ignore
+    /// # use notcurses::*;
+    /// # fn main() -> Result<()> {
+    /// # let nc = Notcurses::new()?;
+    ///     assert_eq![
+    ///         Plane::new(&mut nc)?
+    ///             .translate((0, 0), &Plane::new_at(&mut nc, (1, 0))?),
+    ///         Position(-1, 0),
+    ///     ];
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn translate(&self, position: impl Into<Position>, target: &Plane) -> Position {
+        let (mut y, mut x) = position.into().into();
         self.into_ref().translate(target.into_ref(), &mut y, &mut x);
-        Offset(y, x)
+        Position(y, x)
     }
 
-    /// Returns true if the provided absolute `y`, `x` coordinates are within
-    /// this plane, or false otherwise.
+    /// Translates a `position` relative to the root,
+    /// into a position relative to this plane, and checks if it falls inside.
     ///
-    /// Either way, translates the absolute coordinates relative to this plane.
-    pub fn translate_abs(&self, coords: impl Into<Offset> + Copy) -> (Offset, bool) {
-        let (mut y, mut x) = coords.into().into();
+    /// Fields of the returned tuple:
+    /// - `.0`: The translated `position`, from root to self,
+    /// - `.1`: Is *true* when `position` is inside this plane, or *false* otherwise.
+    ///
+    /// # Example
+    /// ```ignore
+    /// # use notcurses::*;
+    /// # fn main() -> Result<()> {
+    /// # let nc = Notcurses::new()?;
+    /// assert_eq![
+    ///     Plane::new_at(&mut nc, (8, 8))?.translate_root(Position(7, 7)),
+    ///     (Position(-1, -1), false),
+    /// ];
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn translate_root(&self, position: impl Into<Position>) -> (Position, bool) {
+        let (mut y, mut x) = position.into().into();
         let inside = self.into_ref().translate_abs(&mut y, &mut x);
-        (Offset(y, x), inside)
+        (Position(y, x), inside)
     }
 }
 
@@ -498,31 +540,25 @@ impl Plane {
 /// # `Plane` cursor related methods
 impl Plane {
     /// Returns the current cursor `(row, column)` position within this plane.
-    //
-    // CHECK: does coordinates can be negative??
-    pub fn cursor_row_col(&self) -> (u32, u32) {
-        self.into_ref().cursor_yx()
-    }
-
-    /// Returns the current cursor `row` position within this plane.
-    pub fn cursor_row(&self) -> u32 {
-        self.into_ref().cursor_y()
-    }
-
-    /// Returns the current cursor `column` position within this plane.
-    pub fn cursor_col(&self) -> u32 {
-        self.into_ref().cursor_x()
+    pub fn cursor_position(&self) -> Position {
+        self.into_ref().cursor_yx().into()
     }
 
     //
 
-    /// Moves the cursor to the specified `(row, column)` position within this plane.
+    /// Moves the cursor to the home position `(0, 0)`.
+    pub fn cursor_move_home(&mut self) {
+        self.into_ref_mut().cursor_home()
+    }
+
+    /// Moves the cursor to the specified `position` within this plane.
     ///
     /// The cursor doesn't need to be visible.
     ///
     /// Errors if the parameters exceed the plane's dimensions, and the cursor
     /// will remain unchanged in that case.
-    pub fn cursor_move_row_col(&mut self, row: u32, col: u32) -> Result<()> {
+    pub fn cursor_move_to(&mut self, position: impl Into<Position>) -> Result<()> {
+        let (row, col) = position.into().into();
         Ok(self.into_ref_mut().cursor_move_yx(row, col)?)
     }
 
@@ -532,7 +568,7 @@ impl Plane {
     ///
     /// Errors if the row number exceed the plane's rows, and the cursor
     /// will remain unchanged in that case.
-    pub fn cursor_move_row(&mut self, row: u32) -> Result<()> {
+    pub fn cursor_move_to_row(&mut self, row: u32) -> Result<()> {
         Ok(self.into_ref_mut().cursor_move_y(row)?)
     }
 
@@ -542,12 +578,7 @@ impl Plane {
     ///
     /// Errors if the column number exceed the plane's columns, and the cursor
     /// will remain unchanged in that case.
-    pub fn cursor_move_col(&mut self, col: u32) -> Result<()> {
-        Ok(self.into_ref_mut().cursor_move_x(col)?)
-    }
-
-    /// Moves the cursor to `(0, 0)`.
-    pub fn cursor_move_home(&mut self) {
-        self.into_ref_mut().cursor_home()
+    pub fn cursor_move_to_col(&mut self, column: u32) -> Result<()> {
+        Ok(self.into_ref_mut().cursor_move_x(column)?)
     }
 }

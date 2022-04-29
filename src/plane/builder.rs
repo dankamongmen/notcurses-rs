@@ -5,7 +5,7 @@
 
 use crate::{
     sys::{NcPlane, NcPlaneOptionsBuilder},
-    Align, Notcurses, Plane, Result, Size,
+    Align, Notcurses, Plane, Position, Result, Size,
 };
 
 /// A [`Plane`] builder.
@@ -39,7 +39,7 @@ impl PlaneBuilder {
 
 /// # Methods (chainable)
 impl PlaneBuilder {
-    /// Sets the vertical placement relative to parent plane.
+    /// Sets the vertical position relative to the parent plane.
     ///
     /// Default: *`0`*.
     ///
@@ -49,7 +49,7 @@ impl PlaneBuilder {
         self
     }
 
-    /// Sets the horizontal placement relative to parent plane.
+    /// Sets the horizontal position relative to the parent plane.
     ///
     /// Default: *`0`*.
     ///
@@ -59,13 +59,14 @@ impl PlaneBuilder {
         self
     }
 
-    /// Sets the vertical & horizontal placement relative to parent plane.
+    /// Sets the position relative to parent plane.
     ///
     /// Default: *`0`*, *`0`*.
     ///
     /// Effect: Sets both *`x`* & *`y`* coordinates and unsets both horizontal and
     /// vertical alignment.
-    pub fn yx(mut self, y: i32, x: i32) -> Self {
+    pub fn position(mut self, position: impl Into<Position>) -> Self {
+        let (y, x) = position.into().into();
         self.options.set_yx(y, x);
         self
     }
@@ -129,9 +130,9 @@ impl PlaneBuilder {
     /// Default: *`0`*.
     ///
     /// Effect: Sets the height and width of the plane and *unmaximizes* it.
-    pub fn size(mut self, size: impl Into<Size> + Copy) -> Self {
-        self.options
-            .set_rows_cols(size.into().height(), size.into().width());
+    pub fn size(mut self, size: impl Into<Size>) -> Self {
+        let (height, width) = size.into().into();
+        self.options.set_rows_cols(height, width);
         self
     }
 
@@ -147,7 +148,8 @@ impl PlaneBuilder {
     /// See also: [`sys::NcPlaneFlag::Marginalized`].
     ///
     /// [`sys::NcPlaneFlag::Marginalized`]: crate::sys::NcPlaneFlag#associatedconstant.Marginalized
-    pub fn maximize(mut self, bottom: u32, right: u32) -> Self {
+    pub fn maximize(mut self, bottom_right: impl Into<Size>) -> Self {
+        let (bottom, right) = bottom_right.into().into();
         self.options.set_margins(bottom, right);
         self
     }

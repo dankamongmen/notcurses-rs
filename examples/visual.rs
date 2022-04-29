@@ -3,6 +3,8 @@
 //!
 //
 
+#![allow(unused_mut, unused_variables)]
+
 use notcurses::*;
 use rand::{distributions::Uniform, Rng};
 
@@ -33,13 +35,13 @@ fn main() -> Result<()> {
     sleep![1];
 
     // Blit the visual to a pre-existing plane:
-    let mut existing_plane = Plane::builder().yx(0, 25).build(&mut nc)?;
+    let mut existing_plane = Plane::builder().position((0, 25)).build(&mut nc)?;
     visual.blit_plane(&mut nc, &mut existing_plane)?;
     existing_plane.render()?;
     sleep![1];
 
     // Blit the visual into a new child plane:
-    let mut parent_plane = Plane::builder().yx(10, 50).build(&mut nc)?;
+    let mut parent_plane = Plane::builder().position((10, 50)).build(&mut nc)?;
     let mut child = visual.blit_child(&mut nc, &mut parent_plane)?;
     parent_plane.render()?;
     // child.render()?;
