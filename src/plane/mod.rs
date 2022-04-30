@@ -48,7 +48,7 @@ mod std_impls {
     }
 }
 
-/// # `Plane` constructors and deconstructors.
+/// # constructors and deconstructors.
 impl Plane {
     /// Returns a new [`PlaneBuilder`].
     pub fn builder() -> PlaneBuilder {
@@ -157,7 +157,7 @@ impl Plane {
     }
 }
 
-/// # `Plane` rendering
+/// # rendering
 impl Plane {
     /// Renders and rasterizes the pile of which this `Plane` is part.
     pub fn render(&mut self) -> Result<()> {
@@ -202,7 +202,7 @@ impl Plane {
     // }
 }
 
-/// # `Plane` size, geometry.
+/// # size, geometry
 impl Plane {
     // convenience function to get the capabilities directly from a Plane.
     fn capabilities(&self) -> Capabilities {
@@ -285,7 +285,7 @@ impl Plane {
     }
 }
 
-/// # `Plane` position
+/// # area positioning
 impl Plane {
     /// Returns the current position of this plane, relative to its parent.
     ///
@@ -373,7 +373,7 @@ impl Plane {
     }
 }
 
-/// # `Plane` z-buffer position in the pile
+/// # z-buffer positioning
 impl Plane {
     /// Returns `true` if this plane is at the top of the pile.
     pub fn is_top(&mut self) -> bool {
@@ -476,12 +476,13 @@ impl Plane {
     /// If this plane is equal to `new_parent` it becomes the root of a new pile,
     /// unless it's already the root of a pile, in which case this is a no-op.
     ///
+    // TODO CHECK: is it necessary to return the plane?
     pub fn reparent_family(&mut self, new_parent: &mut Plane) {
         let _ = self.into_ref_mut().reparent(new_parent.into_ref_mut());
     }
 }
 
-/// # `Plane` alignment, scrolling and growing
+/// # alignment, scrolling and growing
 impl Plane {
     /// Returns the column at which `width` columns ought start
     /// in order to be aligned according to `h` alignment within this plane.
@@ -573,7 +574,7 @@ impl Plane {
     }
 }
 
-/// # `Plane` cursor related methods
+/// # cursor related methods
 impl Plane {
     /// Returns the current cursor `(row, column)` position within this plane.
     pub fn cursor_position(&self) -> Position {
@@ -616,5 +617,31 @@ impl Plane {
     /// will remain unchanged in that case.
     pub fn cursor_move_to_col(&mut self, column: u32) -> Result<()> {
         Ok(self.into_ref_mut().cursor_move_x(column)?)
+    }
+}
+
+/// # text and cells
+impl<'plane> Plane {
+    /// Writes a `string` to the current cursor position, using the current style.
+    ///
+    /// Returns the number of columns advanced.
+    pub fn putstr(&mut self, string: &str) -> Result<usize> {
+        Ok(self.into_ref_mut().putstr(string)? as usize)
+    }
+
+    // WIP
+    // /// Writes a string to `position`, using the current style.
+    // ///
+    // /// Returns the number of columns advanced.
+    // pub fn putstr_at(&mut self, position: impl Into<Position>) -> Result<u32> {
+    // }
+
+    /// Returns the Cell at `position.
+    pub fn cell_at(&mut self, position: impl Into<Position>) -> Result<Cell> {
+        let (y, x) = position.into().into();
+        let cell = Cell::new();
+        let _bytes = self.into_ref_mut().at_yx_cell(y, x, &mut cell.into())?;
+        println!("{_bytes}"); // DEBUG
+        Ok(cell)
     }
 }

@@ -20,7 +20,7 @@ macro_rules! create_pair {
      $(, ($x_name:ident, $x_method:ident, $x_field:tt) )*
     ) =>  {
         #[doc = $doc]
-        #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+        #[derive(Clone, Copy, Default, Eq, PartialEq)]
         pub struct $tname(pub $ftype, pub $ftype);
 
         /// # Constructors
@@ -46,6 +46,18 @@ macro_rules! create_pair {
                     create_pair![set: $dname, $x_name, $x_method, $ftype, $x_field];
                 )*
 
+            }
+        }
+
+        impl std::fmt::Display for $tname {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                write!(f, "{},{}", self.0, self.1)
+            }
+        }
+
+        impl std::fmt::Debug for $tname {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                write!(f, "{}({})", stringify![$tname], self)
             }
         }
     };
@@ -84,6 +96,21 @@ macro_rules! create_pair {
 /// Macro for implementing `ops` traits over pairs. (saturates)
 ///
 macro_rules! impl_ops {
+    // implements all arithmetic operators. Saturating.
+    (pair_all_ops: $for: ty, $rhs:ty, =$result:ty, $ftype:ty) => {
+        // non-assign ops
+        impl_ops![pair_op: Add, add, $for, $rhs, =$result, $ftype];
+        impl_ops![pair_op: Sub, sub, $for, $rhs, =$result, $ftype];
+        impl_ops![pair_op: Mul, mul, $for, $rhs, =$result, $ftype];
+        impl_ops![pair_op: Div, div, $for, $rhs, =$result, $ftype];
+
+        // assign ops
+        impl_ops![pair_opa: AddAssign, add, $for, $rhs, $ftype];
+        impl_ops![pair_opa: SubAssign, sub, $for, $rhs, $ftype];
+        impl_ops![pair_opa: MulAssign, mul, $for, $rhs, $ftype];
+        impl_ops![pair_opa: DivAssign, div, $for, $rhs, $ftype];
+    };
+    //
     // implements a single `non-assign` operator. Saturating.
     (pair_op: $op:tt, $fn:ident, $for: ty, $rhs:ty, =$result:ty, $ftype:ty) => {
         impl core::ops::$op<$rhs> for $for {
@@ -99,7 +126,7 @@ macro_rules! impl_ops {
             }
         }
     };
-
+    //
     // implements a single `assign` operator. Saturating.
     (pair_opa: $op:tt, $fn:ident, $for:ty, $rhs:ty, $ftype:ty) => {
         impl core::ops::$op<$rhs> for $for {
@@ -114,6 +141,75 @@ macro_rules! impl_ops {
             }
         }
     };
+
+    //
+
+    (pair_all_ops_ints: $for: ty, =$result:ty, $ftype:ty) => {
+        // non-assign ops with integers
+        impl_ops![pair_op_ints: Add, add, $for, =$result, $ftype,
+            [i8, i16, i32, i64, isize, u8, u16, u32, u64, usize]];
+        impl_ops![pair_op_ints: Sub, sub, $for, =$result, $ftype,
+            [i8, i16, i32, i64, isize, u8, u16, u32, u64, usize]];
+        impl_ops![pair_op_ints: Mul, mul, $for, =$result, $ftype,
+            [i8, i16, i32, i64, isize, u8, u16, u32, u64, usize]];
+        impl_ops![pair_op_ints: Div, div, $for, =$result, $ftype,
+            [i8, i16, i32, i64, isize, u8, u16, u32, u64, usize]];
+
+        impl_ops![pair_opa_ints: AddAssign, add, $for, $ftype,
+            [i8, i16, i32, i64, isize, u8, u16, u32, u64, usize]];
+        impl_ops![pair_opa_ints: SubAssign, sub, $for, $ftype,
+            [i8, i16, i32, i64, isize, u8, u16, u32, u64, usize]];
+        impl_ops![pair_opa_ints: MulAssign, mul, $for, $ftype,
+            [i8, i16, i32, i64, isize, u8, u16, u32, u64, usize]];
+        impl_ops![pair_opa_ints: DivAssign, div, $for, $ftype,
+            [i8, i16, i32, i64, isize, u8, u16, u32, u64, usize]];
+    };
+    //
+    // implements a single `non-assign` operator against multiple integer types.
+    (pair_op_ints: $op:tt, $fn:ident, $for: ty, =$result:ty, $ftype:ty, [$($int:ty),+]) => {
+        $(
+            impl_ops![pair_op_int: $op, $fn, $for, $int, =$result, $ftype];
+        )+
+    };
+    //
+    // implements a single `non-assign` operator against a single integer type.
+    (pair_op_int: $op:tt, $fn:ident, $for: ty, $rhs_int:ty, =$result:ty, $ftype:ty) => {
+        impl core::ops::$op<$rhs_int> for $for {
+            type Output = $result;
+            fn $fn(self, rhs: $rhs_int) -> Self::Output {
+                use az::SaturatingAs;
+                paste::paste! {
+                    <$result>::new(
+                        self.0.[< saturating_ $fn >](rhs.saturating_as::<$ftype>()),
+                        self.1.[< saturating_ $fn >](rhs.saturating_as::<$ftype>()),
+                    )
+                }
+            }
+        }
+    };
+    //
+    // implements a single `assign` operator against multiple integer types.
+    (pair_opa_ints: $op:tt, $fn:ident, $for: ty, $ftype:ty, [$($int:ty),+]) => {
+        $(
+            impl_ops![pair_opa_int: $op, $fn, $for, $int, $ftype];
+        )+
+    };
+    //
+    // implements a single `assign` operator against a single integer type.
+    (pair_opa_int: $op:tt, $fn:ident, $for:ty, $rhs_int:ty, $ftype:ty) => {
+        impl core::ops::$op<$rhs_int> for $for {
+            paste::paste! {
+                fn [< $fn _assign >](&mut self, rhs: $rhs_int) {
+                    use az::SaturatingAs;
+                    <$for>::new(
+                        self.0.[< saturating_ $fn >](rhs.saturating_as::<$ftype>()),
+                        self.1.[< saturating_ $fn >](rhs.saturating_as::<$ftype>()),
+                    );
+                }
+            }
+        }
+    };
+
 }
 
 /// Implements `From<($element, $element)>` and `From<[$element; 2]>` for `$pair` and viceversa.
@@ -199,24 +295,9 @@ create_pair![
     (horizontal, horizontal, 1)
 ];
 
-impl_ops![pair_op: Add, add, Size, Size, =Size, u32];
-impl_ops![pair_op: Sub, sub, Size, Size, =Size, u32];
-impl_ops![pair_op: Mul, mul, Size, Size, =Size, u32];
-impl_ops![pair_op: Div, div, Size, Size, =Size, u32];
-impl_ops![pair_opa: AddAssign, add, Size, Size, u32];
-impl_ops![pair_opa: SubAssign, sub, Size, Size, u32];
-impl_ops![pair_opa: MulAssign, mul, Size, Size, u32];
-impl_ops![pair_opa: DivAssign, div, Size, Size, u32];
-
-// Size *op* Position = Size
-impl_ops![pair_op: Add, add, Size, Position, =Size, u32];
-impl_ops![pair_op: Sub, sub, Size, Position, =Size, u32];
-impl_ops![pair_op: Mul, mul, Size, Position, =Size, u32];
-impl_ops![pair_op: Div, div, Size, Position, =Size, u32];
-impl_ops![pair_opa: AddAssign, add, Size, Position, u32];
-impl_ops![pair_opa: SubAssign, sub, Size, Position, u32];
-impl_ops![pair_opa: MulAssign, mul, Size, Position, u32];
-impl_ops![pair_opa: DivAssign, div, Size, Position, u32];
+impl_ops![pair_all_ops: Size, Size, =Size, u32];
+impl_ops![pair_all_ops: Size, Position, =Size, u32]; // Size *op* Position = Size
+impl_ops![pair_all_ops_ints: Size, =Size, u32]; // Position *op* {int} = Position
 
 #[rustfmt::skip]
 impl_from_tuple_array![Size, u32, list: u8, u16, u32, u64, usize, i8, i16, i32, i64, isize];
@@ -245,14 +326,9 @@ create_pair![
     (horizontal, horizontal, 1)
 ];
 
-impl_ops![pair_op: Add, add, Position, Position, =Position, i32];
-impl_ops![pair_op: Sub, sub, Position, Position, =Position, i32];
-impl_ops![pair_op: Mul, mul, Position, Position, =Position, i32];
-impl_ops![pair_op: Div, div, Position, Position, =Position, i32];
-impl_ops![pair_opa: AddAssign, add, Position, Position, i32];
-impl_ops![pair_opa: SubAssign, sub, Position, Position, i32];
-impl_ops![pair_opa: MulAssign, mul, Position, Position, i32];
-impl_ops![pair_opa: DivAssign, div, Position, Position, i32];
+impl_ops![pair_all_ops: Position, Position, =Position, i32];
+impl_ops![pair_all_ops: Position, Size, =Position, i32]; // Position *op* Size = Position
+impl_ops![pair_all_ops_ints: Position, =Position, i32]; // Position *op* {int} = Position
 
 #[rustfmt::skip]
 impl_from_tuple_array![Position, i32, list: u8, u16, u32, usize, i8, i16, i32, i64, isize];

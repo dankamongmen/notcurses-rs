@@ -16,41 +16,27 @@ mod std_impls {
     use super::*;
     use std::fmt;
 
+    #[rustfmt::skip]
+    impl fmt::Display for Channel {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            let mut s = String::new();
+
+            if self.is_rgb() {
+                s += &format![ "rgb:{:02X}_{:02X}_{:02X}", self.r(), self.g(), self.b() ];
+            } else if self.is_palindex() {
+                s += &format!["palindex:{:03}", self.palindex()];
+            } else {
+                s += "defaultcolor";
+            }
+            write!(f, "{}+{}", s, self.alpha().display_short())
+        }
+    }
+
+    #[rustfmt::skip]
     impl fmt::Debug for Channel {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            let mut is = String::new();
-            if self.is_rgb() {
-                is += "rgb";
-            };
-            if self.is_default() {
-                is += "defaultcolor";
-            }
-            if self.is_palindex() {
-                is += "palindex";
-            }
-            let alpha = self.alpha();
-
-            let mut s = String::new();
-            if self.is_rgb() {
-                s += &format![
-                    "Channel {{{is} {:02X} {:02X} {:02X}}}",
-                    self.r(),
-                    self.g(),
-                    self.b()
-                ];
-            } else if self.is_palindex() {
-                s += &format!["Channel {{{is} {:03}}}", self.palindex()];
-            } else {
-                s += &format!["Channel {{{is}}}"];
-            };
-
-            s += &format![
-                " (b{:08b}+x{:06X})",
-                (self.nc.0 >> 24),
-                (self.nc.0 & 0xFFFFFF)
-            ];
-
-            write!(f, "{} {}", s, alpha)
+            // s += &format![ " (b{:08b}+x{:06X})", (self.nc.0 >> 24), (self.nc.0 & 0xFFFFFF) ];
+            write!(f, "Channel {{{}}}", self)
         }
     }
 
