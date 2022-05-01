@@ -3,7 +3,11 @@
 //!
 //
 
-use crate::{sys::Nc, Blitter, Palette, PlaneGeometry, Result, Rgb, Size, Statistics, Style};
+use crate::{
+    sys::{Nc, NcInput, NcTime},
+    Blitter, Event, MiceEvents, Palette, PlaneGeometry, Result, Rgb, Size, Statistics, Style,
+};
+use core::time::Duration;
 
 mod capabilities;
 pub use capabilities::Capabilities;
@@ -35,8 +39,8 @@ impl Notcurses {
     }
 
     /// Returns a new `Notcurses` context, without banners.
-    pub fn new_silent() -> Result<Self> {
-        let nc = unsafe { Nc::new_silent()? };
+    pub fn with_banners() -> Result<Self> {
+        let nc = unsafe { Nc::with_banners()? };
         Ok(Notcurses { nc })
     }
 
@@ -47,8 +51,8 @@ impl Notcurses {
     }
 
     /// Returns a new `Notcurses` context in `CLI` mode, without banners.
-    pub fn new_cli_silent() -> Result<Self> {
-        let nc = unsafe { Nc::new_cli_silent()? };
+    pub fn with_banners_cli() -> Result<Self> {
+        let nc = unsafe { Nc::with_banners_cli()? };
         Ok(Notcurses { nc })
     }
 
@@ -70,8 +74,49 @@ impl Notcurses {
     }
 }
 
-/// # `Notcurses` methods.
+/// # event methods
 impl Notcurses {
+    /// Enables receiving the provided mice `events`.
+    pub fn mice_enable(&mut self, events: MiceEvents) -> Result<()> {
+        Ok(self.into_ref_mut().mice_enable(events)?)
+    }
+
+    /// Disables receiving the mice events.
+    pub fn mice_disable(&mut self) -> Result<()> {
+        self.mice_enable(MiceEvents::None)
+    }
+}
+
+/// methods
+impl Notcurses {
+    /// Waits for an event, blocking.
+    pub fn get_event(&mut self) -> Result<Event> {
+        let mut input = NcInput::new_empty();
+        let received = self.into_ref_mut().get_blocking(Some(&mut input))?;
+        Ok((received, input).into())
+    }
+
+    /// Tries to get an event, non blocking.
+    pub fn poll_event(&mut self) -> Result<Event> {
+        let mut input = NcInput::new_empty();
+        let received = self.into_ref_mut().get_nblock(Some(&mut input))?;
+        Ok((received, input).into())
+    }
+
+    /// Tries to get an event, blocking only for some `duration`.
+    ///
+    /// Pass `None` to block indefinitely.
+    pub fn poll_event_for(&mut self, duration: Option<Duration>) -> Result<Event> {
+        let nctime = duration.map(|d| NcTime {
+            tv_sec: d.as_secs() as i64, // CHECK saturating
+            tv_nsec: d.subsec_nanos().into(),
+        });
+
+        let mut input = NcInput::new_empty();
+        let received = self.into_ref_mut().get(nctime, Some(&mut input))?;
+        Ok((received, input).into())
+    }
+
     /// Refreshes the physical screen to match what was last rendered (i.e.,
     /// without reflecting any changes since the last call to
     /// [`render`][crate::Notcurses#method.render]).
@@ -83,10 +128,7 @@ impl Notcurses {
     pub fn refresh(&mut self) -> Result<(u32, u32)> {
         Ok(self.into_ref_mut().refresh()?)
     }
-}
 
-/// # `Notcurses` general information methods.
-impl Notcurses {
     /// Returns the capabilities of the terminal.
     pub fn capabilities(&self) -> Capabilities {
         Capabilities {
@@ -194,14 +236,14 @@ impl Notcurses {
     }
 }
 
-/// # Methods
+/// # statistical methods
 impl Notcurses {
     /// Acquires an atomic snapshot of the notcurses object's stats.
     pub fn stats(&mut self, stats: &mut Statistics) {
         self.into_ref_mut().stats(stats)
     }
 
-    /// Allocates an [`NcStats`] object.
+    /// Allocates a [`Statistics`] object.
     ///
     /// Use this rather than allocating your own, since future versions of
     /// notcurses might enlarge this structure.

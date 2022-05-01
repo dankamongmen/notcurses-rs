@@ -12,7 +12,7 @@ use core::marker::PhantomData;
 /// about the plane.
 ///
 /// At any `NcCell`, we can have a theoretically arbitrarily long UTF-8 string,
-/// a foreground color, a background color, and an [`NcStyle`][crate::NcStyle] attribute set.
+/// a foreground color, a background color, and a [`Style`] attribute set.
 ///
 /// [grapheme cluster]: http://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundaries
 #[derive(Clone, Copy, Default, PartialEq, Eq)]

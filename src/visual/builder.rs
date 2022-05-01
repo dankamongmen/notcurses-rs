@@ -119,8 +119,6 @@ impl VisualBuilder {
 
     /// Builds a new `Visual` from `pstride`-byte palette-indexed pixels, arranged in
     /// `y` lines of `stride` bytes each, composed of `x` pixels.
-    ///
-    /// `palette` is an array of at least `palsize` [`Channel`]s.
     pub fn build_from_palidx(
         self,
         data: &[u8],

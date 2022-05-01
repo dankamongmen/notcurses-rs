@@ -14,7 +14,9 @@
 
 mod color;
 mod error;
+mod event;
 mod geometry;
+mod macros;
 mod notcurses;
 mod plane;
 mod visual;
@@ -23,6 +25,7 @@ pub use self::notcurses::{Capabilities, Notcurses};
 
 pub use color::{Channel, Channels, Palette};
 pub use error::{Error, Result};
+pub use event::Event;
 pub use geometry::{PlaneGeometry, Position, Size, VisualGeometry};
 pub use plane::{Cell, Plane, PlaneBuilder};
 pub use visual::{Visual, VisualBuilder};
@@ -54,6 +57,26 @@ pub use sys::NcAlpha as Alpha;
 /// Blitter mode to use for rasterizing a [`Visual`].
 #[doc = reexport_doc!("Blitter", "NcBlitter")]
 pub use sys::NcBlitter as Blitter;
+
+/// A received input [`Event`].
+#[doc = reexport_doc!("Received", "NcReceived")]
+pub use sys::NcReceived as Received;
+
+/// The type of the input [`Event`].
+#[doc = reexport_doc!("InputType", "NcInputType")]
+pub use sys::NcInputType as InputType;
+
+/// A synthesized [`Received`] event other than a `char`.
+#[doc = reexport_doc!("Key", "NcKey")]
+pub use sys::NcKey as Key;
+
+/// A bitmask of mice events.
+#[doc = reexport_doc!("MiceEvents", "NcMiceEvents")]
+pub use sys::NcMiceEvents as MiceEvents;
+
+/// [`Key`] modifiers bitflag.
+#[doc = reexport_doc!("KeyMod", "NcKeyMod")]
+pub use sys::NcKeyMod as KeyMod;
 
 /// A bitmap of styles.
 #[doc = reexport_doc!("PixelImplementation", "NcPixelImpl")]

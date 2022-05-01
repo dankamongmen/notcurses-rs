@@ -621,12 +621,45 @@ impl Plane {
 }
 
 /// # text and cells
+// DESIGN
+// the idea is to simplify, add methods when deemed useful
+//
+// TODO:
+// - cell
+// - set_cell
+// - set_cell_at
+//
+// - putstr
+// - putstrln
+// - putln
+// - putstr_aligned
+// - putstr_stained ?
+// - putstr_at
+// - putstr_stained
+// - putstr_stained_at
+//
+// - base
+// - set_base
+// - …
+//
 impl<'plane> Plane {
     /// Writes a `string` to the current cursor position, using the current style.
     ///
-    /// Returns the number of columns advanced.
+    /// Returns the number of columns advanced, with newlines counting as 1 column.
     pub fn putstr(&mut self, string: &str) -> Result<usize> {
         Ok(self.into_ref_mut().putstr(string)? as usize)
+    }
+
+    /// Writes a `string` to the current cursor position, using the current style.
+    ///
+    /// Returns the number of columns advanced, with newlines counting as 1 column.
+    pub fn putstrln(&mut self, string: &str) -> Result<usize> {
+        Ok(self.into_ref_mut().putstrln(string)? as usize)
+    }
+
+    /// Writes a `string` to the current cursor position, using the current style.
+    pub fn putln(&mut self) -> Result<usize> {
+        Ok(self.into_ref_mut().putln()? as usize)
     }
 
     // WIP

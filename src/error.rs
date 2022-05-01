@@ -7,10 +7,10 @@ use std::{fmt, io::Error as IoError, result};
 
 use crate::sys::NcError;
 
-/// *Notcurses* result type.
+/// The *Notcurses* result type.
 pub type Result<T> = result::Result<T, Error>;
 
-/// *Notcurses* error type.
+/// The *Notcurses* error type.
 #[derive(Debug)]
 #[non_exhaustive]
 pub enum Error {

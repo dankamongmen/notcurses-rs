@@ -45,7 +45,7 @@ mod std_impls {
     }
 }
 
-/// # `Palette` Constructors & desconstructors.
+/// # constructors & desconstructors
 impl Palette {
     /// Creates a new palette, that's initialized with our best
     /// knowledge of the currently configured palette.
@@ -68,7 +68,7 @@ impl Palette {
     }
 }
 
-/// # Methods
+/// # methods
 impl Palette {
     /// Attempts to use this palette in the `terminal`.
     pub fn use_in(&self, terminal: &mut Notcurses) -> Result<()> {
