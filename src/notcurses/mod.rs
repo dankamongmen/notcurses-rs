@@ -4,10 +4,9 @@
 //
 
 use crate::{
-    sys::{Nc, NcInput, NcTime},
+    sys::{Nc, NcInput},
     Blitter, Event, MiceEvents, Palette, PlaneGeometry, Result, Rgb, Size, Statistics, Style,
 };
-use core::time::Duration;
 
 mod capabilities;
 pub use capabilities::Capabilities;
@@ -103,19 +102,15 @@ impl Notcurses {
         Ok((received, input).into())
     }
 
-    /// Tries to get an event, blocking only for some `duration`.
-    ///
-    /// Pass `None` to block indefinitely.
-    pub fn poll_event_for(&mut self, duration: Option<Duration>) -> Result<Event> {
-        let nctime = duration.map(|d| NcTime {
-            tv_sec: d.as_secs() as i64, // CHECK saturating
-            tv_nsec: d.subsec_nanos().into(),
-        });
-
-        let mut input = NcInput::new_empty();
-        let received = self.into_ref_mut().get(nctime, Some(&mut input))?;
-        Ok((received, input).into())
-    }
+    // /// Gets a file descriptor suitable for input event poll()ing.
+    // ///
+    // /// When this descriptor becomes available, you can call
+    // /// [poll_event][Notcurses#method.poll_event], and input ought be ready.
+    // ///
+    // // NOTE: This doesn't seem to be needed
+    // pub fn input_ready(&mut self) -> Result<i32> {
+    //     Ok(self.into_ref_mut().inputready_fd()?)
+    // }
 
     /// Refreshes the physical screen to match what was last rendered (i.e.,
     /// without reflecting any changes since the last call to

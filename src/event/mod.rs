@@ -3,7 +3,7 @@
 //!
 //
 
-use crate::{InputType, KeyMod, Position, Received};
+use crate::{InputType, Key, KeyMod, Position, Received};
 
 /// An input event.
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -79,5 +79,33 @@ mod std_impls {
                 offset,
             }
         }
+    }
+}
+
+/// # methods
+impl Event {
+    /// Returns true if something has been received.
+    pub fn is_received(&self) -> bool {
+        self.received != Received::NoInput
+    }
+
+    /// Returns true if a [`Key`] has been received.
+    pub fn has_key(&self) -> bool {
+        matches!(self.received, Received::Key(_))
+    }
+
+    /// Returns true if a specific [`Key`] has been received.
+    pub fn is_key(&self, key: Key) -> bool {
+        matches!(self.received, Received::Key(k) if k == key)
+    }
+
+    /// Returns true if a [`char`] has been received.
+    pub fn has_char(&self) -> bool {
+        matches!(self.received, Received::Char(_))
+    }
+
+    /// Returns true if a specific [`char`] has been received.
+    pub fn is_char(&self, character: char) -> bool {
+        matches!(self.received, Received::Char(c) if c == character)
     }
 }
