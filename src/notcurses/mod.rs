@@ -5,11 +5,16 @@
 
 use crate::{
     sys::{Nc, NcInput},
-    Blitter, Event, MiceEvents, Palette, PlaneGeometry, Result, Rgb, Size, Statistics, Style,
+    Blitter, Error, Event, MiceEvents, Palette, PlaneGeometry, Result, Rgb, Size, Statistics,
+    Style,
 };
+use once_cell::sync::OnceCell;
 
 mod capabilities;
 pub use capabilities::Capabilities;
+
+// Allows only one instance of `Notcurses` per thread.
+thread_local!(static NOTCURSES_LOCAL: OnceCell<bool> = OnceCell::new());
 
 /// *Notcurses* state for a given terminal, composed of [`Plane`][crate::Plane]s.
 ///
@@ -29,31 +34,49 @@ mod std_impls {
     }
 }
 
-/// # `Notcurses` constructors & deconstructors.
+/// # constructors & deconstructors.
 impl Notcurses {
     /// Returns a new `Notcurses` context.
     pub fn new() -> Result<Self> {
+        Self::singleton_check()?;
         let nc = unsafe { Nc::new()? };
         Ok(Notcurses { nc })
     }
 
     /// Returns a new `Notcurses` context, without banners.
     pub fn with_banners() -> Result<Self> {
+        Self::singleton_check()?;
         let nc = unsafe { Nc::with_banners()? };
         Ok(Notcurses { nc })
     }
 
     /// Returns a new `Notcurses` context in `CLI` mode.
     pub fn new_cli() -> Result<Self> {
+        Self::singleton_check()?;
         let nc = unsafe { Nc::new_cli()? };
         Ok(Notcurses { nc })
     }
 
     /// Returns a new `Notcurses` context in `CLI` mode, without banners.
     pub fn with_banners_cli() -> Result<Self> {
+        Self::singleton_check()?;
         let nc = unsafe { Nc::with_banners_cli()? };
         Ok(Notcurses { nc })
     }
+
+    // Makes sure Notcurses is only initialized one time per thread.
+    fn singleton_check() -> Result<()> {
+        NOTCURSES_LOCAL.with(|cell| {
+            if cell.get().is_none() {
+                cell.set(true).unwrap();
+                Ok(())
+            } else {
+                Error::msg("Only one Notcurses instance is allowed per thread.")
+            }
+        })
+    }
+
+    //
 
     /// Returns a shared reference to the inner [`Nc`].
     pub fn into_ref(&self) -> &Nc {
@@ -66,7 +89,7 @@ impl Notcurses {
     }
 }
 
-/// # Constructors for other types.
+/// # constructors for other types.
 impl Notcurses {
     pub fn new_palette(&mut self) -> Palette {
         Palette::new(self)
@@ -84,10 +107,7 @@ impl Notcurses {
     pub fn mice_disable(&mut self) -> Result<()> {
         self.mice_enable(MiceEvents::None)
     }
-}
 
-/// methods
-impl Notcurses {
     /// Waits for an event, blocking.
     pub fn get_event(&mut self) -> Result<Event> {
         let mut input = NcInput::new_empty();
@@ -107,11 +127,12 @@ impl Notcurses {
     // /// When this descriptor becomes available, you can call
     // /// [poll_event][Notcurses#method.poll_event], and input ought be ready.
     // ///
-    // // NOTE: This doesn't seem to be needed
     // pub fn input_ready(&mut self) -> Result<i32> {
     //     Ok(self.into_ref_mut().inputready_fd()?)
     // }
+}
 
+impl Notcurses {
     /// Refreshes the physical screen to match what was last rendered (i.e.,
     /// without reflecting any changes since the last call to
     /// [`render`][crate::Notcurses#method.render]).
@@ -141,6 +162,26 @@ impl Notcurses {
             palette_change: self.into_ref().canchangecolor(),
             palette_size: self.into_ref().palette_size().unwrap_or(0),
         }
+    }
+
+    //
+
+    /// Returns an [`Style`] with the supported curses-style attributes.
+    ///
+    /// The attribute is only indicated as supported if the terminal can support
+    /// it together with color.
+    pub fn supported_styles(&self) -> Style {
+        self.into_ref().supported_styles()
+    }
+
+    /// Returns the default background color, if it is known.
+    pub fn default_background(&self) -> Option<Rgb> {
+        self.into_ref().default_background()
+    }
+
+    /// Returns the default foreground color, if it is known.
+    pub fn default_foreground(&self) -> Option<Rgb> {
+        self.into_ref().default_foreground()
     }
 
     /// Returns the terminal geometry with the best resolution blitter available,
@@ -212,27 +253,6 @@ impl Notcurses {
         self.into_ref().osversion()
     }
 
-    /// Returns an [`Style`] with the supported curses-style attributes.
-    ///
-    /// The attribute is only indicated as supported if the terminal can support
-    /// it together with color.
-    pub fn supported_styles(&self) -> Style {
-        self.into_ref().supported_styles()
-    }
-
-    /// Returns the default background color, if it is known.
-    pub fn default_background(&self) -> Option<Rgb> {
-        self.into_ref().default_background()
-    }
-
-    /// Returns the default foreground color, if it is known.
-    pub fn default_foreground(&self) -> Option<Rgb> {
-        self.into_ref().default_foreground()
-    }
-}
-
-/// # statistical methods
-impl Notcurses {
     /// Acquires an atomic snapshot of the notcurses object's stats.
     pub fn stats(&mut self, stats: &mut Statistics) {
         self.into_ref_mut().stats(stats)

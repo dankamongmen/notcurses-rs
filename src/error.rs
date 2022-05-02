@@ -26,7 +26,7 @@ pub enum Error {
 /// # Methods
 impl Error {
     /// Returns an `Error::Message` already wraped in a `Result`.
-    pub fn msg(string: &str) -> Result<()> {
+    pub fn msg<T>(string: &str) -> Result<T> {
         Err(Self::Message(string.into()))
     }
 }
