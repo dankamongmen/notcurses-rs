@@ -8,13 +8,16 @@ use crate::{
     Blitter, Error, Event, MiceEvents, Palette, PlaneGeometry, Result, Rgb, Size, Statistics,
     Style,
 };
+use core::cell::RefCell;
 use once_cell::sync::OnceCell;
 
 mod capabilities;
 pub use capabilities::Capabilities;
 
-// Allows only one instance of `Notcurses` per thread.
-thread_local!(static NOTCURSES_LOCAL: OnceCell<bool> = OnceCell::new());
+thread_local!(
+    /// Disallows initializing more than one `Notcurses` instance per thread, at the same time.
+    static NOTCURSES_INIT: RefCell<OnceCell<bool>> = RefCell::new(OnceCell::new())
+);
 
 /// *Notcurses* state for a given terminal, composed of [`Plane`][crate::Plane]s.
 ///
@@ -25,11 +28,15 @@ pub struct Notcurses {
 }
 
 mod std_impls {
-    use super::Notcurses;
+    use super::{Notcurses, OnceCell, NOTCURSES_INIT};
 
     impl Drop for Notcurses {
         fn drop(&mut self) {
             let _ = unsafe { self.into_ref_mut().stop().expect("Notcurses.drop()") };
+            // Allows initializing a new Notcurses instance again.
+            NOTCURSES_INIT.with(|refcell| {
+                refcell.replace(OnceCell::new());
+            });
         }
     }
 }
@@ -38,40 +45,43 @@ mod std_impls {
 impl Notcurses {
     /// Returns a new `Notcurses` context.
     pub fn new() -> Result<Self> {
-        Self::singleton_check()?;
+        Self::can_be_instanced()?;
         let nc = unsafe { Nc::new()? };
         Ok(Notcurses { nc })
     }
 
     /// Returns a new `Notcurses` context, without banners.
     pub fn with_banners() -> Result<Self> {
-        Self::singleton_check()?;
+        Self::can_be_instanced()?;
         let nc = unsafe { Nc::with_banners()? };
         Ok(Notcurses { nc })
     }
 
     /// Returns a new `Notcurses` context in `CLI` mode.
     pub fn new_cli() -> Result<Self> {
-        Self::singleton_check()?;
+        Self::can_be_instanced()?;
         let nc = unsafe { Nc::new_cli()? };
         Ok(Notcurses { nc })
     }
 
     /// Returns a new `Notcurses` context in `CLI` mode, without banners.
     pub fn with_banners_cli() -> Result<Self> {
-        Self::singleton_check()?;
+        Self::can_be_instanced()?;
         let nc = unsafe { Nc::with_banners_cli()? };
         Ok(Notcurses { nc })
     }
 
-    // Makes sure Notcurses is only initialized one time per thread.
-    fn singleton_check() -> Result<()> {
-        NOTCURSES_LOCAL.with(|cell| {
+    // Guards against initializing more than one `Notcurses` instance per thread, at the same time.
+    //
+    // Must be called from every constructor, prior to initialization.
+    fn can_be_instanced() -> Result<()> {
+        NOTCURSES_INIT.with(|refcell| {
+            let cell = refcell.borrow_mut();
             if cell.get().is_none() {
                 cell.set(true).unwrap();
                 Ok(())
             } else {
-                Error::msg("Only one Notcurses instance is allowed per thread.")
+                Error::msg("Only one `Notcurses` instance is allowed per thread, at the same time.")
             }
         })
     }
