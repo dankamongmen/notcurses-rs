@@ -5,7 +5,7 @@
 
 use crate::{
     sys::NcPlane, Align, Blitter, Capabilities, Channel, Channels, Notcurses, PlaneGeometry,
-    Position, Result, Size,
+    Position, Result, Size, Style,
 };
 
 mod builder;
@@ -21,7 +21,7 @@ pub struct Plane {
 
 mod std_impls {
     use super::{NcPlane, Plane};
-    use crate::notcurses::ALREADY_CLI_PLANE;
+    use crate::notcurses::CLI_PLANE_LOCK;
     use once_cell::sync::OnceCell;
     use std::fmt;
 
@@ -29,7 +29,7 @@ mod std_impls {
         fn drop(&mut self) {
             if self.is_cli() {
                 // Allows instancing a new Plane referring to the *standard* Plane again.
-                ALREADY_CLI_PLANE.with(|refcell| {
+                CLI_PLANE_LOCK.with(|refcell| {
                     refcell.replace(OnceCell::new());
                 });
             }
@@ -78,9 +78,8 @@ impl Plane {
     /// Returns the *cli* Plane for the provided `notcurses` instance.
     ///
     /// Returns an error if there's already one *cli* plane instantiated.
-    pub fn new_cli(notcurses: &mut Notcurses) -> Result<Plane> {
-        Notcurses::already_cli_plane()?;
-        Ok(notcurses.cli_plane()?)
+    pub fn from_cli(notcurses: &mut Notcurses) -> Result<Plane> {
+        notcurses.cli_plane()
     }
 
     //
@@ -307,6 +306,12 @@ impl Plane {
     /// `len_y` must be greater than or equal to `keep_len_y`,
     /// and `len_x` must be greater than or equal to `keeplenx`.
     ///
+    // TODO RETHINK ARGS
+    // - keep = Position relative to this plane. must be >= 0 && < plane_size
+    // - keep_size = Size > 0
+    //
+    // - final_position = Position relative to `keep`, top_left corner
+    // - final_size = Size final after resizing. must be >= `keep_size`
     pub fn resize(
         &mut self,
         keep_y: u32,
@@ -330,6 +335,40 @@ impl Plane {
             .into_ref_mut()
             .resize_simple(size.height(), size.width())?)
     }
+
+    // TODO CHECK callbacks
+
+    // /// Realigns this plane against its parent, using the alignment specified
+    // /// at creation time.
+    // ///
+    // /// Suitable for use as a [`ResizeCallback`].
+    // pub fn resize_realign(&mut self) -> Result<()> {
+    //     Ok(self.into_ref_mut().resize_realign()?)
+    // }
+
+    // /// Resizes this plane against its parent, attempting to enforce
+    // /// the supplied margins.
+    // ///
+    // /// This is suitable for use as a [`ResizeCallback`] on planes created
+    // /// with [`maximize`][PlaneBuilder#method.maximize].
+    // pub fn resize_maximize(&mut self) -> Result<()> {
+    //     Ok(self.into_ref_mut().resize_maximize()?)
+    // }
+
+    // /// Resizes this plane to the visual area's size.
+    // pub fn resize_maximize_visual(&mut self) -> Result<()> {
+    //     Ok(self.into_ref_mut().resize_maximize()?)
+    // }
+
+    // /// Returns this plane's current resize callback, or `None` if not set.
+    // pub fn resize_cb(&self) -> Option<ResizeCb> {
+    //     self.into_ref().resizecb()
+    // }
+
+    // /// (Un)Sets this plane's resize callback.
+    // pub fn set_resize_cb(&self, Option<ResizeCb>) {
+    //     self.into_ref_mut().set_resizecb()
+    // }
 }
 
 /// # area positioning
@@ -506,13 +545,22 @@ impl Plane {
 
     //
 
+    // /// Returns true if the plane is a root plane (has no parents).
+    //
+    // WIP TRACKING ISSUE: https://github.com/dankamongmen/notcurses/issues/2657
+    // pub fn is_root(&self) -> bool {
+    //     let ncp = unsafe { self.into_ref().parent_const() };
+    //     println!("is_root >>> {:?}", ncp);
+    //     // true
+    //     ncp.is_err()
+    // }
+
     /// Unbounds this plane from its parent and makes it a child of `new_parent`.
     ///
     /// Any child planes of this plane are reparented to the previous parent.
     ///
     /// If this plane is equal to `new_parent` it becomes the root of a new pile,
     /// unless it's already the root of a pile, in which case this is a no-op.
-    ///
     pub fn reparent(&mut self, new_parent: &mut Plane) {
         let _ = self.into_ref_mut().reparent(new_parent.into_ref_mut());
     }
@@ -522,7 +570,6 @@ impl Plane {
     ///
     /// If this plane is equal to `new_parent` it becomes the root of a new pile,
     /// unless it's already the root of a pile, in which case this is a no-op.
-    ///
     pub fn reparent_family(&mut self, new_parent: &mut Plane) {
         let _ = self.into_ref_mut().reparent(new_parent.into_ref_mut());
     }
@@ -688,14 +735,24 @@ impl<'plane> Plane {
         Ok(self.into_ref_mut().putln()? as usize)
     }
 
+    // WIP
+    // /// Writes a string to `position`, using the current style.
+    // ///
+    // /// Returns the number of columns advanced.
+    // pub fn putstr_at(&mut self, position: impl Into<Position>) -> Result<u32> {
+    // }
+
     /// Returns the Cell at `position.
-    pub fn cell_at(&mut self, position: impl Into<Position>) -> Result<Cell> {
+    pub fn cell_at(&self, position: impl Into<Position>) -> Result<Cell> {
         let (y, x) = position.into().into();
-        let cell = Cell::new();
-        let _bytes = self.into_ref_mut().at_yx_cell(y, x, &mut cell.into())?;
-        println!("{_bytes}"); // DEBUG
-        Ok(cell)
+        let mut cell = crate::sys::NcCell::new();
+        let _bytes = self.into_ref().at_yx_cell(y, x, &mut cell)?;
+        Ok(cell.into())
     }
+
+    // TODO:
+    // style_at
+    // channels_at
 }
 
 /// # colors and styles
@@ -738,5 +795,70 @@ impl Plane {
     /// Sets the foreground channel to the default. Returns the updated channels.
     pub fn unset_fg(&mut self) -> Channels {
         self.set_fg(Channel::with_default())
+    }
+}
+
+/// # base cell
+impl Plane {
+    /// Returns this plane's base `Cell`.
+    pub fn base(&self) -> Result<Cell> {
+        Ok(self.into_ref().base()?.into())
+    }
+
+    /// Sets the plane's base [`Cell`] from its components.
+    ///
+    /// Returns the number of bytes copied out of `egc`.
+    ///
+    /// The base cell shows anywhere in the plane with an empty `egc`.
+    ///
+    /// Note that erasing the plane does not reset the base cell.
+    pub fn set_base(
+        &mut self,
+        egc: &str,
+        style: Style,
+        channels: impl Into<Channels>,
+    ) -> Result<usize> {
+        Ok(self.into_ref_mut().set_base(egc, style, channels.into())? as usize)
+    }
+
+    // /// Sets the plane's base [`Cell`].
+    // ///
+    // /// The base cell shows anywhere in the plane with an empty `egc`.
+    // //
+    // // NOTE: this doesn't CHECK the cell's egc points to this Plane's egcpool.
+    // pub fn set_base_cell(&mut self, cell: &Cell) -> Result<()> {
+    //     Ok(self.into_ref_mut().set_base_cell(cell.into())?)
+    // }
+
+    /// Sets the plane's base cell's `styles`,
+    ///
+    /// Returns the previous value.
+    pub fn set_base_styles(&mut self, styles: Style) -> Result<Style> {
+        let mut base = self.base()?;
+        Ok(base.set_styles(styles))
+    }
+
+    /// Sets the plane's base cell's foreground & background `channels`.
+    ///
+    /// Returns the previous value.
+    pub fn set_base_channels(&mut self, channels: Channels) -> Result<Channels> {
+        let mut base = self.base()?;
+        Ok(base.set_channels(channels))
+    }
+
+    /// Sets the plane's base cell's foreground `channel`.
+    ///
+    /// Returns the previous value.
+    pub fn set_base_fg(&mut self, foreground: Channel) -> Result<Channel> {
+        let mut base = self.base()?;
+        Ok(base.set_fg(foreground))
+    }
+
+    /// Sets the plane's base cell's background `channel`.
+    ///
+    /// Returns the previous value.
+    pub fn set_base_bg(&mut self, background: Channel) -> Result<Channel> {
+        let mut base = self.base()?;
+        Ok(base.set_bg(background))
     }
 }

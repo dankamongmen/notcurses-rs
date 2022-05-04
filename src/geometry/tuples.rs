@@ -291,6 +291,11 @@ create_pair![
     [new_height_width, height, width],
     (height, h, 0),
     (width, w, 1),
+    (height, r, 0),
+    (height, rows, 0),
+    (width, c, 1),
+    (width, cols, 1),
+    (width, columns, 1),
     (vertical, vertical, 0),
     (horizontal, horizontal, 1)
 ];

@@ -12,17 +12,17 @@ fn main() -> Result<()> {
 
     // blocking
 
-    putstrln!(
+    printstrln!(
         plane,
         "Waiting for a blocking input event. Do anything to continue:"
     )?;
 
     let event = nc.get_event()?;
-    putstrln![plane, ">> {event:?}"]?;
+    printstrln![plane, ">> {event:?}"]?;
 
     // non-blocking
 
-    putstrln!(
+    printstrln!(
         plane,
         "\nStarting non-blocking event loop. Press `F01` to exit:\n"
     )?;
@@ -32,13 +32,13 @@ fn main() -> Result<()> {
         let event = nc.poll_event()?;
 
         if event.is_received() {
-            putstrln![plane, "\n{event:?}"]?;
+            printstrln![plane, "\n{event:?}"]?;
 
             if event.is_key(Key::F01) {
-                putstr![plane, "\nBye!"]?;
+                printstr![plane, "\nBye!"]?;
                 sleep![0, 500];
                 for _ in 0..3 {
-                    putstr![plane, " ."]?;
+                    printstr![plane, " ."]?;
                     sleep![0, 250];
                 }
                 sleep![1];
@@ -48,7 +48,7 @@ fn main() -> Result<()> {
 
         // do other things in-between
         if counting_time.elapsed().as_millis() > 100 {
-            putstr![plane, "."]?;
+            printstr![plane, "."]?;
             counting_time = Instant::now()
         }
     }

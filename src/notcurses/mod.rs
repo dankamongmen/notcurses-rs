@@ -16,10 +16,10 @@ pub use capabilities::Capabilities;
 
 thread_local!(
     /// Restricts initializing more than one `Notcurses` instance per thread, at the same time.
-    static ALREADY_NOTCURSES: RefCell<OnceCell<bool>> = RefCell::new(OnceCell::new());
+    static NOTCURSES_LOCK: RefCell<OnceCell<bool>> = RefCell::new(OnceCell::new());
 
     /// Restricts instancing the standard `Plane` more than once per `Notcurses` instance.
-    pub(crate) static ALREADY_CLI_PLANE: RefCell<OnceCell<bool>> = RefCell::new(OnceCell::new());
+    pub(crate) static CLI_PLANE_LOCK: RefCell<OnceCell<bool>> = RefCell::new(OnceCell::new());
 );
 
 /// *Notcurses* state for a given terminal, composed of [`Plane`][crate::Plane]s.
@@ -31,13 +31,13 @@ pub struct Notcurses {
 }
 
 mod std_impls {
-    use super::{Notcurses, OnceCell, ALREADY_NOTCURSES};
+    use super::{Notcurses, OnceCell, NOTCURSES_LOCK};
 
     impl Drop for Notcurses {
         fn drop(&mut self) {
             let _ = unsafe { self.into_ref_mut().stop().expect("Notcurses.drop()") };
             // Allows initializing a new Notcurses instance again.
-            ALREADY_NOTCURSES.with(|refcell| {
+            NOTCURSES_LOCK.with(|refcell| {
                 refcell.replace(OnceCell::new());
             });
         }
@@ -48,7 +48,7 @@ mod std_impls {
 impl Notcurses {
     // Errors if there's already one `Notcurses` instance in this thread.
     fn already_notcurses() -> Result<()> {
-        ALREADY_NOTCURSES.with(|refcell| {
+        NOTCURSES_LOCK.with(|refcell| {
             let cell = refcell.borrow_mut();
             if cell.get().is_none() {
                 cell.set(true).unwrap();
@@ -61,7 +61,7 @@ impl Notcurses {
 
     // Errors if there's already one `Plane` that refers to the standard plane in this thread.
     pub(crate) fn already_cli_plane() -> Result<()> {
-        ALREADY_CLI_PLANE.with(|refcell| {
+        CLI_PLANE_LOCK.with(|refcell| {
             let cell = refcell.borrow_mut();
             if cell.get().is_none() {
                 cell.set(true).unwrap();
