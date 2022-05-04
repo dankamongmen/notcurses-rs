@@ -40,6 +40,8 @@ mod std_impls {
         }
     }
 
+    //
+
     impl From<Channel> for NcChannel {
         fn from(channel: Channel) -> NcChannel {
             channel.nc
@@ -51,6 +53,50 @@ mod std_impls {
             Self { nc }
         }
     }
+
+    //
+
+    /// Helper for `impl From<{int} | ({int}, …) | [{int; …}]> for Channel`.
+    macro_rules! impl_from_int_tuple_array {
+        ($( $int:ty ),+) => {
+            $( impl_from_int_tuple_array![single: $int]; )+
+        };
+        (single: $int:ty) => {
+            impl From<($int, $int, $int)> for Channel {
+                /// Performs a saturating cast to `[u8; 3]`.
+                fn from(tuple: ($int, $int, $int)) -> Channel {
+                    use az::SaturatingAs;
+                    let arr_u8 = [
+                        tuple.0.saturating_as::<u8>(),
+                        tuple.1.saturating_as::<u8>(),
+                        tuple.2.saturating_as::<u8>(),
+                    ];
+                    Self::from_rgb(arr_u8)
+                }
+            }
+            impl From<[$int; 3]> for Channel {
+                /// Performs a saturating cast to `[u8; 3]`.
+                fn from(arr: [$int; 3]) -> Channel {
+                    use az::SaturatingAs;
+                    let arr_u8 = [
+                        arr[0].saturating_as::<u8>(),
+                        arr[1].saturating_as::<u8>(),
+                        arr[2].saturating_as::<u8>(),
+                    ];
+                    Self::from_rgb(arr_u8)
+                }
+            }
+            impl From<$int> for Channel {
+                /// Performs a saturating cast to `u32`
+                /// and then extracts the components from the first three bytes.
+                fn from(int: $int) -> Channel {
+                    use az::SaturatingAs;
+                    NcChannel::from_rgb(int.saturating_as::<u32>()).into()
+                }
+            }
+        };
+    }
+    impl_from_int_tuple_array!(u8, i8, i16, u16, i32, u32, i64, u64, isize, usize);
 }
 
 /// # Constructors

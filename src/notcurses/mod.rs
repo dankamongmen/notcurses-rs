@@ -5,8 +5,8 @@
 
 use crate::{
     sys::{Nc, NcInput},
-    Blitter, Error, Event, MiceEvents, Palette, PlaneGeometry, Result, Rgb, Size, Statistics,
-    Style,
+    Blitter, Error, Event, MiceEvents, Palette, Plane, PlaneGeometry, Result, Rgb, Size,
+    Statistics, Style,
 };
 use core::cell::RefCell;
 use once_cell::sync::OnceCell;
@@ -15,8 +15,11 @@ mod capabilities;
 pub use capabilities::Capabilities;
 
 thread_local!(
-    /// Disallows initializing more than one `Notcurses` instance per thread, at the same time.
-    static NOTCURSES_INIT: RefCell<OnceCell<bool>> = RefCell::new(OnceCell::new())
+    /// Restricts initializing more than one `Notcurses` instance per thread, at the same time.
+    static ALREADY_NOTCURSES: RefCell<OnceCell<bool>> = RefCell::new(OnceCell::new());
+
+    /// Restricts instancing the standard `Plane` more than once per `Notcurses` instance.
+    pub(crate) static ALREADY_CLI_PLANE: RefCell<OnceCell<bool>> = RefCell::new(OnceCell::new());
 );
 
 /// *Notcurses* state for a given terminal, composed of [`Plane`][crate::Plane]s.
@@ -28,54 +31,24 @@ pub struct Notcurses {
 }
 
 mod std_impls {
-    use super::{Notcurses, OnceCell, NOTCURSES_INIT};
+    use super::{Notcurses, OnceCell, ALREADY_NOTCURSES};
 
     impl Drop for Notcurses {
         fn drop(&mut self) {
             let _ = unsafe { self.into_ref_mut().stop().expect("Notcurses.drop()") };
             // Allows initializing a new Notcurses instance again.
-            NOTCURSES_INIT.with(|refcell| {
+            ALREADY_NOTCURSES.with(|refcell| {
                 refcell.replace(OnceCell::new());
             });
         }
     }
 }
 
-/// # constructors & deconstructors.
+// private functions
 impl Notcurses {
-    /// Returns a new `Notcurses` context.
-    pub fn new() -> Result<Self> {
-        Self::can_be_instanced()?;
-        let nc = unsafe { Nc::new()? };
-        Ok(Notcurses { nc })
-    }
-
-    /// Returns a new `Notcurses` context, without banners.
-    pub fn with_banners() -> Result<Self> {
-        Self::can_be_instanced()?;
-        let nc = unsafe { Nc::with_banners()? };
-        Ok(Notcurses { nc })
-    }
-
-    /// Returns a new `Notcurses` context in `CLI` mode.
-    pub fn new_cli() -> Result<Self> {
-        Self::can_be_instanced()?;
-        let nc = unsafe { Nc::new_cli()? };
-        Ok(Notcurses { nc })
-    }
-
-    /// Returns a new `Notcurses` context in `CLI` mode, without banners.
-    pub fn with_banners_cli() -> Result<Self> {
-        Self::can_be_instanced()?;
-        let nc = unsafe { Nc::with_banners_cli()? };
-        Ok(Notcurses { nc })
-    }
-
-    // Guards against initializing more than one `Notcurses` instance per thread, at the same time.
-    //
-    // Must be called from every constructor, prior to initialization.
-    fn can_be_instanced() -> Result<()> {
-        NOTCURSES_INIT.with(|refcell| {
+    // Errors if there's already one `Notcurses` instance in this thread.
+    fn already_notcurses() -> Result<()> {
+        ALREADY_NOTCURSES.with(|refcell| {
             let cell = refcell.borrow_mut();
             if cell.get().is_none() {
                 cell.set(true).unwrap();
@@ -84,6 +57,50 @@ impl Notcurses {
                 Error::msg("Only one `Notcurses` instance is allowed per thread, at the same time.")
             }
         })
+    }
+
+    // Errors if there's already one `Plane` that refers to the standard plane in this thread.
+    pub(crate) fn already_cli_plane() -> Result<()> {
+        ALREADY_CLI_PLANE.with(|refcell| {
+            let cell = refcell.borrow_mut();
+            if cell.get().is_none() {
+                cell.set(true).unwrap();
+                Ok(())
+            } else {
+                Error::msg("Only one *CLI* `Plane` is allowed per `Notcurses` instance.")
+            }
+        })
+    }
+}
+
+/// # constructors & deconstructors.
+impl Notcurses {
+    /// Returns a new `Notcurses` context.
+    pub fn new() -> Result<Self> {
+        Self::already_notcurses()?;
+        let nc = unsafe { Nc::new()? };
+        Ok(Notcurses { nc })
+    }
+
+    /// Returns a new `Notcurses` context, without banners.
+    pub fn with_banners() -> Result<Self> {
+        Self::already_notcurses()?;
+        let nc = unsafe { Nc::with_banners()? };
+        Ok(Notcurses { nc })
+    }
+
+    /// Returns a new `Notcurses` context in `CLI` mode.
+    pub fn new_cli() -> Result<Self> {
+        Self::already_notcurses()?;
+        let nc = unsafe { Nc::new_cli()? };
+        Ok(Notcurses { nc })
+    }
+
+    /// Returns a new `Notcurses` context in `CLI` mode, without banners.
+    pub fn with_banners_cli() -> Result<Self> {
+        Self::already_notcurses()?;
+        let nc = unsafe { Nc::with_banners_cli()? };
+        Ok(Notcurses { nc })
     }
 
     //
@@ -101,6 +118,11 @@ impl Notcurses {
 
 /// # constructors for other types.
 impl Notcurses {
+    pub fn cli_plane(&mut self) -> Result<Plane> {
+        Self::already_cli_plane()?;
+        Ok(unsafe { self.into_ref_mut().stdplane().into() })
+    }
+
     pub fn new_palette(&mut self) -> Palette {
         Palette::new(self)
     }

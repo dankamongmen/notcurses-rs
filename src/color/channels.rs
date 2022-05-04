@@ -50,8 +50,6 @@ mod std_impls {
         }
     }
 
-    //
-
     /// Converts a `Channels` into a (fg, bg) `Channel` tuple.
     impl From<Channels> for (Channel, Channel) {
         fn from(c: Channels) -> (Channel, Channel) {

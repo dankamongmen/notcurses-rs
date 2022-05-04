@@ -4,7 +4,8 @@
 //
 
 use crate::{
-    sys::NcPlane, Align, Blitter, Capabilities, Notcurses, PlaneGeometry, Position, Result, Size,
+    sys::NcPlane, Align, Blitter, Capabilities, Channel, Channels, Notcurses, PlaneGeometry,
+    Position, Result, Size,
 };
 
 mod builder;
@@ -20,21 +21,45 @@ pub struct Plane {
 
 mod std_impls {
     use super::{NcPlane, Plane};
+    use crate::notcurses::ALREADY_CLI_PLANE;
+    use once_cell::sync::OnceCell;
     use std::fmt;
 
     impl Drop for Plane {
         fn drop(&mut self) {
+            if self.is_cli() {
+                // Allows instancing a new Plane referring to the *standard* Plane again.
+                ALREADY_CLI_PLANE.with(|refcell| {
+                    refcell.replace(OnceCell::new());
+                });
+            }
+
             let _ = self.into_ref_mut().destroy();
         }
     }
 
     impl fmt::Debug for Plane {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            let mut settings = String::new();
+
+            if self.is_cli() {
+                settings += "CLI+";
+            }
+            if self.is_scrolling() {
+                settings += "scroll+";
+            }
+            if self.is_autogrow() {
+                settings += "autogrow+";
+            }
+            settings.pop();
+
             write!(
                 f,
-                "Plane {{ {:?}, {:?} }}",
+                "Plane {{ {:?}, {:?} [{settings}] {} cursor:{} }}",
                 self.size(),
                 self.position(),
+                self.channels(),
+                self.cursor(),
             )
         }
     }
@@ -48,8 +73,18 @@ mod std_impls {
     }
 }
 
-/// # constructors and deconstructors.
+/// # constructors
 impl Plane {
+    /// Returns the *cli* Plane for the provided `notcurses` instance.
+    ///
+    /// Returns an error if there's already one *cli* plane instantiated.
+    pub fn new_cli(notcurses: &mut Notcurses) -> Result<Plane> {
+        Notcurses::already_cli_plane()?;
+        Ok(notcurses.cli_plane()?)
+    }
+
+    //
+
     /// Returns a new [`PlaneBuilder`].
     pub fn builder() -> PlaneBuilder {
         PlaneBuilder::new()
@@ -95,14 +130,14 @@ impl Plane {
     /// Returns a new child plane with default options.
     ///
     /// The plane will be positioned at `(0, 0)` and have the size of the terminal.
-    pub fn new_child(&mut self) -> Result<Self> {
+    pub fn new_child(&mut self) -> Result<Plane> {
         Self::builder().build_child(self)
     }
 
     /// Returns a new child plane at a specific `position`.
     ///
     /// The plane will be terminal sized.
-    pub fn new_child_at(&mut self, position: impl Into<Position>) -> Result<Self> {
+    pub fn new_child_at(&mut self, position: impl Into<Position>) -> Result<Plane> {
         Self::builder().position(position).build_child(self)
     }
 
@@ -110,7 +145,7 @@ impl Plane {
     ///
     /// - `size` must be greater than `0` in both dimensions.
     /// - The plane will be positioned at `(0, 0)`.
-    pub fn new_child_sized(&mut self, size: impl Into<Size>) -> Result<Self> {
+    pub fn new_child_sized(&mut self, size: impl Into<Size>) -> Result<Plane> {
         Self::builder().size(size).build_child(self)
     }
 
@@ -140,7 +175,7 @@ impl Plane {
     /// The new plane will be bound to the same parent, but since child planes
     /// are not duplicated, it will not have any children planes.
     ///
-    pub fn duplicate(&mut self) -> Self {
+    pub fn duplicate(&mut self) -> Plane {
         self.into_ref_mut().dup().into()
     }
 
@@ -154,6 +189,18 @@ impl Plane {
     /// Returns an exclusive reference to the inner [`NcPlane`].
     pub fn into_ref_mut(&mut self) -> &mut NcPlane {
         unsafe { &mut *self.nc }
+    }
+}
+
+/// # the CLI plane
+impl Plane {
+    /// Is this plane the [*CLI* plane][Plane#the-cli-plane]?
+    ///
+    /// > There can only be one.
+    pub fn is_cli(&self) -> bool {
+        let nc = unsafe { self.into_ref().notcurses_const() }.expect("notcurses_const");
+        let stdplane = unsafe { nc.stdplane_const() };
+        std::ptr::eq(stdplane, self.into_ref())
     }
 }
 
@@ -476,7 +523,6 @@ impl Plane {
     /// If this plane is equal to `new_parent` it becomes the root of a new pile,
     /// unless it's already the root of a pile, in which case this is a no-op.
     ///
-    // TODO CHECK: is it necessary to return the plane?
     pub fn reparent_family(&mut self, new_parent: &mut Plane) {
         let _ = self.into_ref_mut().reparent(new_parent.into_ref_mut());
     }
@@ -577,14 +623,14 @@ impl Plane {
 /// # cursor related methods
 impl Plane {
     /// Returns the current cursor `(row, column)` position within this plane.
-    pub fn cursor_position(&self) -> Position {
+    pub fn cursor(&self) -> Position {
         self.into_ref().cursor_yx().into()
     }
 
     //
 
     /// Moves the cursor to the home position `(0, 0)`.
-    pub fn cursor_move_home(&mut self) {
+    pub fn cursor_home(&mut self) {
         self.into_ref_mut().cursor_home()
     }
 
@@ -621,27 +667,6 @@ impl Plane {
 }
 
 /// # text and cells
-// DESIGN
-// the idea is to simplify, add methods when deemed useful
-//
-// TODO:
-// - cell
-// - set_cell
-// - set_cell_at
-//
-// - putstr
-// - putstrln
-// - putln
-// - putstr_aligned
-// - putstr_stained ?
-// - putstr_at
-// - putstr_stained
-// - putstr_stained_at
-//
-// - base
-// - set_base
-// - …
-//
 impl<'plane> Plane {
     /// Writes a `string` to the current cursor position, using the current style.
     ///
@@ -650,24 +675,18 @@ impl<'plane> Plane {
         Ok(self.into_ref_mut().putstr(string)? as usize)
     }
 
-    /// Writes a `string` to the current cursor position, using the current style.
+    /// Writes a `string` to the current cursor position, ending in newline,
+    /// and using the current style.
     ///
     /// Returns the number of columns advanced, with newlines counting as 1 column.
     pub fn putstrln(&mut self, string: &str) -> Result<usize> {
         Ok(self.into_ref_mut().putstrln(string)? as usize)
     }
 
-    /// Writes a `string` to the current cursor position, using the current style.
+    /// Writes a newline to the current cursor position.
     pub fn putln(&mut self) -> Result<usize> {
         Ok(self.into_ref_mut().putln()? as usize)
     }
-
-    // WIP
-    // /// Writes a string to `position`, using the current style.
-    // ///
-    // /// Returns the number of columns advanced.
-    // pub fn putstr_at(&mut self, position: impl Into<Position>) -> Result<u32> {
-    // }
 
     /// Returns the Cell at `position.
     pub fn cell_at(&mut self, position: impl Into<Position>) -> Result<Cell> {
@@ -676,5 +695,48 @@ impl<'plane> Plane {
         let _bytes = self.into_ref_mut().at_yx_cell(y, x, &mut cell.into())?;
         println!("{_bytes}"); // DEBUG
         Ok(cell)
+    }
+}
+
+/// # colors and styles
+impl Plane {
+    /// Gets the channels.
+    pub fn channels(&self) -> Channels {
+        self.into_ref().channels().into()
+    }
+
+    /// Gets the foreground channel.
+    pub fn fg(&self) -> Channel {
+        self.into_ref().fchannel().into()
+    }
+
+    /// Gets the foreground channel.
+    pub fn bg(&self) -> Channel {
+        self.into_ref().bchannel().into()
+    }
+
+    /// Sets the channels.
+    pub fn set_channels(&mut self, channels: impl Into<Channels>) {
+        self.into_ref_mut().set_channels(channels.into())
+    }
+
+    /// Sets the `foreground` channel. Returns the updated channels.
+    pub fn set_fg(&mut self, foreground: impl Into<Channel>) -> Channels {
+        self.into_ref_mut().set_fchannel(foreground.into()).into()
+    }
+
+    /// Sets the `background` channel. Returns the updated channels.
+    pub fn set_bg(&mut self, background: impl Into<Channel>) -> Channels {
+        self.into_ref_mut().set_bchannel(background.into()).into()
+    }
+
+    /// Sets the background channel to the default. Returns the updated channels.
+    pub fn unset_bg(&mut self) -> Channels {
+        self.set_bg(Channel::with_default())
+    }
+
+    /// Sets the foreground channel to the default. Returns the updated channels.
+    pub fn unset_fg(&mut self) -> Channels {
+        self.set_fg(Channel::with_default())
     }
 }
