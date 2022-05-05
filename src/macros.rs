@@ -3,9 +3,9 @@
 //!
 //
 
-/// Convenience wrapper around [`Plane.putstr`][crate::Plane#method.putstr].
+/// `Plane`.[`putstr`] + `format!`.
 ///
-/// Calls the `format!` macro.
+/// [`putstr`]: crate::Plane#method.putstr
 ///
 /// # Example
 /// ```
@@ -26,9 +26,9 @@ macro_rules! putstr {
     };
 }
 
-/// Convenience wrapper around [`Plane.putstrln`][crate::Plane#method.putstrln].
+/// `Plane`.[`putstrln`] + `format!`.
 ///
-/// Calls the `format!` macro.
+/// [`putstrln`]: crate::Plane#method.putstrln
 ///
 /// # Example
 /// ```
@@ -52,11 +52,10 @@ macro_rules! putstrln {
     };
 }
 
-/// Convenience wrapper around [`Plane.putstr`][crate::Plane#method.putstr].
+/// `Plane`.[`putstr`] + `format!` + [`render`].
 ///
-/// Calls the `format!` macro and [`render`]s the plane afterwards.
-///
-/// [`render`]: crate::Plane#Render
+/// [`putstr`]: crate::Plane#method.putstr
+/// [`render`]: crate::Plane#method.render
 ///
 /// # Example
 /// ```
@@ -81,11 +80,10 @@ macro_rules! printstr {
     };
 }
 
-/// Convenience wrapper around [`Plane.putstrln`][crate::Plane#method.putstrln].
+/// `Plane`.[`putstrln`] + `format!` + [`render`].
 ///
-/// Calls the `format!` macro and [`render`]s the plane afterwards.
-///
-/// [`render`]: crate::Plane#Render
+/// [`putstrln`]: crate::Plane#method.putstrln
+/// [`render`]: crate::Plane#method.render
 ///
 /// # Example
 /// ```

@@ -1,7 +1,7 @@
 // noturses::examples::events
 
 use notcurses::*;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 fn main() -> Result<()> {
     let mut nc = Notcurses::new()?;

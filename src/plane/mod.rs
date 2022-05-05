@@ -40,22 +40,22 @@ mod std_impls {
 
     impl fmt::Debug for Plane {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            let mut settings = String::new();
+            let mut opts = String::new();
 
             if self.is_cli() {
-                settings += "CLI+";
+                opts += "CLI+";
             }
             if self.is_scrolling() {
-                settings += "scroll+";
+                opts += "scroll+";
             }
             if self.is_autogrow() {
-                settings += "autogrow+";
+                opts += "autogrow+";
             }
-            settings.pop();
+            opts.pop();
 
             write!(
                 f,
-                "Plane {{ {:?}, {:?} [{settings}] {} cursor:{} }}",
+                "Plane {{ {:?}, {:?} [{opts}] {} cursor:{} }}",
                 self.size(),
                 self.position(),
                 self.channels(),
@@ -643,6 +643,8 @@ impl Plane {
     /// Returns true if scrolling was previously enabled or false otherwise.
     #[inline]
     pub fn set_scrolling(&mut self, scrolling: bool) -> bool {
+        // NOTE: if this is the cli mode, it should update Notcurses's options,
+        // but that's not possible from here with the current system.
         self.into_ref_mut().set_scrolling(scrolling)
     }
 

@@ -21,8 +21,7 @@ mod notcurses;
 mod plane;
 mod visual;
 
-pub use self::notcurses::{Capabilities, Notcurses};
-
+pub use self::notcurses::{Capabilities, Notcurses, NotcursesBuilder};
 pub use color::{Channel, Channels, Palette};
 pub use error::{Error, Result};
 pub use event::Event;
@@ -70,6 +69,10 @@ pub use sys::NcInputType as InputType;
 #[doc = reexport_doc!("Key", "NcKey")]
 pub use sys::NcKey as Key;
 
+/// Stder log level.
+#[doc = reexport_doc!("LogLevel", "NcLogLevel")]
+pub use sys::NcLogLevel as LogLevel;
+
 /// A bitmask of mice events.
 #[doc = reexport_doc!("MiceEvents", "NcMiceEvents")]
 pub use sys::NcMiceEvents as MiceEvents;
@@ -78,7 +81,7 @@ pub use sys::NcMiceEvents as MiceEvents;
 #[doc = reexport_doc!("KeyMod", "NcKeyMod")]
 pub use sys::NcKeyMod as KeyMod;
 
-/// A bitmap of styles.
+/// Pixel blitting implementations.
 #[doc = reexport_doc!("PixelImplementation", "NcPixelImpl")]
 pub use sys::NcPixelImpl as PixelImplementation;
 
@@ -98,6 +101,6 @@ pub use sys::NcScale as Scale;
 #[doc = reexport_doc!("Statistics", "NcStats")]
 pub use sys::NcStats as Statistics;
 
-/// A bitmap of styles.
+/// A bitmask of styles.
 #[doc = reexport_doc!("Style", "NcStyle")]
 pub use sys::NcStyle as Style;

@@ -4,14 +4,17 @@
 //
 
 use crate::{
-    sys::{Nc, NcInput},
-    Blitter, Error, Event, MiceEvents, Palette, Plane, PlaneGeometry, Result, Rgb, Size,
+    sys::{Nc, NcInput, NcOptionsBuilder},
+    Blitter, Error, Event, MiceEvents, Palette, Plane, PlaneGeometry, Position, Result, Rgb, Size,
     Statistics, Style,
 };
 use core::cell::RefCell;
 use once_cell::sync::OnceCell;
 
+mod builder;
 mod capabilities;
+
+pub use builder::NotcursesBuilder;
 pub use capabilities::Capabilities;
 
 thread_local!(
@@ -25,13 +28,14 @@ thread_local!(
 /// *Notcurses* state for a given terminal, composed of [`Plane`][crate::Plane]s.
 ///
 /// There can only be a single `Notcurses` instance per thread at any given moment.
-#[derive(Debug)]
 pub struct Notcurses {
     nc: *mut Nc,
+    options: NcOptionsBuilder,
 }
 
 mod std_impls {
     use super::{Notcurses, OnceCell, NOTCURSES_LOCK};
+    use std::fmt;
 
     impl Drop for Notcurses {
         fn drop(&mut self) {
@@ -42,12 +46,68 @@ mod std_impls {
             });
         }
     }
+
+    impl fmt::Debug for Notcurses {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            let (mt, mr, mb, ml) = self.options.get_margins();
+            let margins = if mt + mr + mb + ml == 0 {
+                String::new()
+            } else {
+                format!["margins:[{mt},{mr},{mb},{ml}]"]
+            };
+            let log = self.options.get_log_level();
+
+            let mut flags = String::new();
+            //
+            if self.options.is_cli_mode() {
+                flags += "CliMode[";
+                if self.options.is_no_alternate_screen() {
+                    flags += "NoAlternateScreen+";
+                }
+                if self.options.is_no_clear_bitmaps() {
+                    flags += "NoClearBitmaps+";
+                }
+                if self.options.is_preserve_cursor() {
+                    flags += "PreserveCursor+";
+                }
+                if self.options.is_scrolling() {
+                    flags += "Scrolling+";
+                }
+            }
+            if self.options.is_cli_mode() {
+                flags.pop();
+                flags += ")+";
+            }
+            //
+            if self.options.is_no_font_changes() {
+                flags += "NoFontChanges+";
+            }
+            if self.options.is_suppress_banners() {
+                flags += "SuppressBanners+";
+            }
+            if self.options.is_drain_input() {
+                flags += "DrainInput+";
+            }
+            if self.options.is_inhibit_set_locale() {
+                flags += "InhibitSetLocale+";
+            }
+            if self.options.is_no_quit_sig_handlers() {
+                flags += "NoQuitSigHandlers+";
+            }
+            if self.options.is_no_winch_sig_handler() {
+                flags += "NoWinchSigHandler+";
+            }
+            flags.pop();
+
+            write!(f, "Notcurses {{ {log} {margins} {flags} }}")
+        }
+    }
 }
 
 // private functions
 impl Notcurses {
     // Errors if there's already one `Notcurses` instance in this thread.
-    fn already_notcurses() -> Result<()> {
+    fn lock_notcurses() -> Result<()> {
         NOTCURSES_LOCK.with(|refcell| {
             let cell = refcell.borrow_mut();
             if cell.get().is_none() {
@@ -60,7 +120,7 @@ impl Notcurses {
     }
 
     // Errors if there's already one `Plane` that refers to the standard plane in this thread.
-    pub(crate) fn already_cli_plane() -> Result<()> {
+    pub(crate) fn lock_cli_plane() -> Result<()> {
         CLI_PLANE_LOCK.with(|refcell| {
             let cell = refcell.borrow_mut();
             if cell.get().is_none() {
@@ -77,30 +137,36 @@ impl Notcurses {
 impl Notcurses {
     /// Returns a new `Notcurses` context.
     pub fn new() -> Result<Self> {
-        Self::already_notcurses()?;
-        let nc = unsafe { Nc::new()? };
-        Ok(Notcurses { nc })
+        Self::lock_notcurses()?;
+        let options = NcOptionsBuilder::new().suppress_banners(true);
+        let nc = unsafe { Nc::with_options(options.build())? };
+        Ok(Notcurses { nc, options })
     }
 
-    /// Returns a new `Notcurses` context, without banners.
+    /// Returns a new `Notcurses` context, with banners.
     pub fn with_banners() -> Result<Self> {
-        Self::already_notcurses()?;
-        let nc = unsafe { Nc::with_banners()? };
-        Ok(Notcurses { nc })
+        Self::lock_notcurses()?;
+        let options = NcOptionsBuilder::new();
+        let nc = unsafe { Nc::with_options(options.build())? };
+        Ok(Notcurses { nc, options })
     }
 
     /// Returns a new `Notcurses` context in `CLI` mode.
     pub fn new_cli() -> Result<Self> {
-        Self::already_notcurses()?;
-        let nc = unsafe { Nc::new_cli()? };
-        Ok(Notcurses { nc })
+        Self::lock_notcurses()?;
+        let options = NcOptionsBuilder::new()
+            .suppress_banners(true)
+            .cli_mode(true);
+        let nc = unsafe { Nc::with_options(options.build())? };
+        Ok(Notcurses { nc, options })
     }
 
-    /// Returns a new `Notcurses` context in `CLI` mode, without banners.
+    /// Returns a new `Notcurses` context in `CLI` mode, with banners.
     pub fn with_banners_cli() -> Result<Self> {
-        Self::already_notcurses()?;
-        let nc = unsafe { Nc::with_banners_cli()? };
-        Ok(Notcurses { nc })
+        Self::lock_notcurses()?;
+        let options = NcOptionsBuilder::new().cli_mode(true);
+        let nc = unsafe { Nc::with_options(options.build())? };
+        Ok(Notcurses { nc, options })
     }
 
     //
@@ -119,7 +185,7 @@ impl Notcurses {
 /// # constructors for other types.
 impl Notcurses {
     pub fn cli_plane(&mut self) -> Result<Plane> {
-        Self::already_cli_plane()?;
+        Self::lock_cli_plane()?;
         Ok(unsafe { self.into_ref_mut().stdplane().into() })
     }
 
@@ -130,6 +196,18 @@ impl Notcurses {
 
 /// # event methods
 impl Notcurses {
+    /// Refreshes the physical screen to match what was last rendered (i.e.,
+    /// without reflecting any changes since the last call to
+    /// [`render`][crate::Notcurses#method.render]).
+    ///
+    /// Returns the current screen geometry (`y`, `x`).
+    ///
+    /// This is primarily useful if the screen is externally corrupted, or if a
+    /// resize] event has been read and you're not yet ready to render.
+    pub fn refresh(&mut self) -> Result<(u32, u32)> {
+        Ok(self.into_ref_mut().refresh()?)
+    }
+
     /// Enables receiving the provided mice `events`.
     pub fn mice_enable(&mut self, events: MiceEvents) -> Result<()> {
         Ok(self.into_ref_mut().mice_enable(events)?)
@@ -164,56 +242,11 @@ impl Notcurses {
     // }
 }
 
+/// # general query methods
 impl Notcurses {
-    /// Refreshes the physical screen to match what was last rendered (i.e.,
-    /// without reflecting any changes since the last call to
-    /// [`render`][crate::Notcurses#method.render]).
-    ///
-    /// Returns the current screen geometry (`y`, `x`).
-    ///
-    /// This is primarily useful if the screen is externally corrupted, or if a
-    /// resize] event has been read and you're not yet ready to render.
-    pub fn refresh(&mut self) -> Result<(u32, u32)> {
-        Ok(self.into_ref_mut().refresh()?)
-    }
-
-    /// Returns the capabilities of the terminal.
-    pub fn capabilities(&self) -> Capabilities {
-        Capabilities {
-            halfblock: self.into_ref().canhalfblock(),
-            quadrant: self.into_ref().canquadrant(),
-            sextant: self.into_ref().cansextant(),
-            braille: self.into_ref().canbraille(),
-            utf8: self.into_ref().canutf8(),
-            images: self.into_ref().canopen_images(),
-            videos: self.into_ref().canopen_videos(),
-            pixel: self.into_ref().canpixel(),
-            pixel_impl: self.into_ref().check_pixel_support(),
-            truecolor: self.into_ref().cantruecolor(),
-            fade: self.into_ref().canfade(),
-            palette_change: self.into_ref().canchangecolor(),
-            palette_size: self.into_ref().palette_size().unwrap_or(0),
-        }
-    }
-
-    //
-
-    /// Returns an [`Style`] with the supported curses-style attributes.
-    ///
-    /// The attribute is only indicated as supported if the terminal can support
-    /// it together with color.
-    pub fn supported_styles(&self) -> Style {
-        self.into_ref().supported_styles()
-    }
-
-    /// Returns the default background color, if it is known.
-    pub fn default_background(&self) -> Option<Rgb> {
-        self.into_ref().default_background()
-    }
-
-    /// Returns the default foreground color, if it is known.
-    pub fn default_foreground(&self) -> Option<Rgb> {
-        self.into_ref().default_foreground()
+    /// Returns the terminal size `(height, width)`.
+    pub fn size(&self) -> Size {
+        self.into_ref().term_dim_yx().into()
     }
 
     /// Returns the terminal geometry with the best resolution blitter available,
@@ -240,18 +273,50 @@ impl Notcurses {
     }
 
     /// Returns the first terminal geometry available from the provided list.
-    pub fn geometry_first(&self, blitters: Vec<Blitter>) -> Option<PlaneGeometry> {
+    pub fn geometry_first(&self, blitters: &[Blitter]) -> Option<PlaneGeometry> {
         PlaneGeometry::from_term_first(self, blitters)
     }
 
     /// Returns all the availeble terminal geometries from the provided list.
-    pub fn geometries_all(&self, blitters: Vec<Blitter>) -> Vec<PlaneGeometry> {
+    pub fn geometries_all(&self, blitters: &[Blitter]) -> Vec<PlaneGeometry> {
         PlaneGeometry::from_term_all(self, blitters)
     }
 
-    /// Returns the terminal size `(height, width)`.
-    pub fn size(&self) -> Size {
-        self.into_ref().term_dim_yx().into()
+    /// Returns the capabilities of the terminal.
+    pub fn capabilities(&self) -> Capabilities {
+        Capabilities {
+            halfblock: self.into_ref().canhalfblock(),
+            quadrant: self.into_ref().canquadrant(),
+            sextant: self.into_ref().cansextant(),
+            braille: self.into_ref().canbraille(),
+            utf8: self.into_ref().canutf8(),
+            images: self.into_ref().canopen_images(),
+            videos: self.into_ref().canopen_videos(),
+            pixel: self.into_ref().canpixel(),
+            pixel_impl: self.into_ref().check_pixel_support(),
+            truecolor: self.into_ref().cantruecolor(),
+            fade: self.into_ref().canfade(),
+            palette_change: self.into_ref().canchangecolor(),
+            palette_size: self.into_ref().palette_size().unwrap_or(0),
+        }
+    }
+
+    /// Returns an [`Style`] with the supported curses-style attributes.
+    ///
+    /// The attribute is only indicated as supported if the terminal can support
+    /// it together with color.
+    pub fn supported_styles(&self) -> Style {
+        self.into_ref().supported_styles()
+    }
+
+    /// Returns the default background color, if it is known.
+    pub fn default_background(&self) -> Option<Rgb> {
+        self.into_ref().default_background()
+    }
+
+    /// Returns the default foreground color, if it is known.
+    pub fn default_foreground(&self) -> Option<Rgb> {
+        self.into_ref().default_foreground()
     }
 
     /// Returns a human-readable string describing the running notcurses version.
@@ -284,7 +349,52 @@ impl Notcurses {
     pub fn osversion(&self) -> String {
         self.into_ref().osversion()
     }
+}
 
+/// # settings methods
+impl Notcurses {
+    /// Disables the terminal's cursor.
+    pub fn cursor_disable(&mut self) -> Result<()> {
+        Ok(self.into_ref_mut().cursor_disable()?)
+    }
+
+    /// Enables the terminal's cursor, if available, placing it at `position`.
+    pub fn cursor_enable(&mut self, position: impl Into<Position>) -> Result<()> {
+        let (y, x) = position.into().into();
+        Ok(self.into_ref_mut().cursor_enable(y, x)?)
+    }
+
+    /// Leaves the alternate screen.
+    pub fn leave_alternate_screen(&mut self) -> Result<()> {
+        self.options.set_no_alternate_screen(true);
+        Ok(self.into_ref_mut().leave_alternate_screen()?)
+    }
+
+    /// Enters the alternate screen, if available.
+    ///
+    /// Entering the alternate screen turns off scrolling for the *CLI* plane.
+    pub fn enter_alternate_screen(&mut self) -> Result<()> {
+        self.options.set_no_alternate_screen(false);
+        Ok(self.into_ref_mut().enter_alternate_screen()?)
+    }
+
+    /// Disables signals originating from the terminal's line discipline, i.e.
+    /// SIGINT (^C), SIGQUIT (^), and SIGTSTP (^Z). They are enabled by default.
+    pub fn signals_disable(&mut self) -> Result<()> {
+        self.options.set_no_quit_sig_handlers(true);
+        Ok(self.into_ref_mut().linesigs_disable()?)
+    }
+
+    /// Restores signals originating from the terminal's line discipline, i.e.
+    /// SIGINT (^C), SIGQUIT (^), and SIGTSTP (^Z), if disabled.
+    pub fn signals_enable(&mut self) -> Result<()> {
+        self.options.set_no_quit_sig_handlers(false);
+        Ok(self.into_ref_mut().linesigs_enable()?)
+    }
+}
+
+/// # statistics methods
+impl Notcurses {
     /// Acquires an atomic snapshot of the notcurses object's stats.
     pub fn stats(&mut self, stats: &mut Statistics) {
         self.into_ref_mut().stats(stats)
