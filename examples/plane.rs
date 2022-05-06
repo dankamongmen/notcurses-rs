@@ -48,7 +48,7 @@ fn main() -> Result<()> {
     let mut p1 = Plane::new_sized(&mut nc, (4, 4))?;
     p1.set_scrolling(true);
 
-    assert_eq!["hello world".len(), p1.putstr("hello world")?];
+    assert_eq!["hello world".len() as u32, p1.putstr("hello world")?];
 
     p1.render()?;
 

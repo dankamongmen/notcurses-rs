@@ -1,4 +1,4 @@
-// notcurses::geometry::pairs
+// notcurses::tuples
 //
 //!
 //
@@ -291,6 +291,8 @@ create_pair![
     [new_height_width, height, width],
     (height, h, 0),
     (width, w, 1),
+    (height, y, 0),
+    (width, x, 1),
     (height, r, 0),
     (height, rows, 0),
     (width, c, 1),

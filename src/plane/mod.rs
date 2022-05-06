@@ -4,15 +4,17 @@
 //
 
 use crate::{
-    sys::NcPlane, Align, Blitter, Capabilities, Channel, Channels, Notcurses, PlaneGeometry,
-    Position, Result, Size, Style,
+    sys::NcPlane, Align, Blitter, Capabilities, Channel, Channels, Notcurses, Position, Result,
+    Size, Style,
 };
 
 mod builder;
 mod cell;
+mod geometry;
 
 pub use builder::PlaneBuilder;
 pub use cell::Cell;
+pub use geometry::PlaneGeometry;
 
 /// A drawable text surface, composed of [`Cell`]s.
 pub struct Plane {
@@ -289,40 +291,30 @@ impl Plane {
         self.into_ref().dim_yx().into()
     }
 
-    /// Resizes the plane.
+    /// Resizes the plane to a new `size`.
     ///
-    /// The four parameters `keep_y`, `keep_x`, `keep_len_y`, and `keep_len_x`
-    /// defines a subset of this `NcPlane` to keep unchanged.
-    /// This may be a section of size 0.
+    /// An area of the plane to keep unchanged is defined by `keep` and `keep_len`.
     ///
-    /// `keep_x` and `keep_y` are relative to this plane. They must specify a
-    /// coordinate within the plane's totality. If either of `keep_len_y` or
-    /// `keep_len_x` is non-zero, both must be non-zero.
+    /// Note that
+    /// - `keep` position is relative to the plane.
+    /// - `offset` position is relative to `keep`, placing the upper-left-corner
+    ///    of the resized plane.
     ///
-    /// `y_off` and `x_off` are relative to `keep_y` and `keep_x`, and place the
-    /// upper-left corner of the resized Plane.
-    ///
-    /// `len_y` and `len_x` are the dimensions of this plane after resizing.
-    /// `len_y` must be greater than or equal to `keep_len_y`,
-    /// and `len_x` must be greater than or equal to `keeplenx`.
-    ///
-    // TODO RETHINK ARGS
-    // - keep = Position relative to this plane. must be >= 0 && < plane_size
-    // - keep_size = Size > 0
-    //
-    // - final_position = Position relative to `keep`, top_left corner
-    // - final_size = Size final after resizing. must be >= `keep_size`
+    /// # Errors
+    /// - if `keep` falls outside of the plane.
+    /// - if `keep_size` is zero in just one dimension.
+    /// - if `size` is smaller than `keep_size` in any dimension.
     pub fn resize(
         &mut self,
-        keep_y: u32,
-        keep_x: u32,
-        keep_len_y: u32,
-        keep_len_x: u32,
-        off_y: i32,
-        off_x: i32,
-        len_y: u32,
-        len_x: u32,
+        size: Size,
+        keep: Position,
+        keep_size: Size,
+        offset: Position,
     ) -> Result<()> {
+        let (keep_y, keep_x) = keep.into();
+        let (keep_len_y, keep_len_x) = keep_size.into();
+        let (off_y, off_x) = offset.into();
+        let (len_y, len_x) = size.into();
         Ok(self.into_ref_mut().resize(
             keep_y, keep_x, keep_len_y, keep_len_x, off_y, off_x, len_y, len_x,
         )?)
@@ -687,7 +679,7 @@ impl Plane {
     ///
     /// The cursor doesn't need to be visible.
     ///
-    /// Errors if the parameters exceed the plane's dimensions, and the cursor
+    /// Errors if the coordinates exceed the plane's dimensions, and the cursor
     /// will remain unchanged in that case.
     pub fn cursor_move_to(&mut self, position: impl Into<Position>) -> Result<()> {
         let (row, col) = position.into().into();
@@ -719,32 +711,196 @@ impl Plane {
 impl<'plane> Plane {
     /// Writes a `string` to the current cursor position, using the current style.
     ///
-    /// Returns the number of columns advanced, with newlines counting as 1 column.
-    pub fn putstr(&mut self, string: &str) -> Result<usize> {
-        Ok(self.into_ref_mut().putstr(string)? as usize)
+    /// Returns the number of columns the cursor has advanced.
+    ///
+    /// ## Errors
+    /// - if the position falls outside the plane's area.
+    /// - if a glyph can't fit in the current line, unless scrolling is enabled.
+    pub fn putstr(&mut self, string: &str) -> Result<u32> {
+        Ok(self.into_ref_mut().putstr(string)?)
     }
 
     /// Writes a `string` to the current cursor position, ending in newline,
     /// and using the current style.
     ///
-    /// Returns the number of columns advanced, with newlines counting as 1 column.
-    pub fn putstrln(&mut self, string: &str) -> Result<usize> {
-        Ok(self.into_ref_mut().putstrln(string)? as usize)
+    /// Returns the number of columns the cursor has advanced.
+    ///
+    /// ## Errors
+    /// - if the position falls outside the plane's area.
+    /// - if a glyph can't fit in the current line, unless scrolling is enabled.
+    pub fn putstrln(&mut self, string: &str) -> Result<u32> {
+        Ok(self.into_ref_mut().putstrln(string)?)
     }
 
     /// Writes a newline to the current cursor position.
-    pub fn putln(&mut self) -> Result<usize> {
-        Ok(self.into_ref_mut().putln()? as usize)
+    ///
+    /// A newline counts as 1 column advanced.
+    pub fn putln(&mut self) -> Result<u32> {
+        Ok(self.into_ref_mut().putln()?)
     }
 
-    // WIP
-    // /// Writes a string to `position`, using the current style.
-    // ///
-    // /// Returns the number of columns advanced.
-    // pub fn putstr_at(&mut self, position: impl Into<Position>) -> Result<u32> {
-    // }
+    /// Writes a `string` to some `y`, and a `horizontal` alignment,
+    /// using the current style.
+    ///
+    /// Returns the number of columns the cursor has advanced.
+    ///
+    /// ## Errors
+    /// - if the position falls outside the plane's area.
+    /// - if a glyph can't fit in the current line, unless scrolling is enabled.
+    pub fn putstr_aligned(
+        &mut self,
+        y: Option<u32>,
+        horizontal: Align,
+        string: &str,
+    ) -> Result<u32> {
+        Ok(self.into_ref_mut().putstr_aligned(y, horizontal, string)?)
+    }
 
-    /// Returns the Cell at `position.
+    /// Writes a `string` to the current position, using the pre-existing style.
+    ///
+    /// Returns the number of columns the cursor has advanced.
+    ///
+    /// ## Errors
+    /// - if the position falls outside the plane's area.
+    /// - if a glyph can't fit in the current line, unless scrolling is enabled.
+    pub fn putstr_stained(&mut self, string: &str) -> Result<u32> {
+        Ok(self.into_ref_mut().putstr_stained(string)?)
+    }
+
+    /// Writes a `string` to `y`, and `horizontal` alignment,
+    /// using the pre-existing style.
+    ///
+    /// Returns the number of columns the cursor has advanced.
+    ///
+    /// ## Errors
+    /// - if the position falls outside the plane's area.
+    /// - if a glyph can't fit in the current line, unless scrolling is enabled.
+    pub fn putstr_aligned_stained(
+        &mut self,
+        y: Option<u32>,
+        horizontal: Align,
+        string: &str,
+    ) -> Result<u32> {
+        Ok(self
+            .into_ref_mut()
+            .putstr_aligned_stained(y, horizontal, string)?)
+    }
+
+    //
+
+    /// Writes a `string` to `position`, using the current style.
+    ///
+    /// Returns the number of columns the cursor has advanced.
+    ///
+    /// ## Errors
+    /// - if the position falls outside the plane's area.
+    /// - if a glyph can't fit in the current line, unless scrolling is enabled.
+    pub fn putstr_at(&mut self, position: impl Into<Position>, string: &str) -> Result<u32> {
+        let (y, x): (u32, u32) = position.into().into();
+        Ok(self.into_ref_mut().putstr_yx(y.into(), x.into(), string)?)
+    }
+
+    /// Writes a `string` to some `y`, some `x`, or both, using the current style.
+    ///
+    /// Returns the number of columns the cursor has advanced.
+    ///
+    /// It wont move over a axis that is set to `None`.
+    ///
+    /// ## Errors
+    /// - if the position falls outside the plane's area.
+    /// - if a glyph can't fit in the current line, unless scrolling is enabled.
+    pub fn putstr_at_yx(&mut self, y: Option<u32>, x: Option<u32>, string: &str) -> Result<u32> {
+        Ok(self.into_ref_mut().putstr_yx(y, x, string)?)
+    }
+
+    //
+
+    /// Writes a `string` to the current cursor position, using the current style,
+    /// and no more than `len` bytes will be written.
+    ///
+    /// Returns the number of columns the cursor has advanced.
+    ///
+    /// ## Errors
+    /// - if the position falls outside the plane's area.
+    /// - if a glyph can't fit in the current line, unless scrolling is enabled.
+    pub fn putstr_len(&mut self, len: usize, string: &str) -> Result<u32> {
+        Ok(self.into_ref_mut().putnstr(len, string)?)
+    }
+
+    /// Writes a `string` to some `position`, using the current style,
+    /// and no more than `len` bytes will be written.
+    ///
+    /// Returns the number of columns the cursor has advanced.
+    ///
+    /// ## Errors
+    /// - if the position falls outside the plane's area.
+    /// - if a glyph can't fit in the current line, unless scrolling is enabled.
+    pub fn putstr_len_at(
+        &mut self,
+        position: impl Into<Position>,
+        len: usize,
+        string: &str,
+    ) -> Result<u32> {
+        let (y, x): (u32, u32) = position.into().into();
+        Ok(self
+            .into_ref_mut()
+            .putnstr_yx(y.into(), x.into(), len, string)?)
+    }
+
+    /// Writes a `string` to some `y`, some `x`, using the current style,
+    /// and no more than `len` bytes will be written.
+    ///
+    /// Returns the number of columns the cursor has advanced.
+    ///
+    /// ## Errors
+    /// - if the position falls outside the plane's area.
+    /// - if a glyph can't fit in the current line, unless scrolling is enabled.
+    pub fn putstr_len_at_yx(
+        &mut self,
+        y: Option<u32>,
+        x: Option<u32>,
+        len: usize,
+        string: &str,
+    ) -> Result<u32> {
+        Ok(self.into_ref_mut().putnstr_yx(y, x, len, string)?)
+    }
+
+    /// Writes a `string` to some `y`, and a `horizontal` alignment,
+    /// using the current style, and no more than `len` bytes will be written.
+    ///
+    /// Returns the number of columns the cursor has advanced.
+    ///
+    /// ## Errors
+    /// - if the position falls outside the plane's area.
+    /// - if a glyph can't fit in the current line, unless scrolling is enabled.
+    pub fn putstr_len_aligned(
+        &mut self,
+        y: Option<u32>,
+        horizontal: Align,
+        len: usize,
+        string: &str,
+    ) -> Result<u32> {
+        Ok(self
+            .into_ref_mut()
+            .putnstr_aligned(y, horizontal, len, string)?)
+    }
+
+    /// Considers the glyph at `position` as the fill target,
+    /// and copies `cell` to it and to all cardinally-connected cells.
+    ///
+    /// Returns the number of cells polyfilled.
+    ///
+    /// Errors if the position falls outside the plane's area.
+    pub fn polyfill_yx(&mut self, position: impl Into<Position>, cell: &Cell) -> Result<usize> {
+        let (y, x): (u32, u32) = position.into().into();
+        Ok(self
+            .into_ref_mut()
+            .polyfill_yx(y.into(), x.into(), cell.into())?)
+    }
+
+    //
+
+    /// Returns the cell at `position`.
     pub fn cell_at(&self, position: impl Into<Position>) -> Result<Cell> {
         let (y, x) = position.into().into();
         let mut cell = crate::sys::NcCell::new();

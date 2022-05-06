@@ -1,12 +1,9 @@
-// notcurses::geometry
+// notcurses::plane::geometry
 //
 //!
 //
 
-use crate::{sys::NcPixelGeometry, Blitter, Notcurses};
-
-mod tuples;
-pub use tuples::{Position, Size};
+use crate::{sys::NcPixelGeometry, Blitter, Notcurses, Size};
 
 /// The geometry of a [`Plane`][crate::Plane] or a terminal.
 #[derive(Clone, Copy, Default, PartialEq, Eq)]
@@ -98,7 +95,7 @@ mod std_impls {
     }
 }
 
-/// # Constructors
+/// # constructors
 impl PlaneGeometry {
     /// Returns the calculated geometry of the terminal using the desired `Blitter`.
     pub fn from_term(nc: &Notcurses, blitter: Blitter) -> Self {
@@ -155,7 +152,7 @@ impl PlaneGeometry {
     }
 }
 
-/// # Methods
+/// # methods
 impl PlaneGeometry {
     /// The current blitter.
     #[inline]
@@ -236,7 +233,3 @@ impl PlaneGeometry {
             .map(|size| size / self.pixels_per_cell)
     }
 }
-
-/// The geometry of a [`Visual`][crate::Visual].
-#[derive(Clone, Copy, Default, PartialEq, Eq)]
-pub struct VisualGeometry {}

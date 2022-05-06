@@ -76,7 +76,7 @@ macro_rules! printstr {
             let res = $plane.putstr(&format![$($args)*])?;
             $plane.render()?;
             Ok(res)
-        }) as crate::Result<usize>
+        }) as crate::Result<u32>
     };
 }
 
@@ -104,13 +104,13 @@ macro_rules! printstrln {
             let res = $plane.putln()?;
             $plane.render()?;
             Ok(res)
-        }) as crate::Result<usize>
+        }) as crate::Result<u32>
     };
     ($plane:ident, $($args:tt)*) => {
         ({
             let res = $plane.putstrln(&format![$($args)*])?;
             $plane.render()?;
             Ok(res)
-        }) as crate::Result<usize>
+        }) as crate::Result<u32>
     };
 }

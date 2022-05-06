@@ -9,21 +9,77 @@ use crate::{
 };
 
 mod builder;
-pub use builder::VisualBuilder;
-
+mod geometry;
 mod options;
+
+pub use builder::VisualBuilder;
+pub use geometry::VisualGeometry;
 use options::VisualOptions;
 
 /// A visual bit of multimedia.
-#[derive(Debug)]
 pub struct Visual {
     nc: *mut NcVisual,
     options: VisualOptions,
 }
 
-impl Drop for Visual {
-    fn drop(&mut self) {
-        self.into_ref_mut().destroy()
+mod std_impls {
+    use super::{Align, Visual};
+    use std::fmt;
+
+    impl Drop for Visual {
+        fn drop(&mut self) {
+            self.into_ref_mut().destroy()
+        }
+    }
+
+    impl fmt::Debug for Visual {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            let mut flags = String::new();
+            let (y, x) = (self.options.y, self.options.x);
+            let (vertical, horizontal);
+
+            if self.options.is_veraligned() {
+                flags += "VerAligned+";
+                vertical = Align::from(y).to_string();
+            } else {
+                vertical = y.to_string();
+            }
+            if self.options.is_horaligned() {
+                flags += "HorAligned+";
+                horizontal = Align::from(x).to_string();
+            } else {
+                horizontal = x.to_string();
+            }
+
+            if self.options.does_blend() {
+                flags += "Blend+";
+            }
+            if !self.options.does_degrade() {
+                flags += "NoDegrade+";
+            }
+            if !self.options.does_interpolate() {
+                flags += "NoInterpolate+";
+            }
+            flags.pop();
+
+            let transcolor = if let Some(color) = self.options.transcolor {
+                format!["{color}"]
+            } else {
+                String::new()
+            };
+
+            write!(
+                f,
+                "Visual {{ ({0}, {1}) {2} {3} {4} offset:{5:?} region:{6:?} [{flags}] }}",
+                vertical,
+                horizontal,
+                self.options.scale,
+                self.options.blitter,
+                transcolor,
+                self.options.cell_offset_yx,
+                self.options.region_yx_lenyx,
+            )
+        }
     }
 }
 

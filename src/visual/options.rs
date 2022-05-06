@@ -9,7 +9,7 @@ use crate::{sys::NcVisualFlag, Align, Blitter, Rgba, Scale};
 ///
 /// The main difference with [`NcVisualOptions`][crate::sys::NcVisualOptions]
 /// is the absence of a reference to a [`Plane`].
-#[derive(Clone, Copy, Debug, Default)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub(super) struct VisualOptions {
     pub(crate) y: i32,
     pub(crate) x: i32,
@@ -80,7 +80,7 @@ mod std_impls {
             vo.set_scale(ncvo.scaling.into());
 
             if ncvo.does_alpha() {
-                vo.set_transparency(Some(ncvo.transcolor.into()));
+                vo.set_transparency(Some(ncvo.transcolor));
             }
 
             if ncvo.is_veraligned() {
@@ -111,7 +111,7 @@ mod std_impls {
     }
 }
 
-/// # Methods for setting the options.
+/// # setter methods
 impl VisualOptions {
     /// Sets the vertical placement.
     pub fn set_y(&mut self, y: i32) {
@@ -141,11 +141,15 @@ impl VisualOptions {
     }
 
     /// Sets the pixel offset within the cell.
+    ///
+    /// Default: *None*.
     pub fn set_cell_offset(&mut self, cell_offset: Option<(u32, u32)>) {
         self.cell_offset_yx = cell_offset;
     }
 
     /// Sets the blitter.
+    ///
+    /// Default: *[`Blitter::Default`]*.
     pub fn set_blitter(&mut self, blitter: Blitter) {
         self.blitter = blitter;
     }
@@ -156,10 +160,12 @@ impl VisualOptions {
     }
 
     /// (Un)Sets the transparent color.
-    pub fn set_transparency(&mut self, color: Option<Rgba>) {
+    ///
+    /// Default: *None*.
+    pub fn set_transparency(&mut self, color: Option<impl Into<Rgba>>) {
         if let Some(color) = color {
             self.flags |= NcVisualFlag::AddAlpha;
-            self.transcolor = Some(color);
+            self.transcolor = Some(color.into());
         } else {
             self.flags &= !NcVisualFlag::AddAlpha;
             self.transcolor = None;
@@ -167,6 +173,8 @@ impl VisualOptions {
     }
 
     /// (Un)Sets blending.
+    ///
+    /// Default: *false* (blends not).
     pub fn set_blend(&mut self, blend: bool) {
         if blend {
             self.flags |= NcVisualFlag::Blend;
@@ -176,6 +184,8 @@ impl VisualOptions {
     }
 
     /// (Un)Sets degradation.
+    ///
+    /// Default: *true* (degrades).
     pub fn set_degrade(&mut self, degrade: bool) {
         if degrade {
             self.flags &= !NcVisualFlag::NoDegrade;
@@ -185,6 +195,8 @@ impl VisualOptions {
     }
 
     /// (Un)Sets interpolation.
+    ///
+    /// Default: *true* (interpolates).
     pub fn set_interpolate(&mut self, interpolate: bool) {
         if interpolate {
             self.flags &= !NcVisualFlag::NoInterpolate;
@@ -194,7 +206,7 @@ impl VisualOptions {
     }
 }
 
-/// # Methods for checking the flags.
+/// # flag query getter methods
 impl VisualOptions {
     /// Returns `true` if it has the `VerAligned` flag set.
     pub fn is_veraligned(&self) -> bool {

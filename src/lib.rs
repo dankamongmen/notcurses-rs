@@ -15,19 +15,19 @@
 mod color;
 mod error;
 mod event;
-mod geometry;
 mod macros;
 mod notcurses;
 mod plane;
+mod tuples;
 mod visual;
 
 pub use self::notcurses::{Capabilities, Notcurses, NotcursesBuilder};
 pub use color::{Channel, Channels, Palette};
 pub use error::{Error, Result};
 pub use event::Event;
-pub use geometry::{PlaneGeometry, Position, Size, VisualGeometry};
-pub use plane::{Cell, Plane, PlaneBuilder};
-pub use visual::{Visual, VisualBuilder};
+pub use plane::{Cell, Plane, PlaneBuilder, PlaneGeometry};
+pub use tuples::{Position, Size};
+pub use visual::{Visual, VisualBuilder, VisualGeometry};
 
 // reexports
 
