@@ -9,18 +9,18 @@ use crate::{sys::NcPixelGeometry, Blitter, Notcurses, Size};
 #[derive(Clone, Copy, Default, PartialEq, Eq)]
 pub struct PlaneGeometry {
     /// The selected blitter.
-    pub(crate) blitter: Blitter,
+    pub blitter: Blitter,
 
     /// Total size, in pixels.
-    pub(crate) pixels: Size,
+    pub pixels: Size,
 
     /// A `Cell`'s size, in pixels.
-    pub(crate) pixels_per_cell: Size,
+    pub pixels_per_cell: Size,
 
-    /// The maximum supported bitmap size, in pixels.
+    /// The largest bitmap size that the terminal is willing to accept.
     ///
-    /// Or None if bitmaps are not supported.
-    pub(crate) max_bitmap_pixels: Option<Size>,
+    /// Or none if bitmaps are not supported.
+    pub max_bitmap_pixels: Option<Size>,
 }
 
 mod std_impls {
@@ -160,6 +160,14 @@ impl PlaneGeometry {
         self.blitter
     }
 
+    //
+
+    /// Total size, in pixels.
+    #[inline]
+    pub const fn pixels(&self) -> Size {
+        self.pixels
+    }
+
     /// Total size, in `Cell`s.
     #[inline]
     pub fn cells(&self) -> Size {
@@ -172,17 +180,19 @@ impl PlaneGeometry {
         self.cells() * self.blits_per_cell()
     }
 
-    /// Total size, in pixels.
+    //
+
+    /// A `Cell`'s size, in pixels.
     #[inline]
-    pub const fn pixels(&self) -> Size {
-        self.pixels
+    pub const fn pixels_per_cell(&self) -> Size {
+        self.pixels_per_cell
     }
 
     /// A `Cell`s size, in `blitter` *blits*.
     #[inline]
     pub fn blits_per_cell(&self) -> Size {
         if self.blitter == Blitter::Pixel {
-            self.pixels_per_cell()
+            self.pixels_per_cell
         } else {
             Size::from((
                 self.blitter.cell_height().unwrap_or(0),
@@ -191,11 +201,7 @@ impl PlaneGeometry {
         }
     }
 
-    /// A `Cell`'s size, in pixels.
-    #[inline]
-    pub const fn pixels_per_cell(&self) -> Size {
-        self.pixels_per_cell
-    }
+    //
 
     /// Returns the maximum supported bitmap size, in pixels,
     /// or none if bitmaps are not supported.
@@ -204,8 +210,16 @@ impl PlaneGeometry {
         self.max_bitmap_pixels
     }
 
-    /// Returns the maximum supported bitmap size, in *blits*,
+    /// Returns the maximum supported bitmap size, in `Cell`s,
     /// or none if bitmaps are not supported.
+    #[inline]
+    pub fn max_bitmap_cells(&self) -> Option<Size> {
+        self.max_bitmap_pixels
+            .map(|size| size / self.pixels_per_cell)
+    }
+
+    /// Returns the maximum supported bitmap size, in *blits*,
+    /// using the current blitter, or none if bitmaps are not supported.
     pub fn max_bitmap_blits(&self) -> Option<Size> {
         self.max_bitmap_blitter(self.blitter)
     }
@@ -223,13 +237,5 @@ impl PlaneGeometry {
         } else {
             None
         }
-    }
-
-    /// Returns the maximum supported bitmap size, in `Cell`s,
-    /// or none if bitmaps are not supported.
-    #[inline]
-    pub fn max_bitmap_cells(&self) -> Option<Size> {
-        self.max_bitmap_pixels
-            .map(|size| size / self.pixels_per_cell)
     }
 }

@@ -282,6 +282,14 @@ impl Notcurses {
         PlaneGeometry::from_term_all(self, blitters)
     }
 
+    /// Returns the visual geometry of a visual.
+    pub fn visual_geometry(&self, visual: &Visual) -> Result<VisualGeometry> {
+        Ok(self
+            .into_ref()
+            .visual_geom(Some(visual.into_ref()), Some(&visual.options()))?
+            .into())
+    }
+
     /// Returns the capabilities of the terminal.
     pub fn capabilities(&self) -> Capabilities {
         Capabilities {

@@ -5,7 +5,7 @@
 
 use crate::{
     sys::{self, NcVisual, NcVisualOptions},
-    Align, Blitter, Notcurses, Plane, Position, Result, Rgba, Scale, Size,
+    Align, Blitter, Error, Notcurses, Plane, Position, Result, Rgba, Scale, Size,
 };
 
 mod builder;
@@ -244,6 +244,52 @@ impl Visual {
 
     //
 
+    /// Returns the visual geometry.
+    pub fn geometry(&self, notcurses: &Notcurses) -> Result<VisualGeometry> {
+        Ok(self
+            .into_ref()
+            .geom(Some(notcurses.into_ref()), Some(&self.options()))?
+            .into())
+    }
+
+    /// Returns the internal size of the visual, in pixels.
+    pub fn size(&self) -> Result<Size> {
+        self.into_ref()
+            .geom(None, Some(&self.options()))?
+            .pix_yx
+            .map(|s| s.into())
+            .ok_or_else(|| Error::Message("visual size error".to_string()))
+    }
+
+    // ­--
+
+    /// Resizes the visual to the new `size` using bilinear interpolation.
+    ///
+    /// This is a lossy transformation, unless the size is unchanged.
+    pub fn resize(&mut self, size: Size) -> Result<()> {
+        Ok(self.into_ref_mut().resize(size.y(), size.x())?)
+    }
+
+    /// Resizes the visual to the new `size` using nearest neighbor interpolation.
+    ///
+    /// This is a lossy transformation, unless the size is unchanged.
+    pub fn resize_nearest(&mut self, size: Size) -> Result<()> {
+        Ok(self
+            .into_ref_mut()
+            .resize_noninterpolative(size.y(), size.x())?)
+    }
+
+    //
+
+    /// Rotates the visual a number of `radians`.
+    ///
+    /// Only M_PI/2 and -M_PI/2 are supported at the moment.
+    pub fn rotate(&mut self, radians: f64) -> Result<()> {
+        Ok(self.into_ref_mut().rotate(radians)?)
+    }
+
+    //
+
     /// Sets the vertical placement, overriding vertical alignment.
     ///
     /// Default: *`0`*.
@@ -353,8 +399,8 @@ impl Visual {
 
     /// Sets the region to be rendered.
     ///
-    /// - `y`, `x`: origin of rendered region in pixels.
-    /// - `len_y`, `len_x`: size of rendered region in pixels.
+    /// - `y`, `x`: origin of the rendered region in pixels.
+    /// - `len_y`, `len_x`: size of the rendered region in pixels.
     pub fn set_region(&mut self, y: u32, x: u32, len_y: u32, len_x: u32) {
         self.options.set_region(Some((y, x, len_y, len_x)));
     }
@@ -362,20 +408,5 @@ impl Visual {
     /// Sets the pixel offset within the [`Cell`][crate::Cell].
     pub fn set_cell_offset(&mut self, y: u32, x: u32) {
         self.options.set_cell_offset(Some((y, x)));
-    }
-
-    /// Returns the visual geometry.
-    //
-    // if [`Nc`] is not provided, only [`pix_yx`] will be filled in, with the
-    // true pixel geometry of the current `NcVisual`.
-    //
-    // Additionally [`cdim_yx`] and [`maxpixel_yx`] are only ever filled in if we
-    // know them, and `maxpixel_yx` is only defined for `NcBlitter`::PIXEL.
-    //
-    pub fn geometry(&self, notcurses: &Notcurses) -> Result<VisualGeometry> {
-        Ok(self
-            .into_ref()
-            .geom(Some(notcurses.into_ref()), Some(&self.options()))?
-            .into())
     }
 }
