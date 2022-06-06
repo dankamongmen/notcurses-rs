@@ -21,7 +21,7 @@
 /// ```
 #[macro_export]
 macro_rules! putstr {
-    ($plane:ident, $($args:tt)*) => {
+    ($plane:expr, $($args:tt)*) => {
         $plane.putstr(&format![$($args)*])
     };
 }
@@ -44,10 +44,10 @@ macro_rules! putstr {
 /// ```
 #[macro_export]
 macro_rules! putstrln {
-    ($plane:ident) => {
+    ($plane:expr) => {
         $plane.putln()
     };
-    ($plane:ident, $($args:tt)*) => {
+    ($plane:expr, $($args:tt)*) => {
         $plane.putstrln(&format![$($args)*])
     };
 }
@@ -71,7 +71,7 @@ macro_rules! putstrln {
 /// ```
 #[macro_export]
 macro_rules! printstr {
-    ($plane:ident, $($args:tt)*) => {
+    ($plane:expr, $($args:tt)*) => {
         ({
             let res = $plane.putstr(&format![$($args)*])?;
             $plane.render()?;
@@ -99,14 +99,14 @@ macro_rules! printstr {
 /// ```
 #[macro_export]
 macro_rules! printstrln {
-    ($plane:ident) => {
+    ($plane:expr) => {
         ({
             let res = $plane.putln()?;
             $plane.render()?;
             Ok(res)
         }) as crate::Result<u32>
     };
-    ($plane:ident, $($args:tt)*) => {
+    ($plane:expr, $($args:tt)*) => {
         ({
             let res = $plane.putstrln(&format![$($args)*])?;
             $plane.render()?;

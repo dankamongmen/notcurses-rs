@@ -1,20 +1,20 @@
-// notcurses::event
+// notcurses::input
 //
 //!
 //
 
 use crate::{InputType, Key, KeyMod, Position, Received};
 
-/// An input event.
+/// A received input.
 #[derive(Clone, Copy, PartialEq, Eq)]
-pub struct Event {
-    /// A received [`Key`][crate::Key] or [`char`].
+pub struct Input {
+    /// The received input event.
     pub received: Received,
 
     /// Keyboard modifiers.
     pub keymod: KeyMod,
 
-    /// The type of the input
+    /// The type of the input.
     pub itype: InputType,
 
     /// The cell position of the event, if defined.
@@ -25,11 +25,11 @@ pub struct Event {
 }
 
 mod std_impls {
-    use super::{Event, Position, Received};
+    use super::{Input, Position, Received};
     use crate::sys::NcInput;
     use std::fmt;
 
-    impl fmt::Display for Event {
+    impl fmt::Display for Input {
         #[rustfmt::skip]
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
             let cell = if let Some(c) = self.cell { c.to_string() } else { "None".into() };
@@ -41,20 +41,20 @@ mod std_impls {
         }
     }
 
-    impl fmt::Debug for Event {
+    impl fmt::Debug for Input {
         #[rustfmt::skip]
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
             let cell = if let Some(c) = self.cell { c.to_string() } else { "None".into() };
             let offset = if let Some(o) = self.offset { o.to_string() } else { "None".into() };
             write!(f,
-                "Event {{received:{} mod:{} type:{} cell:{} offset:{} }}",
+                "Input {{received:{} mod:{} type:{} cell:{} offset:{} }}",
                 self.received, self.keymod, self.itype, cell, offset,
             )
         }
     }
 
-    impl From<(Received, NcInput)> for Event {
-        fn from(received_input: (Received, NcInput)) -> Event {
+    impl From<(Received, NcInput)> for Input {
+        fn from(received_input: (Received, NcInput)) -> Input {
             let (received, input) = received_input;
 
             // cell position & offset is only relevant for mouse events
@@ -71,7 +71,7 @@ mod std_impls {
                 }
             };
 
-            Event {
+            Input {
                 received,
                 keymod: input.modifiers.into(),
                 itype: input.evtype.into(),
@@ -83,8 +83,8 @@ mod std_impls {
 }
 
 /// # methods
-impl Event {
-    /// Returns true if something has been received.
+impl Input {
+    /// Returns true if something has actually been received.
     pub fn is_received(&self) -> bool {
         self.received != Received::NoInput
     }

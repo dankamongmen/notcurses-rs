@@ -5,8 +5,8 @@
 
 use crate::{
     sys::{Nc, NcInput, NcOptionsBuilder},
-    Blitter, Error, Event, MiceEvents, Palette, Plane, PlaneGeometry, Position, Result, Rgb, Size,
-    Statistics, Style,
+    Blitter, Error, Input, MouseInput, Palette, Plane, PlaneGeometry, Position, Result, Rgb, Size,
+    Statistics, Style, Visual, VisualGeometry,
 };
 use core::cell::RefCell;
 use once_cell::sync::OnceCell;
@@ -51,7 +51,7 @@ mod std_impls {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
             let (mt, mr, mb, ml) = self.options.get_margins();
             let margins = if mt + mr + mb + ml == 0 {
-                String::new()
+                String::from("[]")
             } else {
                 format!["margins:[{mt},{mr},{mb},{ml}]"]
             };
@@ -208,25 +208,25 @@ impl Notcurses {
         Ok(self.into_ref_mut().refresh()?)
     }
 
-    /// Enables receiving the provided mice `events`.
-    pub fn mice_enable(&mut self, events: MiceEvents) -> Result<()> {
-        Ok(self.into_ref_mut().mice_enable(events)?)
+    /// Enables receiving the provided mouse `input` events.
+    pub fn mouse_enable(&mut self, input: MouseInput) -> Result<()> {
+        Ok(self.into_ref_mut().mice_enable(input)?)
     }
 
-    /// Disables receiving the mice events.
-    pub fn mice_disable(&mut self) -> Result<()> {
-        self.mice_enable(MiceEvents::None)
+    /// Disables receiving the mouse events.
+    pub fn mouse_disable(&mut self) -> Result<()> {
+        self.mouse_enable(MouseInput::None)
     }
 
     /// Waits for an event, blocking.
-    pub fn get_event(&mut self) -> Result<Event> {
+    pub fn get_event(&mut self) -> Result<Input> {
         let mut input = NcInput::new_empty();
         let received = self.into_ref_mut().get_blocking(Some(&mut input))?;
         Ok((received, input).into())
     }
 
     /// Tries to get an event, non blocking.
-    pub fn poll_event(&mut self) -> Result<Event> {
+    pub fn poll_event(&mut self) -> Result<Input> {
         let mut input = NcInput::new_empty();
         let received = self.into_ref_mut().get_nblock(Some(&mut input))?;
         Ok((received, input).into())

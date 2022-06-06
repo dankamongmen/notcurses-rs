@@ -893,18 +893,16 @@ impl<'plane> Plane {
     /// Errors if the position falls outside the plane's area.
     pub fn polyfill_yx(&mut self, position: impl Into<Position>, cell: &Cell) -> Result<usize> {
         let (y, x): (u32, u32) = position.into().into();
-        Ok(self
-            .into_ref_mut()
-            .polyfill_yx(y.into(), x.into(), cell.into())?)
+        Ok(self.into_ref_mut().polyfill_yx(y, x, cell.into())?)
     }
 
     //
 
     /// Returns the cell at `position`.
-    pub fn cell_at(&self, position: impl Into<Position>) -> Result<Cell> {
+    pub fn cell_at(&mut self, position: impl Into<Position>) -> Result<Cell> {
         let (y, x) = position.into().into();
         let mut cell = crate::sys::NcCell::new();
-        let _bytes = self.into_ref().at_yx_cell(y, x, &mut cell)?;
+        let _bytes = self.into_ref_mut().at_yx_cell(y, x, &mut cell)?;
         Ok(cell.into())
     }
 
@@ -959,8 +957,8 @@ impl Plane {
 /// # base cell
 impl Plane {
     /// Returns this plane's base `Cell`.
-    pub fn base(&self) -> Result<Cell> {
-        Ok(self.into_ref().base()?.into())
+    pub fn base(&mut self) -> Result<Cell> {
+        Ok(self.into_ref_mut().base()?.into())
     }
 
     /// Sets the plane's base [`Cell`] from its components.

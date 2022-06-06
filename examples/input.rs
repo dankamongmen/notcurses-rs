@@ -5,7 +5,7 @@ use std::time::Instant;
 
 fn main() -> Result<()> {
     let mut nc = Notcurses::new()?;
-    nc.mice_enable(MiceEvents::All)?;
+    nc.mouse_enable(MouseInput::All)?;
 
     let mut plane = Plane::new(&mut nc)?;
     plane.set_scrolling(true);

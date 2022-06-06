@@ -130,7 +130,10 @@ impl Capabilities {
         self.truecolor
     }
 
+    /// Returns *true* if the "hardware" palette can be changed.
     ///
+    /// Requires the "ccc" terminfo capability, and that the number of colors
+    /// supported is at least the size of the `Palette` structure.
     pub fn palette_change(&self) -> bool {
         self.palette_change
     }

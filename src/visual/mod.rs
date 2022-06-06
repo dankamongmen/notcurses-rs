@@ -4,7 +4,7 @@
 //
 
 use crate::{
-    sys::{self, NcVisual},
+    sys::{self, NcVisual, NcVisualOptions},
     Align, Blitter, Notcurses, Plane, Position, Result, Rgba, Scale, Size,
 };
 
@@ -29,6 +29,56 @@ mod std_impls {
     impl Drop for Visual {
         fn drop(&mut self) {
             self.into_ref_mut().destroy()
+        }
+    }
+
+    impl fmt::Display for Visual {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            let mut flags = String::new();
+            let (y, x) = (self.options.y, self.options.x);
+            let (vertical, horizontal);
+
+            if self.options.is_veraligned() {
+                flags += "VerAligned+";
+                vertical = Align::from(y).to_string();
+            } else {
+                vertical = y.to_string();
+            }
+            if self.options.is_horaligned() {
+                flags += "HorAligned+";
+                horizontal = Align::from(x).to_string();
+            } else {
+                horizontal = x.to_string();
+            }
+
+            if self.options.does_blend() {
+                flags += "Blend+";
+            }
+            if !self.options.does_degrade() {
+                flags += "NoDegrade+";
+            }
+            if !self.options.does_interpolate() {
+                flags += "NoInterpolate+";
+            }
+            flags.pop();
+
+            let transcolor = if let Some(color) = self.options.transcolor {
+                color.to_string()
+            } else {
+                "None".to_string()
+            };
+
+            write!(
+                f,
+                "({0}, {1}) scale:{2} {3} t:{4} o:{5:?} r:{6:?} [{flags}]",
+                vertical,                     //0
+                horizontal,                   //1
+                self.options.scale,           //2
+                self.options.blitter,         //3
+                transcolor,                   //4
+                self.options.cell_offset_yx,  //5
+                self.options.region_yx_lenyx, //6
+            )
         }
     }
 
@@ -63,21 +113,21 @@ mod std_impls {
             flags.pop();
 
             let transcolor = if let Some(color) = self.options.transcolor {
-                format!["{color}"]
+                color.to_string()
             } else {
-                String::new()
+                "None".to_string()
             };
 
             write!(
                 f,
-                "Visual {{ ({0}, {1}) {2} {3} {4} offset:{5:?} region:{6:?} [{flags}] }}",
-                vertical,
-                horizontal,
-                self.options.scale,
-                self.options.blitter,
-                transcolor,
-                self.options.cell_offset_yx,
-                self.options.region_yx_lenyx,
+                "Visual {{ ({0}, {1}) Scale:{2} Blitter:{3} transp:{4} offset:{5:?} region:{6:?} [{flags}] }}",
+                vertical, //0
+                horizontal, //1
+                self.options.scale, //2
+                self.options.blitter, //3
+                transcolor, //4
+                self.options.cell_offset_yx, //5
+                self.options.region_yx_lenyx, //6
             )
         }
     }
@@ -157,6 +207,11 @@ impl Visual {
     /// Returns an exclusive reference to the inner [`NcVisual`].
     pub fn into_ref_mut(&mut self) -> &mut NcVisual {
         unsafe { &mut *self.nc }
+    }
+
+    // Returns the visual options.
+    pub(crate) fn options(&self) -> NcVisualOptions {
+        self.options.into()
     }
 }
 
@@ -307,5 +362,20 @@ impl Visual {
     /// Sets the pixel offset within the [`Cell`][crate::Cell].
     pub fn set_cell_offset(&mut self, y: u32, x: u32) {
         self.options.set_cell_offset(Some((y, x)));
+    }
+
+    /// Returns the visual geometry.
+    //
+    // if [`Nc`] is not provided, only [`pix_yx`] will be filled in, with the
+    // true pixel geometry of the current `NcVisual`.
+    //
+    // Additionally [`cdim_yx`] and [`maxpixel_yx`] are only ever filled in if we
+    // know them, and `maxpixel_yx` is only defined for `NcBlitter`::PIXEL.
+    //
+    pub fn geometry(&self, notcurses: &Notcurses) -> Result<VisualGeometry> {
+        Ok(self
+            .into_ref()
+            .geom(Some(notcurses.into_ref()), Some(&self.options()))?
+            .into())
     }
 }

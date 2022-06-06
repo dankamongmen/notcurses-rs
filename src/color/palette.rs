@@ -8,7 +8,7 @@ use crate::{
     Channel, Notcurses, Result, Rgb,
 };
 
-/// An array of 256 `Channel`s.
+/// An array of 256 [`Channel`]s.
 #[derive(Clone, PartialEq, Eq)]
 pub struct Palette {
     nc: *mut NcPalette,

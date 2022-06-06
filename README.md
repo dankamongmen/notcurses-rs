@@ -12,11 +12,11 @@ A high-level Rust wrapper over [notcurses][0], the most blingful TUI library.
 The API is currently undergoing heavy work.
 
 ## Main differences with `libnotcurses-sys`:
-- The `*Options` structs are replaced by `*Builder`s.
-- The *standard* plane is now called the *CLI* plane.
 - All types have the `Drop` trait implemented.
 - There is no *direct* mode, use *CLI* mode.
-- Much simpler, faster and safer to use.
+- The *standard* plane is referred to as the *CLI* plane.
+- The `*Options` structs are replaced by `*Builder`s.
+- Simpler and safer to use.
 -->
 
 [0]:https://github.com/dankamongmen/notcurses

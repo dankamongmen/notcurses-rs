@@ -25,8 +25,9 @@ impl VisualBuilder {
     }
 
     /// Builds a new `Visual` from a byte buffer with RGBA content.
-    pub fn build_from_rgba(self, rgba: &[u8], size: Size) -> Result<Visual> {
-        let ncvisual = NcVisual::from_rgba(rgba, size.h(), size.w() * 4, size.w())?;
+    pub fn build_from_rgba(self, rgba: &[u8], size: impl Into<Size>) -> Result<Visual> {
+        let (h, w) = size.into().into();
+        let ncvisual = NcVisual::from_rgba(rgba, h, w * 4, w)?;
         Ok(Visual {
             nc: ncvisual,
             options: self.options,
@@ -35,8 +36,9 @@ impl VisualBuilder {
 
     /// Builds a new `Visual` from a byte buffer with RGB content, providing
     /// the alpha to assign to all the pixels.
-    pub fn build_from_rgb(self, rgb: &[u8], size: Size, alpha: u8) -> Result<Visual> {
-        let ncvisual = NcVisual::from_rgb_packed(rgb, size.h(), size.w() * 3, size.w(), alpha)?;
+    pub fn build_from_rgb(self, rgb: &[u8], size: impl Into<Size>, alpha: u8) -> Result<Visual> {
+        let (h, w) = size.into().into();
+        let ncvisual = NcVisual::from_rgb_packed(rgb, h, w * 3, w, alpha)?;
         Ok(Visual {
             nc: ncvisual,
             options: self.options,
@@ -45,8 +47,9 @@ impl VisualBuilder {
 
     /// Builds a new `Visual` from a byte buffer with RGBX content, overriding
     /// the alpha byte *X* for all the pixels.
-    pub fn build_from_rgbx(self, rgbx: &[u8], size: Size, alpha: u8) -> Result<Visual> {
-        let ncvisual = NcVisual::from_rgb_loose(rgbx, size.h(), size.w() * 4, size.w(), alpha)?;
+    pub fn build_from_rgbx(self, rgbx: &[u8], size: impl Into<Size>, alpha: u8) -> Result<Visual> {
+        let (h, w) = size.into().into();
+        let ncvisual = NcVisual::from_rgb_loose(rgbx, h, w * 4, w, alpha)?;
         Ok(Visual {
             nc: ncvisual,
             options: self.options,
@@ -57,8 +60,9 @@ impl VisualBuilder {
     ///
     /// This is slower than [`build_from_rgba`][VisualBuilder#method.build_fromrgba],
     /// since it has to convert the pixels to the rgba format used internally.
-    pub fn build_from_bgra(self, bgra: &[u8], size: Size) -> Result<Visual> {
-        let ncvisual = NcVisual::from_bgra(bgra, size.h(), size.w() * 4, size.w())?;
+    pub fn build_from_bgra(self, bgra: &[u8], size: impl Into<Size>) -> Result<Visual> {
+        let (h, w) = size.into().into();
+        let ncvisual = NcVisual::from_bgra(bgra, h, w * 4, w)?;
         Ok(Visual {
             nc: ncvisual,
             options: self.options,

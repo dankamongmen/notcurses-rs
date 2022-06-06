@@ -14,7 +14,7 @@
 
 mod color;
 mod error;
-mod event;
+mod input;
 mod macros;
 mod notcurses;
 mod plane;
@@ -24,7 +24,7 @@ mod visual;
 pub use self::notcurses::{Capabilities, Notcurses, NotcursesBuilder};
 pub use color::{Channel, Channels, Palette};
 pub use error::{Error, Result};
-pub use event::Event;
+pub use input::Input;
 pub use plane::{Cell, Plane, PlaneBuilder, PlaneGeometry};
 pub use tuples::{Position, Size};
 pub use visual::{Visual, VisualBuilder, VisualGeometry};
@@ -57,11 +57,11 @@ pub use sys::NcAlpha as Alpha;
 #[doc = reexport_doc!("Blitter", "NcBlitter")]
 pub use sys::NcBlitter as Blitter;
 
-/// A received input [`Event`].
+/// A received [`Input`] event.
 #[doc = reexport_doc!("Received", "NcReceived")]
 pub use sys::NcReceived as Received;
 
-/// The type of the input [`Event`].
+/// The type of the [`Input`] event.
 #[doc = reexport_doc!("InputType", "NcInputType")]
 pub use sys::NcInputType as InputType;
 
@@ -74,8 +74,8 @@ pub use sys::NcKey as Key;
 pub use sys::NcLogLevel as LogLevel;
 
 /// A bitmask of mice events.
-#[doc = reexport_doc!("MiceEvents", "NcMiceEvents")]
-pub use sys::NcMiceEvents as MiceEvents;
+#[doc = reexport_doc!("MouseInput", "NcMiceEvents")]
+pub use sys::NcMiceEvents as MouseInput;
 
 /// [`Key`] modifiers bitflag.
 #[doc = reexport_doc!("KeyMod", "NcKeyMod")]

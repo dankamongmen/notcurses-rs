@@ -9,18 +9,18 @@ use crate::{sys::NcPixelGeometry, Blitter, Notcurses, Size};
 #[derive(Clone, Copy, Default, PartialEq, Eq)]
 pub struct PlaneGeometry {
     /// The selected blitter.
-    blitter: Blitter,
+    pub(crate) blitter: Blitter,
 
     /// Total size, in pixels.
-    pixels: Size,
+    pub(crate) pixels: Size,
 
     /// A `Cell`'s size, in pixels.
-    pixels_per_cell: Size,
+    pub(crate) pixels_per_cell: Size,
 
     /// The maximum supported bitmap size, in pixels.
     ///
     /// Or None if bitmaps are not supported.
-    max_bitmap_pixels: Option<Size>,
+    pub(crate) max_bitmap_pixels: Option<Size>,
 }
 
 mod std_impls {
