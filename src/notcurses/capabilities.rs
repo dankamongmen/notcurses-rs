@@ -1,6 +1,6 @@
 //!
 
-use crate::{sys::NcPixelImpl, Blitter, Notcurses};
+use crate::{Blitter, Notcurses, PixelImplementation};
 
 /// The detected current terminal capabilities.
 ///
@@ -17,7 +17,7 @@ pub struct Capabilities {
     pub(crate) images: bool,
     pub(crate) videos: bool,
     pub(crate) pixel: bool,
-    pub(crate) pixel_impl: NcPixelImpl,
+    pub(crate) pixel_implementation: PixelImplementation,
     pub(crate) fade: bool,
     pub(crate) truecolor: bool,
     pub(crate) palette_change: bool,
@@ -114,9 +114,9 @@ impl Capabilities {
         self.pixel
     }
 
-    /// Returns the detected pixel-blitting mechanism.
-    pub fn pixel_impl(&self) -> NcPixelImpl {
-        self.pixel_impl
+    /// Returns the detected pixel-blitting implementation.
+    pub const fn pixel_implementation(&self) -> PixelImplementation {
+        self.pixel_implementation
     }
 
     /// Returns *true* if fading is possible.

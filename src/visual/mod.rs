@@ -12,12 +12,14 @@ mod blitter;
 mod builder;
 mod geometry;
 mod options;
+mod pixel;
 mod scale;
 
 pub use blitter::Blitter;
 pub use builder::VisualBuilder;
 pub use geometry::VisualGeometry;
 use options::VisualOptions;
+pub use pixel::PixelImplementation;
 pub use scale::Scale;
 
 /// A visual bit of multimedia.

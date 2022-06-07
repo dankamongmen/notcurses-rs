@@ -21,17 +21,21 @@ mod plane;
 mod tuples;
 mod visual;
 
-pub use self::notcurses::{Capabilities, Notcurses, NotcursesBuilder};
+pub use self::notcurses::{Capabilities, LogLevel, Notcurses, NotcursesBuilder};
 pub use color::{Alpha, Channel, Channels, Palette, Rgb, Rgba};
 pub use error::{Error, Result};
 pub use input::Input;
-pub use plane::{Align, Cell, Plane, PlaneBuilder, PlaneGeometry};
+pub use plane::{Align, Cell, Plane, PlaneBuilder, PlaneGeometry, Style};
 pub use tuples::{Position, Size};
-pub use visual::{Blitter, Scale, Visual, VisualBuilder, VisualGeometry};
+pub use visual::{Blitter, PixelImplementation, Scale, Visual, VisualBuilder, VisualGeometry};
 
 // reexports
 
 pub use sys::sleep;
+
+pub(crate) use sys::from_primitive;
+pub(crate) use sys::unit_impl_fmt;
+pub(crate) use sys::unit_impl_ops;
 
 #[rustfmt::skip]
 macro_rules! reexport_doc { ($name:literal, $sysname:literal) => { concat![
@@ -57,10 +61,6 @@ pub use sys::NcInputType as InputType;
 #[doc = reexport_doc!("Key", "NcKey")]
 pub use sys::NcKey as Key;
 
-/// Stder log level.
-#[doc = reexport_doc!("LogLevel", "NcLogLevel")]
-pub use sys::NcLogLevel as LogLevel;
-
 /// A bitmask of mice events.
 #[doc = reexport_doc!("MouseInput", "NcMiceEvents")]
 pub use sys::NcMiceEvents as MouseInput;
@@ -69,14 +69,6 @@ pub use sys::NcMiceEvents as MouseInput;
 #[doc = reexport_doc!("KeyMod", "NcKeyMod")]
 pub use sys::NcKeyMod as KeyMod;
 
-/// Pixel blitting implementations.
-#[doc = reexport_doc!("PixelImplementation", "NcPixelImpl")]
-pub use sys::NcPixelImpl as PixelImplementation;
-
 /// Runtime statistics
 #[doc = reexport_doc!("Statistics", "NcStats")]
 pub use sys::NcStats as Statistics;
-
-/// A bitmask of styles.
-#[doc = reexport_doc!("Style", "NcStyle")]
-pub use sys::NcStyle as Style;

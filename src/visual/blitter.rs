@@ -1,4 +1,4 @@
-// notcurses::color::blitter
+// notcurses::visual::blitter
 //
 //!
 //

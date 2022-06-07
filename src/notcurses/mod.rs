@@ -13,9 +13,11 @@ use once_cell::sync::OnceCell;
 
 mod builder;
 mod capabilities;
+mod log_level;
 
 pub use builder::NotcursesBuilder;
 pub use capabilities::Capabilities;
+pub use log_level::LogLevel;
 
 thread_local!(
     /// Restricts initializing more than one `Notcurses` instance per thread, at the same time.
@@ -301,7 +303,7 @@ impl Notcurses {
             images: self.into_ref().canopen_images(),
             videos: self.into_ref().canopen_videos(),
             pixel: self.into_ref().canpixel(),
-            pixel_impl: self.into_ref().check_pixel_support(),
+            pixel_implementation: self.into_ref().check_pixel_support().into(),
             truecolor: self.into_ref().cantruecolor(),
             fade: self.into_ref().canfade(),
             palette_change: self.into_ref().canchangecolor(),
@@ -314,7 +316,7 @@ impl Notcurses {
     /// The attribute is only indicated as supported if the terminal can support
     /// it together with color.
     pub fn supported_styles(&self) -> Style {
-        self.into_ref().supported_styles()
+        self.into_ref().supported_styles().into()
     }
 
     /// Returns the default background color, if it is known.

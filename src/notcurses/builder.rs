@@ -48,7 +48,7 @@ impl NotcursesBuilder {
 impl NotcursesBuilder {
     /// Sets the log level.
     pub fn log_level(mut self, log_level: LogLevel) -> Self {
-        self.options.set_log_level(log_level);
+        self.options.set_log_level(log_level.into());
         self
     }
 

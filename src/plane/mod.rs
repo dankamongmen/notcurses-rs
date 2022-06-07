@@ -30,18 +30,19 @@
 
 use crate::{
     sys::NcPlane, Blitter, Capabilities, Channel, Channels, Notcurses, Position, Result, Size,
-    Style,
 };
 
 mod align;
 mod builder;
 mod cell;
 mod geometry;
+mod style;
 
 pub use align::Align;
 pub use builder::PlaneBuilder;
 pub use cell::Cell;
 pub use geometry::PlaneGeometry;
+pub use style::Style;
 
 /// A drawable text surface, composed of [`Cell`]s.
 pub struct Plane {
@@ -292,7 +293,7 @@ impl Plane {
             images: nc.canopen_images(),
             videos: nc.canopen_videos(),
             pixel: nc.canpixel(),
-            pixel_impl: nc.check_pixel_support(),
+            pixel_implementation: nc.check_pixel_support().into(),
             truecolor: nc.cantruecolor(),
             fade: nc.canfade(),
             palette_change: nc.canchangecolor(),

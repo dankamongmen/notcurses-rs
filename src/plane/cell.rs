@@ -209,33 +209,33 @@ impl Cell {
 impl Cell {
     /// Gets the styles.
     pub fn styles(&self) -> Style {
-        self.nc.styles()
+        self.nc.styles().into()
     }
 
     /// Sets the `styles`, returning the previous value.
     pub fn set_styles(&mut self, styles: impl Into<Style>) -> Style {
         let prev = self.styles();
-        self.nc.styles_set(styles);
+        self.nc.styles_set(styles.into());
         prev
     }
 
     /// Adds the specified `styles`, returning the previous value.
     pub fn add_styles(&mut self, styles: impl Into<Style>) -> Style {
         let prev = self.styles();
-        self.nc.styles_on(styles);
+        self.nc.styles_on(styles.into());
         prev
     }
 
     /// Deletes the specified `styles`, returning the previous value.
     pub fn del_styles(&mut self, styles: impl Into<Style>) -> Style {
         let prev = self.styles();
-        self.nc.styles_off(styles);
+        self.nc.styles_off(styles.into());
         prev
     }
 
     /// Chain-sets the `styles`.
     pub fn cset_style(mut self, styles: impl Into<Style>) -> Self {
-        self.nc.styles_set(styles);
+        self.nc.styles_set(styles.into());
         self
     }
 }
