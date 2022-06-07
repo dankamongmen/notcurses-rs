@@ -77,12 +77,12 @@ impl Palette {
 
     /// Returns the `Rgb` value at `index`.
     pub fn get(&self, index: impl Into<u8>) -> Rgb {
-        self.into_ref().get(index.into())
+        self.into_ref().get(index.into()).into()
     }
 
     /// Sets the `Rgb` value at `index`.
     pub fn set(&mut self, index: impl Into<u8>, rgb: impl Into<Rgb>) {
-        self.into_ref_mut().set(index.into(), rgb);
+        self.into_ref_mut().set(index.into(), rgb.into());
     }
 
     /// Returns the channel at `index`.

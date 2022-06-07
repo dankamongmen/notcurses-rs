@@ -115,7 +115,7 @@ impl Channel {
     }
 
     pub fn from_rgb_alpha(rgb: impl Into<Rgb>, alpha: Alpha) -> Channel {
-        NcChannel::from_rgb_alpha(rgb.into(), alpha).into()
+        NcChannel::from_rgb_alpha(rgb.into(), alpha.into()).into()
     }
 }
 
@@ -142,7 +142,7 @@ impl Channel {
 impl Channel {
     /// Gets the Alpha.
     pub fn alpha(&self) -> Alpha {
-        self.nc.alpha()
+        self.nc.alpha().into()
     }
 
     /// Sets the Alpha.
@@ -159,7 +159,7 @@ impl Channel {
 
     /// Gets the RGB values.
     pub fn rgb(&self) -> Rgb {
-        self.nc.rgb()
+        self.nc.rgb().into()
     }
 
     /// Gets the red color component.

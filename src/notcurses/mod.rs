@@ -254,11 +254,11 @@ impl Notcurses {
     ///
     /// [`Pixel`] > [`Sextant`] > [`Quadrant`] > [`Half`] > [`Ascii`].
     ///
-    /// [`Pixel`]: crate::sys::NcBlitter#variant.Pixel
-    /// [`Sextant`]: crate::sys::NcBlitter#variant.Sextant
-    /// [`Quadrant`]: crate::sys::NcBlitter#variant.Quadrant
-    /// [`Half`]: crate::sys::NcBlitter#variant.Half
-    /// [`Ascii`]: crate::sys::NcBlitter#variant.Ascii
+    /// [`Pixel`]: crate::Blitter#variant.Pixel
+    /// [`Sextant`]: crate::Blitter#variant.Sextant
+    /// [`Quadrant`]: crate::Blitter#variant.Quadrant
+    /// [`Half`]: crate::Blitter#variant.Half
+    /// [`Ascii`]: crate::Blitter#variant.Ascii
     pub fn geometry_best(&self) -> PlaneGeometry {
         PlaneGeometry::from_term(self, self.capabilities().best_blitter())
     }
@@ -319,12 +319,12 @@ impl Notcurses {
 
     /// Returns the default background color, if it is known.
     pub fn default_background(&self) -> Option<Rgb> {
-        self.into_ref().default_background()
+        self.into_ref().default_background().map(|rgb| rgb.into())
     }
 
     /// Returns the default foreground color, if it is known.
     pub fn default_foreground(&self) -> Option<Rgb> {
-        self.into_ref().default_foreground()
+        self.into_ref().default_foreground().map(|rgb| rgb.into())
     }
 
     /// Returns a human-readable string describing the running notcurses version.

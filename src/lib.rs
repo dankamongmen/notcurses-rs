@@ -22,12 +22,12 @@ mod tuples;
 mod visual;
 
 pub use self::notcurses::{Capabilities, Notcurses, NotcursesBuilder};
-pub use color::{Channel, Channels, Palette};
+pub use color::{Alpha, Channel, Channels, Palette, Rgb, Rgba};
 pub use error::{Error, Result};
 pub use input::Input;
-pub use plane::{Cell, Plane, PlaneBuilder, PlaneGeometry};
+pub use plane::{Align, Cell, Plane, PlaneBuilder, PlaneGeometry};
 pub use tuples::{Position, Size};
-pub use visual::{Visual, VisualBuilder, VisualGeometry};
+pub use visual::{Blitter, Scale, Visual, VisualBuilder, VisualGeometry};
 
 // reexports
 
@@ -44,18 +44,6 @@ macro_rules! reexport_doc { ($name:literal, $sysname:literal) => { concat![
 /// ---
 #[doc(inline)]
 pub use libnotcurses_sys as sys;
-
-/// Alignment within a [`Plane`] or terminal.
-#[doc = reexport_doc!("Align", "NcAlign")]
-pub use sys::NcAlign as Align;
-
-/// Alpha information, part of a [`Channel`].
-#[doc = reexport_doc!("Alpha", "NcAlpha")]
-pub use sys::NcAlpha as Alpha;
-
-/// Blitter mode to use for rasterizing a [`Visual`].
-#[doc = reexport_doc!("Blitter", "NcBlitter")]
-pub use sys::NcBlitter as Blitter;
 
 /// A received [`Input`] event.
 #[doc = reexport_doc!("Received", "NcReceived")]
@@ -84,18 +72,6 @@ pub use sys::NcKeyMod as KeyMod;
 /// Pixel blitting implementations.
 #[doc = reexport_doc!("PixelImplementation", "NcPixelImpl")]
 pub use sys::NcPixelImpl as PixelImplementation;
-
-/// A 24-bit RGB value.
-#[doc = reexport_doc!("Rgb", "NcRgb")]
-pub use sys::NcRgb as Rgb;
-
-/// A 32-bit RGBA value.
-#[doc = reexport_doc!("Rgba", "NcRgba")]
-pub use sys::NcRgba as Rgba;
-
-/// Indicates how to scale a [`Visual`] during rendering.
-#[doc = reexport_doc!("Scale", "NcScale")]
-pub use sys::NcScale as Scale;
 
 /// Runtime statistics
 #[doc = reexport_doc!("Statistics", "NcStats")]

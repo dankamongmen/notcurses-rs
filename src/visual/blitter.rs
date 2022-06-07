@@ -1,0 +1,210 @@
+// notcurses::color::blitter
+//
+//!
+//
+
+/// Blitter mode to use for rasterizing a [`Visual`].
+///
+/// We never blit full blocks, but instead spaces (more efficient) with the
+/// background set to the desired foreground.
+///
+/// # Degradation
+///
+/// There is a mechanism of graceful degradation, that works as follows:
+///
+/// [`Pixel`] > [`Sextant`] > [`Quadrant`] > [`Half`] > [`Ascii`].
+///
+/// If you don't want this behaviour you have to call the [`degrade`] method of
+/// [`VisualBuilder`] (or the [`set_degrade`] method of [`Visual`]) to *false*.
+///
+/// [`Visualbuilder`]: crate::VisualBuilder
+/// [`degrade`]: crate::VisualBuilder#method.degrade
+/// [`Visual`]: crate::Visual
+/// [`set_degrade`]: crate::Visual#method.set_degrade
+///
+/// [`Pixel`]: crate::Blitter#variant.Pixel
+/// [`Sextant`]: crate::Blitter#variant.Sextant
+/// [`Quadrant`]: crate::Blitter#variant.Quadrant
+/// [`Half`]: crate::Blitter#variant.Half
+/// [`Ascii`]: crate::Blitter#variant.Ascii
+#[non_exhaustive]
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum Blitter {
+    ///
+    Default,
+
+    /// Blitter mode using only spaces, compatible with ASCII (1x1).
+    Ascii,
+
+    /// Blitter mode using halves + `Ascii` (2x1).
+    ///
+    /// ▄▀
+    Half,
+
+    /// Blitter mode using quadrants + `Half` (2x2).
+    ///
+    /// ▗▐ ▖▀▟▌▙
+    Quadrant,
+
+    /// Blitter mode using sextants + `Quadrant` (3x2).
+    ///
+    /// 🬀🬁🬂🬃🬄🬅🬆🬇🬈🬉🬊🬋🬌🬍🬎🬏🬐🬑🬒🬓🬔🬕🬖🬗🬘🬙🬚🬛🬜🬝🬞🬟🬠🬡🬢🬣🬤🬥🬦🬧🬨🬩🬪🬫🬬🬭🬮🬯🬰🬱🬲🬳🬴🬵🬶🬷🬸🬹🬺🬻
+    Sextant,
+
+    /// Blitter mode using braille (4x2).
+    ///
+    /// ⡀⡄⡆⡇⢀⣀⣄⣆⣇⢠⣠⣤⣦⣧⢰⣰⣴⣶⣷⢸⣸⣼⣾⣿
+    Braille,
+
+    /// Blitter mode using Pixels/Sixels.
+    ///
+    Pixel,
+
+    /// Blitter mode using: four vertical levels (4x1).
+    ///
+    /// █▆▄▂
+    _4x1,
+
+    /// Blitter mode using: eight vertical levels (8x1).
+    ///
+    /// █▇▆▅▄▃▂▁
+    _8x1,
+}
+
+/// # aliases
+#[allow(non_upper_case_globals)]
+impl Blitter {
+    pub const _1x1: Blitter = Blitter::Ascii;
+    pub const _2x1: Blitter = Blitter::Half;
+    pub const _2x2: Blitter = Blitter::Quadrant;
+    pub const _3x2: Blitter = Blitter::Sextant;
+}
+
+mod std_impls {
+    use super::Blitter;
+    use crate::sys::{c_api::NcBlitter_u32, NcBlitter};
+    use std::fmt;
+
+    impl Default for Blitter {
+        fn default() -> Self {
+            Self::Default
+        }
+    }
+
+    impl fmt::Display for Blitter {
+        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            use Blitter::*;
+            write!(
+                f,
+                "{}",
+                match self {
+                    Default => "Default",
+                    Ascii => "Ascii",
+                    Half => "Half",
+                    Quadrant => "Quadrant",
+                    Sextant => "Sextant",
+                    Braille => "Braille",
+                    Pixel => "Pixel",
+                    _4x1 => "4x1",
+                    _8x1 => "8x1",
+                }
+            )
+        }
+    }
+
+    impl fmt::Debug for Blitter {
+        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            write!(f, "Blitter::{}", self)
+        }
+    }
+
+    //
+
+    impl From<NcBlitter> for Blitter {
+        fn from(nc: NcBlitter) -> Blitter {
+            match nc {
+                NcBlitter::Default => Blitter::Default,
+                NcBlitter::Ascii => Blitter::Ascii,
+                NcBlitter::Half => Blitter::Half,
+                NcBlitter::Quadrant => Blitter::Quadrant,
+                NcBlitter::Sextant => Blitter::Sextant,
+                NcBlitter::Braille => Blitter::Braille,
+                NcBlitter::Pixel => Blitter::Pixel,
+                NcBlitter::_4x1 => Blitter::_4x1,
+                NcBlitter::_8x1 => Blitter::_8x1,
+                _ => Blitter::default(),
+            }
+        }
+    }
+    impl From<Blitter> for NcBlitter {
+        fn from(blitter: Blitter) -> NcBlitter {
+            match blitter {
+                Blitter::Default => NcBlitter::Default,
+                Blitter::Ascii => NcBlitter::Ascii,
+                Blitter::Half => NcBlitter::Half,
+                Blitter::Quadrant => NcBlitter::Quadrant,
+                Blitter::Sextant => NcBlitter::Sextant,
+                Blitter::Braille => NcBlitter::Braille,
+                Blitter::Pixel => NcBlitter::Pixel,
+                Blitter::_4x1 => NcBlitter::_4x1,
+                Blitter::_8x1 => NcBlitter::_8x1,
+                // _ => NcBlitter::default(),
+            }
+        }
+    }
+
+    impl From<NcBlitter_u32> for Blitter {
+        fn from(ncu: NcBlitter_u32) -> Blitter {
+            NcBlitter::from(ncu).into()
+        }
+    }
+    impl From<Blitter> for NcBlitter_u32 {
+        fn from(blitter: Blitter) -> NcBlitter_u32 {
+            NcBlitter::from(blitter).into()
+        }
+    }
+}
+
+/// # methods
+impl Blitter {
+    /// The number of `height` subdivisions in a cell using the current blitter.
+    ///
+    /// Default & Pixel returns `None`.
+    pub const fn cell_height(&self) -> Option<u8> {
+        // self.cell_size().and_then(|size| Some(size.0) ) // not const
+        if let Some(size) = self.cell_size() {
+            Some(size.0)
+        } else {
+            None
+        }
+    }
+
+    /// The number of `width` subdivisions in a cell using the current blitter.
+    ///
+    /// Default & Pixel returns `None`.
+    pub const fn cell_width(&self) -> Option<u8> {
+        // self.cell_size().and_then(|size| Some(size.1) ) // not const
+        if let Some(size) = self.cell_size() {
+            Some(size.1)
+        } else {
+            None
+        }
+    }
+
+    /// The inner Cell's dimensions `(height, width)` using the current blitter.
+    ///
+    /// Default & Pixel returns `None`.
+    pub const fn cell_size(&self) -> Option<(u8, u8)> {
+        use Blitter::*;
+        match self {
+            Ascii => Some((1, 1)),
+            Half => Some((2, 1)),
+            Quadrant => Some((2, 2)),
+            Sextant => Some((3, 2)),
+            Braille => Some((4, 2)),
+            _4x1 => Some((4, 1)),
+            _8x1 => Some((8, 1)),
+            _ => None, // Default, Pixel, …
+        }
+    }
+}

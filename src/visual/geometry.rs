@@ -66,7 +66,7 @@ mod std_impls {
     impl From<NcVisualGeometry> for VisualGeometry {
         fn from(nc: NcVisualGeometry) -> VisualGeometry {
             Self {
-                blitter: nc.blitter,
+                blitter: nc.blitter.into(),
                 pixels: nc.pix_yx.unwrap_or((0, 0)).into(),
                 rendered_pixels: nc.rpix_yx.unwrap_or((0, 0)).into(),
                 rendered_cells: nc.rcell_yx.unwrap_or((0, 0)).into(),

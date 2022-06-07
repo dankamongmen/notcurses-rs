@@ -182,12 +182,12 @@ impl Cell {
 impl Cell {
     /// Gets the foreground alpha.
     pub fn fg_alpha(&self) -> Alpha {
-        self.nc.fg_alpha()
+        self.nc.fg_alpha().into()
     }
 
     /// Gets the background alpha.
     pub fn bg_alpha(&self) -> Alpha {
-        self.nc.bg_alpha()
+        self.nc.bg_alpha().into()
     }
 
     /// Sets the `foreground` alpha, returning the previous value.

@@ -5,16 +5,20 @@
 
 use crate::{
     sys::{self, NcVisual, NcVisualOptions},
-    Align, Blitter, Error, Notcurses, Plane, Position, Result, Rgba, Scale, Size,
+    Align, Error, Notcurses, Plane, Position, Result, Rgba, Size,
 };
 
+mod blitter;
 mod builder;
 mod geometry;
 mod options;
+mod scale;
 
+pub use blitter::Blitter;
 pub use builder::VisualBuilder;
 pub use geometry::VisualGeometry;
 use options::VisualOptions;
+pub use scale::Scale;
 
 /// A visual bit of multimedia.
 pub struct Visual {

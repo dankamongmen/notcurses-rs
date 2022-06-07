@@ -6,6 +6,7 @@ use crate::{sys::NcPixelImpl, Blitter, Notcurses};
 ///
 /// It can also be generated from
 /// [`Notcurses.capabilities`][crate::Notcurses#method.capabilities] and
+#[non_exhaustive]
 #[derive(Clone, Copy, Debug)]
 pub struct Capabilities {
     pub(crate) halfblock: bool,
@@ -66,7 +67,6 @@ impl Capabilities {
             Pixel => self.pixel,
             _4x1 => self.utf8,
             _8x1 => self.utf8,
-            _ => false,
         }
     }
 
