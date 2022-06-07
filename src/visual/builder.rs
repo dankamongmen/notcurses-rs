@@ -26,7 +26,7 @@ impl VisualBuilder {
 
     /// Builds a new `Visual` from a byte buffer with RGBA content.
     pub fn build_from_rgba(self, rgba: &[u8], size: impl Into<Size>) -> Result<Visual> {
-        let (h, w) = size.into().into();
+        let (w, h) = size.into().into();
         let ncvisual = NcVisual::from_rgba(rgba, h, w * 4, w)?;
         Ok(Visual {
             nc: ncvisual,
@@ -37,7 +37,7 @@ impl VisualBuilder {
     /// Builds a new `Visual` from a byte buffer with RGB content, providing
     /// the alpha to assign to all the pixels.
     pub fn build_from_rgb(self, rgb: &[u8], size: impl Into<Size>, alpha: u8) -> Result<Visual> {
-        let (h, w) = size.into().into();
+        let (w, h) = size.into().into();
         let ncvisual = NcVisual::from_rgb_packed(rgb, h, w * 3, w, alpha)?;
         Ok(Visual {
             nc: ncvisual,
@@ -48,7 +48,7 @@ impl VisualBuilder {
     /// Builds a new `Visual` from a byte buffer with RGBX content, overriding
     /// the alpha byte *X* for all the pixels.
     pub fn build_from_rgbx(self, rgbx: &[u8], size: impl Into<Size>, alpha: u8) -> Result<Visual> {
-        let (h, w) = size.into().into();
+        let (w, h) = size.into().into();
         let ncvisual = NcVisual::from_rgb_loose(rgbx, h, w * 4, w, alpha)?;
         Ok(Visual {
             nc: ncvisual,
@@ -61,7 +61,7 @@ impl VisualBuilder {
     /// This is slower than [`build_from_rgba`][VisualBuilder#method.build_fromrgba],
     /// since it has to convert the pixels to the rgba format used internally.
     pub fn build_from_bgra(self, bgra: &[u8], size: impl Into<Size>) -> Result<Visual> {
-        let (h, w) = size.into().into();
+        let (w, h) = size.into().into();
         let ncvisual = NcVisual::from_bgra(bgra, h, w * 4, w)?;
         Ok(Visual {
             nc: ncvisual,
@@ -100,10 +100,10 @@ impl VisualBuilder {
         self,
         plane: &Plane,
         blitter: Blitter,
-        beg_y: Option<u32>,
         beg_x: Option<u32>,
-        len_y: Option<u32>,
+        beg_y: Option<u32>,
         len_x: Option<u32>,
+        len_y: Option<u32>,
     ) -> Result<Visual> {
         let ncvisual = NcVisual::from_plane(plane.into_ref(), blitter, beg_y, beg_x, len_y, len_x)?;
         Ok(Visual {
@@ -113,7 +113,7 @@ impl VisualBuilder {
     }
 
     /// Builds a new `Visual` from a nul-terminated Sixel control `sequence`.
-    pub fn build_from_sixel(self, sequence: &str, len_y: u32, len_x: u32) -> Result<Visual> {
+    pub fn build_from_sixel(self, sequence: &str, len_x: u32, len_y: u32) -> Result<Visual> {
         let ncvisual = NcVisual::from_sixel(sequence, len_y, len_x)?;
         Ok(Visual {
             nc: ncvisual,
@@ -127,9 +127,9 @@ impl VisualBuilder {
     pub fn build_from_palidx(
         self,
         data: &[u8],
+        x: u32,
         y: u32,
         stride: u32,
-        x: u32,
         palsize: u8,
         pstride: u32,
         palette: Palette,
@@ -145,44 +145,44 @@ impl VisualBuilder {
 
 /// # Methods (chainable)
 impl VisualBuilder {
-    /// Sets the vertical placement. Default: *`0`*.
-    pub fn y(mut self, y: i32) -> Self {
-        self.options.set_y(y);
-        self
-    }
     /// Sets the horizontal placement. Default: *`0`*.
     pub fn x(mut self, x: i32) -> Self {
         self.options.set_x(x);
         self
     }
-    /// Sets the vertical & horizontal placement. Default: *`(0, 0)`*.
-    pub fn yx(mut self, y: i32, x: i32) -> Self {
+    /// Sets the vertical placement. Default: *`0`*.
+    pub fn y(mut self, y: i32) -> Self {
         self.options.set_y(y);
+        self
+    }
+    /// Sets the vertical & horizontal placement. Default: *`(0, 0)`*.
+    pub fn xy(mut self, x: i32, y: i32) -> Self {
         self.options.set_x(x);
+        self.options.set_y(y);
         self
     }
 
     /// Convenience wrapper around [`yx`][VisualBuilder#method.yx].
     pub fn position(self, position: Position) -> Self {
-        let (y, x) = position.into();
-        self.yx(y, x)
+        let (x, y) = position.into();
+        self.xy(x, y)
     }
 
-    /// Sets the vertical alignment. Default: *[`Align::Top`]*.
-    pub fn valign(mut self, vertical: Align) -> Self {
-        self.options.set_valign(vertical);
-        self
-    }
     /// Sets the horizontal alignment. Default: *[`Align::Left`]*.
     pub fn halign(mut self, horizontal: Align) -> Self {
         self.options.set_halign(horizontal);
         self
     }
-    /// Sets both the vertical & horizontal alignment.
-    /// Default: *`(`[`Align::Top`]*`, `*[`Align::Left`]`)`*.
-    pub fn align(mut self, vertical: Align, horizontal: Align) -> Self {
+    /// Sets the vertical alignment. Default: *[`Align::Top`]*.
+    pub fn valign(mut self, vertical: Align) -> Self {
         self.options.set_valign(vertical);
+        self
+    }
+    /// Sets both the horizontal & vertical  alignment.
+    /// Default: *`(`[`Align::Top`]*`, `*[`Align::Left`]`)`*.
+    pub fn align(mut self, horizontal: Align, vertical: Align) -> Self {
         self.options.set_halign(horizontal);
+        self.options.set_valign(vertical);
         self
     }
 
@@ -242,14 +242,14 @@ impl VisualBuilder {
     ///
     /// - `y`, `x`: origin of rendered region in pixels.
     /// - `len_y`, `len_x`: size of rendered region in pixels.
-    pub fn region(mut self, y: u32, x: u32, len_y: u32, len_x: u32) -> Self {
-        self.options.set_region(Some((y, x, len_y, len_x)));
+    pub fn region(mut self, x: u32, y: u32, len_x: u32, len_y: u32) -> Self {
+        self.options.set_region(Some((x, y, len_x, len_y)));
         self
     }
 
     /// Sets the pixel offset within the [`Cell`][crate::Cell].
-    pub fn cell_offset(mut self, y: u32, x: u32) -> Self {
-        self.options.set_cell_offset(Some((y, x)));
+    pub fn cell_offset(mut self, x: u32, y: u32) -> Self {
+        self.options.set_cell_offset(Some((x, y)));
         self
     }
 }

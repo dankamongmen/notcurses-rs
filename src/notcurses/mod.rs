@@ -246,9 +246,9 @@ impl Notcurses {
 
 /// # general query methods
 impl Notcurses {
-    /// Returns the terminal size `(height, width)`.
+    /// Returns the terminal size.
     pub fn size(&self) -> Size {
-        self.into_ref().term_dim_yx().into()
+        Size::from(self.into_ref().term_dim_yx()).swap()
     }
 
     /// Returns the terminal geometry with the best resolution blitter available,

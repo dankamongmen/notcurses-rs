@@ -316,7 +316,7 @@ impl Plane {
 
     /// Returns the size of the plane.
     pub fn size(&self) -> Size {
-        self.into_ref().dim_yx().into()
+        Size::from(self.into_ref().dim_yx()).swap()
     }
 
     /// Resizes the plane to a new `size`.
@@ -339,10 +339,10 @@ impl Plane {
         keep_size: Size,
         offset: Position,
     ) -> Result<()> {
-        let (keep_y, keep_x) = keep.into();
-        let (keep_len_y, keep_len_x) = keep_size.into();
-        let (off_y, off_x) = offset.into();
-        let (len_y, len_x) = size.into();
+        let (keep_x, keep_y) = keep.into();
+        let (keep_len_x, keep_len_y) = keep_size.into();
+        let (off_x, off_y) = offset.into();
+        let (len_x, len_y) = size.into();
         Ok(self.into_ref_mut().resize(
             keep_y, keep_x, keep_len_y, keep_len_x, off_y, off_x, len_y, len_x,
         )?)
@@ -351,9 +351,7 @@ impl Plane {
     /// Resizes this `NcPlane`, retaining what data we can (everything, unless
     /// we're shrinking in some dimension). Keeps the origin where it is.
     pub fn resize_simple(&mut self, size: Size) -> Result<()> {
-        Ok(self
-            .into_ref_mut()
-            .resize_simple(size.height(), size.width())?)
+        Ok(self.into_ref_mut().resize_simple(size.w(), size.h())?)
     }
 
     // TODO CHECK callbacks
@@ -399,19 +397,19 @@ impl Plane {
     /// [`root_position`][Position#method.root_position].
     #[inline]
     pub fn position(&self) -> Position {
-        self.into_ref().yx().into()
+        Position::from(self.into_ref().yx()).swap()
     }
 
     /// Returns the root position of this plane,
     /// which is relative to the root of the pile this plane is part of.
     #[inline]
     pub fn root_position(&self) -> Position {
-        self.into_ref().abs_yx().into()
+        Position::from(self.into_ref().abs_yx()).swap()
     }
 
     /// Moves this plane relative to its parent (or to its pile, if it's a root plane).
     pub fn move_to(&mut self, position: impl Into<Position>) -> Result<()> {
-        let (y, x) = position.into().into();
+        let (x, y) = position.into().into();
         Ok(self.into_ref_mut().move_yx(y, x)?)
     }
 
@@ -420,7 +418,7 @@ impl Plane {
     /// - Negative values move up and left, respectively.
     /// - Pass 0 to hold an axis constant.
     pub fn move_rel(&mut self, offset: impl Into<Position>) -> Result<()> {
-        let (rows, cols) = offset.into().into();
+        let (cols, rows) = offset.into().into();
         Ok(self.into_ref_mut().move_rel(rows, cols)?)
     }
 
@@ -448,9 +446,9 @@ impl Plane {
     /// # }
     /// ```
     pub fn translate(&self, position: impl Into<Position>, target: &Plane) -> Position {
-        let (mut y, mut x) = position.into().into();
+        let (mut x, mut y) = position.into().into();
         self.into_ref().translate(target.into_ref(), &mut y, &mut x);
-        Position(y, x)
+        Position(x, y)
     }
 
     /// Translates a `position` relative to the root,
@@ -473,9 +471,9 @@ impl Plane {
     /// # }
     /// ```
     pub fn translate_root(&self, position: impl Into<Position>) -> (Position, bool) {
-        let (mut y, mut x) = position.into().into();
+        let (mut x, mut y) = position.into().into();
         let inside = self.into_ref().translate_abs(&mut y, &mut x);
-        (Position(y, x), inside)
+        (Position(x, y), inside)
     }
 }
 
@@ -668,13 +666,13 @@ impl Plane {
         self.into_ref_mut().set_scrolling(scrolling)
     }
 
-    /// Sends `n` scroll events to the current plane.
+    /// Sends a number of `scroll` events to the current plane.
     ///
     /// Returns an error if the current plane is not a scrolling plane,
     /// and otherwise returns the number of lines scrolled.
     #[inline]
-    pub fn scroll(&mut self, n: u32) -> Result<u32> {
-        Ok(self.into_ref_mut().scrollup(n)?)
+    pub fn scroll(&mut self, scroll: u32) -> Result<u32> {
+        Ok(self.into_ref_mut().scrollup(scroll)?)
     }
 
     /// Scrolls the current plane until `child` is no longer hidden beneath it.
@@ -693,7 +691,7 @@ impl Plane {
 impl Plane {
     /// Returns the current cursor `(row, column)` position within this plane.
     pub fn cursor(&self) -> Position {
-        self.into_ref().cursor_yx().into()
+        Position::from(self.into_ref().cursor_yx()).swap()
     }
 
     //
@@ -710,7 +708,7 @@ impl Plane {
     /// Errors if the coordinates exceed the plane's dimensions, and the cursor
     /// will remain unchanged in that case.
     pub fn cursor_move_to(&mut self, position: impl Into<Position>) -> Result<()> {
-        let (row, col) = position.into().into();
+        let (col, row) = position.into().into();
         Ok(self.into_ref_mut().cursor_move_yx(row, col)?)
     }
 
@@ -824,7 +822,7 @@ impl<'plane> Plane {
     /// - if the position falls outside the plane's area.
     /// - if a glyph can't fit in the current line, unless scrolling is enabled.
     pub fn putstr_at(&mut self, position: impl Into<Position>, string: &str) -> Result<u32> {
-        let (y, x): (u32, u32) = position.into().into();
+        let (x, y): (u32, u32) = position.into().into();
         Ok(self.into_ref_mut().putstr_yx(y.into(), x.into(), string)?)
     }
 
@@ -837,7 +835,7 @@ impl<'plane> Plane {
     /// ## Errors
     /// - if the position falls outside the plane's area.
     /// - if a glyph can't fit in the current line, unless scrolling is enabled.
-    pub fn putstr_at_yx(&mut self, y: Option<u32>, x: Option<u32>, string: &str) -> Result<u32> {
+    pub fn putstr_at_xy(&mut self, x: Option<u32>, y: Option<u32>, string: &str) -> Result<u32> {
         Ok(self.into_ref_mut().putstr_yx(y, x, string)?)
     }
 
@@ -869,7 +867,7 @@ impl<'plane> Plane {
         len: usize,
         string: &str,
     ) -> Result<u32> {
-        let (y, x): (u32, u32) = position.into().into();
+        let (x, y): (u32, u32) = position.into().into();
         Ok(self
             .into_ref_mut()
             .putnstr_yx(y.into(), x.into(), len, string)?)
@@ -883,10 +881,10 @@ impl<'plane> Plane {
     /// ## Errors
     /// - if the position falls outside the plane's area.
     /// - if a glyph can't fit in the current line, unless scrolling is enabled.
-    pub fn putstr_len_at_yx(
+    pub fn putstr_len_at_xy(
         &mut self,
-        y: Option<u32>,
         x: Option<u32>,
+        y: Option<u32>,
         len: usize,
         string: &str,
     ) -> Result<u32> {
@@ -919,8 +917,8 @@ impl<'plane> Plane {
     /// Returns the number of cells polyfilled.
     ///
     /// Errors if the position falls outside the plane's area.
-    pub fn polyfill_yx(&mut self, position: impl Into<Position>, cell: &Cell) -> Result<usize> {
-        let (y, x): (u32, u32) = position.into().into();
+    pub fn polyfill_xy(&mut self, position: impl Into<Position>, cell: &Cell) -> Result<usize> {
+        let (x, y): (u32, u32) = position.into().into();
         Ok(self.into_ref_mut().polyfill_yx(y, x, cell.into())?)
     }
 
@@ -928,7 +926,7 @@ impl<'plane> Plane {
 
     /// Returns the cell at `position`.
     pub fn cell_at(&mut self, position: impl Into<Position>) -> Result<Cell> {
-        let (y, x) = position.into().into();
+        let (x, y) = position.into().into();
         let mut cell = crate::sys::NcCell::new();
         let _bytes = self.into_ref_mut().at_yx_cell(y, x, &mut cell)?;
         Ok(cell.into())

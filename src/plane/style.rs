@@ -1,4 +1,4 @@
-// notcurses::notcurses::style
+// notcurses::plane::style
 //
 //!
 //

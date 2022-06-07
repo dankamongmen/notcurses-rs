@@ -1,4 +1,4 @@
-// notcurses::cell::cell
+// notcurses::plane::cell
 //
 //!
 //

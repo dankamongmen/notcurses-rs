@@ -16,8 +16,8 @@ pub(super) struct VisualOptions {
     pub(crate) scale: Scale,
     pub(crate) blitter: Blitter,
     pub(crate) transcolor: Option<Rgba>,
-    pub(crate) cell_offset_yx: Option<(u32, u32)>,
-    pub(crate) region_yx_lenyx: Option<(u32, u32, u32, u32)>,
+    pub(crate) cell_offset_xy: Option<(u32, u32)>,
+    pub(crate) region_xy_lenxy: Option<(u32, u32, u32, u32)>,
     pub(crate) flags: NcVisualFlag,
 }
 
@@ -29,15 +29,15 @@ mod std_impls {
         fn from(vo: VisualOptions) -> NcVisualOptionsBuilder<'n> {
             let mut builder = NcVisualOptionsBuilder::new();
 
-            if vo.is_veraligned() {
-                builder = builder.valign(vo.y);
-            } else {
-                builder = builder.y(vo.y);
-            }
             if vo.is_horaligned() {
                 builder = builder.halign(vo.x);
             } else {
                 builder = builder.x(vo.x);
+            }
+            if vo.is_veraligned() {
+                builder = builder.valign(vo.y);
+            } else {
+                builder = builder.y(vo.y);
             }
 
             builder = builder.scale(vo.scale);
@@ -47,11 +47,11 @@ mod std_impls {
                 builder = builder.transcolor(Some(color));
             }
 
-            if let Some((y, x)) = vo.cell_offset_yx {
-                builder = builder.cell_offset(y, x);
+            if let Some((x, y)) = vo.cell_offset_xy {
+                builder = builder.cell_offset(x, y);
             }
-            if let Some((y, x, leny, lenx)) = vo.region_yx_lenyx {
-                builder = builder.region(y, x, leny, lenx);
+            if let Some((x, y, lenx, leny)) = vo.region_xy_lenxy {
+                builder = builder.region(x, y, lenx, leny);
             }
 
             builder = builder.blend(vo.does_blend());
@@ -83,19 +83,19 @@ mod std_impls {
                 vo.set_transparency(Some(ncvo.transcolor));
             }
 
-            if ncvo.is_veraligned() {
-                vo.set_valign(ncvo.y.into());
-            }
             if ncvo.is_horaligned() {
                 vo.set_halign(ncvo.x.into());
             }
+            if ncvo.is_veraligned() {
+                vo.set_valign(ncvo.y.into());
+            }
 
-            let cell_offset = (ncvo.pxoffy, ncvo.pxoffx);
+            let cell_offset = (ncvo.pxoffx, ncvo.pxoffy);
             if cell_offset != (0, 0) {
                 vo.set_cell_offset(Some(cell_offset));
             }
 
-            let region = (ncvo.begy, ncvo.begx, ncvo.leny, ncvo.lenx);
+            let region = (ncvo.begx, ncvo.begy, ncvo.lenx, ncvo.leny);
             if region != (0, 0, 0, 0) {
                 vo.set_region(Some(region));
             }
@@ -113,38 +113,38 @@ mod std_impls {
 
 /// # setter methods
 impl VisualOptions {
-    /// Sets the vertical placement.
-    pub fn set_y(&mut self, y: i32) {
-        self.y = y;
-        self.flags &= !NcVisualFlag::VerAligned;
-    }
     /// Sets the horizontal placement.
     pub fn set_x(&mut self, x: i32) {
         self.x = x;
         self.flags &= !NcVisualFlag::HorAligned;
     }
-
-    /// Sets the vertical alignment.
-    pub fn set_valign(&mut self, vertical: Align) {
-        self.y = vertical.into();
-        self.flags |= NcVisualFlag::VerAligned;
+    /// Sets the vertical placement.
+    pub fn set_y(&mut self, y: i32) {
+        self.y = y;
+        self.flags &= !NcVisualFlag::VerAligned;
     }
+
     /// Sets the horizontal alignment.
     pub fn set_halign(&mut self, horizontal: Align) {
         self.x = horizontal.into();
         self.flags |= NcVisualFlag::HorAligned;
     }
-
-    /// Sets the region of the visual to be rendered.
-    pub fn set_region(&mut self, region: Option<(u32, u32, u32, u32)>) {
-        self.region_yx_lenyx = region;
+    /// Sets the vertical alignment.
+    pub fn set_valign(&mut self, vertical: Align) {
+        self.y = vertical.into();
+        self.flags |= NcVisualFlag::VerAligned;
     }
 
-    /// Sets the pixel offset within the cell.
+    /// Sets the region of the visual to be rendered *(x, y, len_x, len_y)*.
+    pub fn set_region(&mut self, region: Option<(u32, u32, u32, u32)>) {
+        self.region_xy_lenxy = region;
+    }
+
+    /// Sets the pixel offset within the cell *(x, y)*.
     ///
     /// Default: *None*.
     pub fn set_cell_offset(&mut self, cell_offset: Option<(u32, u32)>) {
-        self.cell_offset_yx = cell_offset;
+        self.cell_offset_xy = cell_offset;
     }
 
     /// Sets the blitter.

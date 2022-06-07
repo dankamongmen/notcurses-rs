@@ -1,4 +1,4 @@
-// notcurses::cell::channel
+// notcurses::color::channel
 //
 //!
 //

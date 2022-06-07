@@ -41,20 +41,20 @@ mod std_impls {
     impl fmt::Display for Visual {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
             let mut flags = String::new();
-            let (y, x) = (self.options.y, self.options.x);
-            let (vertical, horizontal);
+            let (x, y) = (self.options.x, self.options.y);
+            let (horizontal, vertical);
 
-            if self.options.is_veraligned() {
-                flags += "VerAligned+";
-                vertical = Align::from(y).to_string();
-            } else {
-                vertical = y.to_string();
-            }
             if self.options.is_horaligned() {
                 flags += "HorAligned+";
                 horizontal = Align::from(x).to_string();
             } else {
                 horizontal = x.to_string();
+            }
+            if self.options.is_veraligned() {
+                flags += "VerAligned+";
+                vertical = Align::from(y).to_string();
+            } else {
+                vertical = y.to_string();
             }
 
             if self.options.does_blend() {
@@ -77,13 +77,13 @@ mod std_impls {
             write!(
                 f,
                 "({0}, {1}) scale:{2} {3} t:{4} o:{5:?} r:{6:?} [{flags}]",
-                vertical,                     //0
-                horizontal,                   //1
+                horizontal,                   //0
+                vertical,                     //1
                 self.options.scale,           //2
                 self.options.blitter,         //3
                 transcolor,                   //4
-                self.options.cell_offset_yx,  //5
-                self.options.region_yx_lenyx, //6
+                self.options.cell_offset_xy,  //5
+                self.options.region_xy_lenxy, //6
             )
         }
     }
@@ -91,20 +91,20 @@ mod std_impls {
     impl fmt::Debug for Visual {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
             let mut flags = String::new();
-            let (y, x) = (self.options.y, self.options.x);
-            let (vertical, horizontal);
+            let (x, y) = (self.options.x, self.options.y);
+            let (horizontal, vertical);
 
-            if self.options.is_veraligned() {
-                flags += "VerAligned+";
-                vertical = Align::from(y).to_string();
-            } else {
-                vertical = y.to_string();
-            }
             if self.options.is_horaligned() {
                 flags += "HorAligned+";
                 horizontal = Align::from(x).to_string();
             } else {
                 horizontal = x.to_string();
+            }
+            if self.options.is_veraligned() {
+                flags += "VerAligned+";
+                vertical = Align::from(y).to_string();
+            } else {
+                vertical = y.to_string();
             }
 
             if self.options.does_blend() {
@@ -127,13 +127,13 @@ mod std_impls {
             write!(
                 f,
                 "Visual {{ ({0}, {1}) Scale:{2} Blitter:{3} transp:{4} offset:{5:?} region:{6:?} [{flags}] }}",
-                vertical, //0
-                horizontal, //1
-                self.options.scale, //2
-                self.options.blitter, //3
-                transcolor, //4
-                self.options.cell_offset_yx, //5
-                self.options.region_yx_lenyx, //6
+                horizontal,                   //0
+                vertical,                     //1
+                self.options.scale,           //2
+                self.options.blitter,         //3
+                transcolor,                   //4
+                self.options.cell_offset_xy,  //5
+                self.options.region_xy_lenxy, //6 
             )
         }
     }
@@ -197,12 +197,12 @@ impl Visual {
     pub fn from_plane(
         plane: &Plane,
         blitter: Blitter,
-        beg_y: Option<u32>,
         beg_x: Option<u32>,
-        len_y: Option<u32>,
+        beg_y: Option<u32>,
         len_x: Option<u32>,
+        len_y: Option<u32>,
     ) -> Result<Visual> {
-        Visual::builder().build_from_plane(plane, blitter, beg_y, beg_x, len_y, len_x)
+        Visual::builder().build_from_plane(plane, blitter, beg_x, beg_y, len_x, len_y)
     }
 
     /// Returns a shared reference to the inner [`NcVisual`].
@@ -263,7 +263,7 @@ impl Visual {
         self.into_ref()
             .geom(None, Some(&self.options()))?
             .pix_yx
-            .map(|s| s.into())
+            .map(|s| Size::from(s).swap())
             .ok_or_else(|| Error::Message("visual size error".to_string()))
     }
 
@@ -296,13 +296,6 @@ impl Visual {
 
     //
 
-    /// Sets the vertical placement, overriding vertical alignment.
-    ///
-    /// Default: *`0`*.
-    pub fn set_y(&mut self, y: i32) {
-        self.options.set_y(y);
-    }
-
     /// Sets the horizontal placement, overriding horizontal alignment.
     ///
     /// Default: *`0`*.
@@ -310,26 +303,26 @@ impl Visual {
         self.options.set_x(x);
     }
 
-    /// Sets both the vertical & horizontal placement,
-    /// overriding both vertical & horizontal alignment.
+    /// Sets the vertical placement, overriding vertical alignment.
+    ///
+    /// Default: *`0`*.
+    pub fn set_y(&mut self, y: i32) {
+        self.options.set_y(y);
+    }
+
+    /// Sets both the horizontal & vertical placement,
+    /// overriding both horizontal & vertical alignment.
     ///
     /// Default: *`(0, 0)`*.
-    pub fn set_yx(&mut self, y: i32, x: i32) {
-        self.options.set_y(y);
+    pub fn set_xy(&mut self, x: i32, y: i32) {
         self.options.set_x(x);
+        self.options.set_y(y);
     }
 
     /// Convenience wrapper around [`set_yx`][Visual#method.yx].
     pub fn set_position(&mut self, position: Position) {
-        let (y, x) = position.into();
-        self.set_yx(y, x);
-    }
-
-    /// Sets the vertical alignment.
-    ///
-    /// Default: *[`Align::Top`]*.
-    pub fn set_valign(&mut self, vertical: Align) {
-        self.options.set_valign(vertical);
+        let (x, y) = position.into();
+        self.set_xy(x, y);
     }
 
     /// Sets the horizontal alignment.
@@ -339,12 +332,19 @@ impl Visual {
         self.options.set_halign(horizontal);
     }
 
+    /// Sets the vertical alignment.
+    ///
+    /// Default: *[`Align::Top`]*.
+    pub fn set_valign(&mut self, vertical: Align) {
+        self.options.set_valign(vertical);
+    }
+
     /// Sets both the vertical & horizontal alignment.
     ///
     /// Default: *`(`[`Align::Top`]*`, `*[`Align::Left`]`)`*.
     pub fn set_align(&mut self, vertical: Align, horizontal: Align) {
-        self.options.set_valign(vertical);
         self.options.set_halign(horizontal);
+        self.options.set_valign(vertical);
     }
 
     /// Sets the [`Scale`].
@@ -407,12 +407,12 @@ impl Visual {
     ///
     /// - `y`, `x`: origin of the rendered region in pixels.
     /// - `len_y`, `len_x`: size of the rendered region in pixels.
-    pub fn set_region(&mut self, y: u32, x: u32, len_y: u32, len_x: u32) {
-        self.options.set_region(Some((y, x, len_y, len_x)));
+    pub fn set_region(&mut self, x: u32, y: u32, len_x: u32, len_y: u32) {
+        self.options.set_region(Some((x, y, len_x, len_y)));
     }
 
     /// Sets the pixel offset within the [`Cell`][crate::Cell].
-    pub fn set_cell_offset(&mut self, y: u32, x: u32) {
-        self.options.set_cell_offset(Some((y, x)));
+    pub fn set_cell_offset(&mut self, x: u32, y: u32) {
+        self.options.set_cell_offset(Some((x, y)));
     }
 }

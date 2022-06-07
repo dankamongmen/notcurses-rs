@@ -52,10 +52,10 @@ pub struct VisualGeometry {
 }
 
 mod std_impls {
-    use super::{NcVisualGeometry, VisualGeometry};
+    use super::{NcVisualGeometry, Position, Size, VisualGeometry};
     // use std::fmt;
 
-    // TODO WIP
+    // TODO
     // #[rustfmt::skip]
     // impl fmt::Debug for VisualGeometry {
     //     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -67,13 +67,13 @@ mod std_impls {
         fn from(nc: NcVisualGeometry) -> VisualGeometry {
             Self {
                 blitter: nc.blitter.into(),
-                pixels: nc.pix_yx.unwrap_or((0, 0)).into(),
-                rendered_pixels: nc.rpix_yx.unwrap_or((0, 0)).into(),
-                rendered_cells: nc.rcell_yx.unwrap_or((0, 0)).into(),
-                pixels_per_cell: nc.cdim_yx.unwrap_or((0, 0)).into(),
-                region_position: nc.beg_yx.unwrap_or((0, 0)).into(),
-                region_size: nc.len_yx.unwrap_or((0, 0)).into(),
-                max_bitmap_pixels: nc.maxpixel_yx.map(|s| s.into()),
+                pixels: Size::from(nc.pix_yx.unwrap_or((0, 0))).swap(),
+                rendered_pixels: Size::from(nc.rpix_yx.unwrap_or((0, 0))).swap(),
+                rendered_cells: Size::from(nc.rcell_yx.unwrap_or((0, 0))).swap(),
+                pixels_per_cell: Size::from(nc.cdim_yx.unwrap_or((0, 0))).swap(),
+                region_position: Position::from(nc.beg_yx.unwrap_or((0, 0))).swap(),
+                region_size: Size::from(nc.len_yx.unwrap_or((0, 0))).swap(),
+                max_bitmap_pixels: nc.maxpixel_yx.map(|s| Size::from(s).swap()),
             }
         }
     }
@@ -143,8 +143,8 @@ impl VisualGeometry {
             self.pixels_per_cell
         } else {
             Size::from((
-                self.blitter.cell_height().unwrap_or(0),
                 self.blitter.cell_width().unwrap_or(0),
+                self.blitter.cell_height().unwrap_or(0),
             ))
         }
     }

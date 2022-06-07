@@ -47,6 +47,16 @@ macro_rules! create_pair {
                 )*
 
             }
+
+            /// Swaps the values.
+            pub fn swap(self) -> Self {
+                Self(self.1, self.0)
+            }
+
+            /// Swaps the values.
+            pub fn set_swap(&mut self) {
+                std::mem::swap(&mut self.0, &mut self.1)
+            }
         }
 
         impl std::fmt::Display for $tname {
@@ -280,26 +290,26 @@ macro_rules! impl_methods {
 // Creates `Size`.
 // -----------------------------------------------------------------------------
 create_pair![
-    "A pair of positive lengths.\n\n`(y, x)` | `(height, width)` | `(vertical, horizontal)`.",
+    "A pair of positive lengths.\n\n`(x, y)` | `(width, height)` | `(horizontal, vertical)`.",
     "dimension",
     Size,
     u32,
-    height,
     width,
-    [new, vertical, horizontal],
-    [new_hw, height, width],
-    [new_height_width, height, width],
-    (height, h, 0),
-    (width, w, 1),
-    (height, y, 0),
-    (width, x, 1),
-    (height, r, 0),
-    (height, rows, 0),
-    (width, c, 1),
-    (width, cols, 1),
-    (width, columns, 1),
-    (vertical, vertical, 0),
-    (horizontal, horizontal, 1)
+    height,
+    [new, horizontal, vertical],
+    [new_wh, width, height],
+    [new_width_height, width, height],
+    (width, w, 0),
+    (height, h, 1),
+    (width, x, 0),
+    (height, y, 1),
+    (width, c, 0),
+    (width, cols, 0),
+    (width, columns, 0),
+    (height, r, 1),
+    (height, rows, 1),
+    (horizontal, horizontal, 0),
+    (vertical, vertical, 1)
 ];
 
 impl_ops![pair_all_ops: Size, Size, =Size, u32];
@@ -313,24 +323,23 @@ impl_methods![Size, u32];
 // Creates `Position`.
 // -----------------------------------------------------------------------------
 create_pair![
-    "A pair of coordinates.\n\n`(y, x)` | `(row, column)` | `(vertical, horizontal)`.",
+    "A pair of coordinates.\n\n`(x, y)` | `(column, row)` | `(horizontal, vertical)`.",
     "coordinate",
     Position,
     i32,
-    y,
     x,
-    [new, vertical, horizontal],
-    [from_yx, y, x],
-    [from_rc, row, column],
-    [from_row_col, row, column],
-    [from_row_column, row, column],
-    (row, r, 0),
-    (row, row, 0),
-    (column, c, 1),
-    (column, col, 1),
-    (column, column, 1),
-    (vertical, vertical, 0),
-    (horizontal, horizontal, 1)
+    y,
+    [new, horizontal, vertical],
+    [from_xy, x, y],
+    [from_col_row, column, row],
+    [from_column_row, column, row],
+    (column, c, 0),
+    (column, col, 0),
+    (column, column, 0),
+    (row, r, 1),
+    (row, row, 1),
+    (horizontal, horizontal, 0),
+    (vertical, vertical, 1)
 ];
 
 impl_ops![pair_all_ops: Position, Position, =Position, i32];

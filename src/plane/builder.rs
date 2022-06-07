@@ -66,7 +66,7 @@ impl PlaneBuilder {
     /// Effect: Sets both *`x`* & *`y`* coordinates and unsets both horizontal and
     /// vertical alignment.
     pub fn position(mut self, position: impl Into<Position>) -> Self {
-        let (y, x) = position.into().into();
+        let (x, y) = position.into().into();
         self.options.set_yx(y, x);
         self
     }
@@ -131,14 +131,14 @@ impl PlaneBuilder {
     ///
     /// Effect: Sets the height and width of the plane and *unmaximizes* it.
     pub fn size(mut self, size: impl Into<Size>) -> Self {
-        let (height, width) = size.into().into();
+        let (width, height) = size.into().into();
         self.options.set_rows_cols(height, width);
         self
     }
 
     //
 
-    /// Maximizes the plane, with optional bottom & right margins.
+    /// Maximizes the plane, with optional right & bottom margins.
     ///
     /// Default: *`(0, 0)`*.
     ///
@@ -148,9 +148,9 @@ impl PlaneBuilder {
     /// See also: [`sys::NcPlaneFlag::Marginalized`].
     ///
     /// [`sys::NcPlaneFlag::Marginalized`]: crate::sys::NcPlaneFlag#associatedconstant.Marginalized
-    pub fn maximize(mut self, bottom_right: impl Into<Size>) -> Self {
-        let (bottom, right) = bottom_right.into().into();
-        self.options.set_margins(bottom, right);
+    pub fn maximize(mut self, right_bottom: impl Into<Size>) -> Self {
+        let (x_right, y_bottom) = right_bottom.into().into();
+        self.options.set_margins(y_bottom, x_right);
         self
     }
 
