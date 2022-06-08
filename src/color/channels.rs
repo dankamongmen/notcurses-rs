@@ -8,7 +8,7 @@ use crate::{
     Channel,
 };
 
-/// A foreground and background [`Channel`]s.
+/// A pair of both foreground and background [`Channel`]s.
 #[derive(Clone, Copy, Default, PartialEq, Eq)]
 #[repr(transparent)]
 pub struct Channels {

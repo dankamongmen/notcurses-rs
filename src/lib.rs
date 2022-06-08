@@ -1,8 +1,11 @@
 // notcurses::lib
 //
 //! A simple high level notcurses wrapper.
+//!
+//!
+//! ### Example
+#![doc = concat!["```\n", include_str!("../examples/hello-world.rs"), "\n```" ]]
 //
-
 #![warn(clippy::all)]
 #![allow(
     clippy::float_arithmetic,
@@ -21,7 +24,7 @@ mod plane;
 mod tuples;
 mod visual;
 
-pub use self::notcurses::{Capabilities, LogLevel, Notcurses, NotcursesBuilder};
+pub use self::notcurses::{Capabilities, LogLevel, Notcurses, NotcursesBuilder, Statistics};
 pub use color::{Alpha, Channel, Channels, Palette, Rgb, Rgba};
 pub use error::{Error, Result};
 pub use input::Input;
@@ -68,7 +71,3 @@ pub use sys::NcMiceEvents as MouseInput;
 /// [`Key`] modifiers bitflag.
 #[doc = reexport_doc!("KeyMod", "NcKeyMod")]
 pub use sys::NcKeyMod as KeyMod;
-
-/// Runtime statistics
-#[doc = reexport_doc!("Statistics", "NcStats")]
-pub use sys::NcStats as Statistics;

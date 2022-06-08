@@ -7,21 +7,21 @@ use crate::{Blitter, Notcurses, PixelImplementation};
 /// It can also be generated from
 /// [`Notcurses.capabilities`][crate::Notcurses#method.capabilities] and
 #[non_exhaustive]
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Capabilities {
+    pub(crate) utf8: bool,
     pub(crate) halfblock: bool,
     pub(crate) quadrant: bool,
     pub(crate) sextant: bool,
     pub(crate) braille: bool,
-    pub(crate) utf8: bool,
-    pub(crate) images: bool,
-    pub(crate) videos: bool,
     pub(crate) pixel: bool,
     pub(crate) pixel_implementation: PixelImplementation,
+    pub(crate) images: bool,
+    pub(crate) videos: bool,
     pub(crate) fade: bool,
     pub(crate) truecolor: bool,
-    pub(crate) palette_change: bool,
     pub(crate) palette_size: u32,
+    pub(crate) palette_change: bool,
 }
 
 impl Capabilities {

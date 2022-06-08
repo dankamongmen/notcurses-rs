@@ -18,6 +18,5 @@ The API is currently undergoing heavy work.
 - The *standard* plane is now known as the *CLI* plane.
 - The `*Options` structs are replaced by `*Builder`s.
 - Way simpler and safer to use.
--->
 
 [0]:https://github.com/dankamongmen/notcurses

@@ -6,7 +6,7 @@
 use crate::{
     sys::{Nc, NcInput, NcOptionsBuilder},
     Blitter, Error, Input, MouseInput, Palette, Plane, PlaneGeometry, Position, Result, Rgb, Size,
-    Statistics, Style, Visual, VisualGeometry,
+    Style, Visual, VisualGeometry,
 };
 use core::cell::RefCell;
 use once_cell::sync::OnceCell;
@@ -14,10 +14,12 @@ use once_cell::sync::OnceCell;
 mod builder;
 mod capabilities;
 mod log_level;
+mod statistics;
 
 pub use builder::NotcursesBuilder;
 pub use capabilities::Capabilities;
 pub use log_level::LogLevel;
+pub use statistics::Statistics;
 
 thread_local!(
     /// Restricts initializing more than one `Notcurses` instance per thread, at the same time.
@@ -405,21 +407,20 @@ impl Notcurses {
 
 /// # statistics methods
 impl Notcurses {
-    /// Acquires an atomic snapshot of the notcurses object's stats.
-    pub fn stats(&mut self, stats: &mut Statistics) {
-        self.into_ref_mut().stats(stats)
-    }
-
     /// Allocates a [`Statistics`] object.
-    ///
-    /// Use this rather than allocating your own, since future versions of
-    /// notcurses might enlarge this structure.
-    pub fn stats_alloc(&mut self) -> &mut Statistics {
-        self.into_ref_mut().stats_alloc()
+    pub fn statistics(&mut self) -> Statistics {
+        Statistics::new(self)
     }
 
-    /// Resets all cumulative stats (immediate ones, such as fbbytes, are not reset).
-    pub fn stats_reset(&mut self, stats: &mut Statistics) {
-        self.into_ref_mut().stats_reset(stats)
+    /// Resets all cumulative statistics.
+    ///
+    /// Immediate ones, such as fbbytes, are not reset.
+    pub fn statistics_reset(&mut self, mut stats: Statistics) {
+        stats.reset(self)
+    }
+
+    /// Acquires an atomic snapshot of the notcurses statistics.
+    pub fn statistics_update(&mut self, mut stats: Statistics) {
+        stats.update(self)
     }
 }

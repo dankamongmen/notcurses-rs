@@ -5,7 +5,7 @@
 
 use crate::{sys::NcChannel, Alpha, Rgb};
 
-/// [`Rgb`] + [`Alpha`]
+/// The [`Rgb`] + [`Alpha`] of a [`Cell`][crate::Cell]'s background or foreground.
 #[derive(Clone, Copy, Default, PartialEq, Eq)]
 #[repr(transparent)]
 pub struct Channel {
