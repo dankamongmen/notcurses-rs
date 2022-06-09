@@ -18,7 +18,7 @@
 //! There's only one *cli* plane per notcurses instance, and it's always the same
 //! size as the screen.
 //!
-//! You can instantiate it either using the `Notcurses::`[`cli_plane`][Notcurses#cli_plane],
+//! You can instantiate it either using the `Notcurses::`[`cli_plane`],
 //! or the `Plane::`[`new_cli`][Plane::from_cli] methods.
 //!
 //! You can only get one *cli* `Plane` per `Notcurses` instance.

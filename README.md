@@ -1,10 +1,25 @@
 # notcurses
 
 [![Crate](https://img.shields.io/crates/v/notcurses.svg)](https://crates.io/crates/notcurses)
+[![API](https://docs.rs/notcurses/badge.svg)](https://docs.rs/notcurses/)
 [![MSRV: 1.58.1](https://flat.badgen.net/badge/MSRV/1.58.1/purple)](https://blog.rust-lang.org/2022/01/20/Rust-1.58.1.html)
-<!-- [![API](https://docs.rs/notcurses/badge.svg)](https://docs.rs/notcurses/) -->
+[![Lines Of Code](https://tokei.rs/b1/github/dankamongmen/notcurses-rs?category=code)](https://github.com/dankamongmen/notcurses-rs)
 
 A high-level Rust wrapper over [notcurses][0], the most blingful TUI library.
+
+## Example
+
+```rust
+use notcurses::*;
+
+fn main() -> Result<()> {
+    let mut nc = Notcurses::new_cli()?;
+    let mut cli = nc.cli_plane()?;
+    cli.putstr("\nhello world!\n")?;
+    cli.render()?;
+    Ok(())
+}
+```
 
 ## Status of the library
 *Current major version `3` is considered a development version*.
@@ -12,11 +27,11 @@ A high-level Rust wrapper over [notcurses][0], the most blingful TUI library.
 The API is currently undergoing heavy work.
 
 **Main differences with `libnotcurses-sys`:**
-- All coordinates are in the most common order: x, y.
-- All allocating types have the `Drop` trait implemented.
+- Coordinates are used in the most common order: *x, y*.
+- Allocating types have the `Drop` trait implemented.
 - There is no *direct* mode, just use the *CLI* mode.
 - The *standard* plane is now known as the *CLI* plane.
 - The `*Options` structs are replaced by `*Builder`s.
-- Way simpler and safer to use.
+- Fully safe public API.
 
 [0]:https://github.com/dankamongmen/notcurses

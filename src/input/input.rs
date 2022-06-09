@@ -84,7 +84,7 @@ mod std_impls {
 
 /// # methods
 impl Input {
-    /// Returns true if anything other than [`NoInput`] has been received.
+    /// Returns true if any actual input has been received.
     pub fn is_received(&self) -> bool {
         self.received != Received::NoInput
     }
