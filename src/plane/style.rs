@@ -95,7 +95,6 @@ mod std_impls {
                 Style::Underline => NcStyle::Underline,
                 Style::Undercurl => NcStyle::Undercurl,
                 Style::Struck => NcStyle::Struck,
-                #[allow(clippy::wildcard_in_or_patterns)]
                 _ => NcStyle::None,
             }
         }

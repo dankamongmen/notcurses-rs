@@ -18,9 +18,18 @@ pub enum Align {
     Right,
 }
 
-mod std_impls {
-    #![allow(non_upper_case_globals)]
+/// # aliases
+#[allow(non_upper_case_globals)]
+impl Align {
+    /// Top (== Left) alignment.
+    ///
+    /// This is the default alignment.
+    pub const Top: Align = Align::Left;
+    /// Bottom (== Right]) alignment.
+    pub const Bottom: Align = Align::Right;
+}
 
+mod std_impls {
     use super::Align;
     use crate::sys::{c_api::NcAlign_u32, NcAlign};
     use std::fmt;
@@ -29,16 +38,6 @@ mod std_impls {
         fn default() -> Self {
             Self::Left
         }
-    }
-
-    /// # Aliases
-    impl Align {
-        /// Top (== Left) alignment.
-        ///
-        /// This is the default alignment.
-        pub const Top: Align = Align::Left;
-        /// Bottom (== Right]) alignment.
-        pub const Bottom: Align = Align::Right;
     }
 
     impl fmt::Display for Align {

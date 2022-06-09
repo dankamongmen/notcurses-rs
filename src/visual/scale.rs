@@ -1,4 +1,4 @@
-// notcurses::color::scale
+// notcurses::visual::scale
 //
 //!
 //
