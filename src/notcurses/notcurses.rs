@@ -7,12 +7,16 @@ use once_cell::sync::OnceCell;
 
 use super::{Capabilities, Statistics};
 use crate::{
+    color::{Palette, Rgb},
+    error::{Error, Result},
+    input::{Input, MiceEvents},
+    plane::{Plane, PlaneGeometry, Position, Size, Style},
     sys::{Nc, NcInput, NcOptionsBuilder},
-    Blitter, Error, Input, MouseInput, Palette, Plane, PlaneGeometry, Position, Result, Rgb, Size,
-    Style, Visual, VisualGeometry, CLI_PLANE_LOCK, NOTCURSES_LOCK,
+    visual::{Blitter, Visual, VisualGeometry},
+    CLI_PLANE_LOCK, NOTCURSES_LOCK,
 };
 
-/// *Notcurses* state for a given terminal, composed of [`Plane`][crate::Plane]s.
+/// *Notcurses* state for a given terminal, composed of [`Plane`][crate::plane::Plane]s.
 ///
 /// There can only be a single `Notcurses` instance per thread at any given moment.
 pub struct Notcurses {
@@ -195,14 +199,14 @@ impl Notcurses {
         Ok(self.into_ref_mut().refresh()?)
     }
 
-    /// Enables receiving the provided mouse `input` events.
-    pub fn mouse_enable(&mut self, input: MouseInput) -> Result<()> {
-        Ok(self.into_ref_mut().mice_enable(input)?)
+    /// Enables receiving the provided mice events.
+    pub fn mice_enable(&mut self, input: MiceEvents) -> Result<()> {
+        Ok(self.into_ref_mut().mice_enable(input.into())?)
     }
 
-    /// Disables receiving the mouse events.
-    pub fn mouse_disable(&mut self) -> Result<()> {
-        self.mouse_enable(MouseInput::None)
+    /// Disables receiving the mice events.
+    pub fn mice_disable(&mut self) -> Result<()> {
+        self.mice_enable(MiceEvents::None)
     }
 
     /// Waits for an event, blocking.
@@ -241,11 +245,11 @@ impl Notcurses {
     ///
     /// [`Pixel`] > [`Sextant`] > [`Quadrant`] > [`Half`] > [`Ascii`].
     ///
-    /// [`Pixel`]: crate::Blitter#variant.Pixel
-    /// [`Sextant`]: crate::Blitter#variant.Sextant
-    /// [`Quadrant`]: crate::Blitter#variant.Quadrant
-    /// [`Half`]: crate::Blitter#variant.Half
-    /// [`Ascii`]: crate::Blitter#variant.Ascii
+    /// [`Pixel`]: crate::visual::Blitter#variant.Pixel
+    /// [`Sextant`]: crate::visual::Blitter#variant.Sextant
+    /// [`Quadrant`]: crate::visual::Blitter#variant.Quadrant
+    /// [`Half`]: crate::visual::Blitter#variant.Half
+    /// [`Ascii`]: crate::visual::Blitter#variant.Ascii
     pub fn geometry_best(&self) -> PlaneGeometry {
         PlaneGeometry::from_term(self, self.capabilities().best_blitter())
     }

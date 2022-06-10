@@ -3,9 +3,13 @@
 //!
 //
 
-use crate::{sys::NcVisualGeometry, Blitter, Position, Size};
+use crate::{
+    plane::{Position, Size},
+    sys::NcVisualGeometry,
+    visual::Blitter,
+};
 
-/// The geometry of a [`Visual`][crate::Visual].
+/// The geometry of a [`Visual`][super::Visual].
 ///
 /// Inner values are calculated at the time of the call. A font change,
 /// for example, could make all the fields invalid, except for `pixels`.

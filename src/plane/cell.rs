@@ -3,7 +3,12 @@
 //!
 //
 
-use crate::{sys::NcCell, Alpha, Channel, Channels, Plane, Result, Style};
+use crate::{
+    color::{Alpha, Channel, Channels},
+    error::Result,
+    plane::{Plane, Style},
+    sys::NcCell,
+};
 
 /// A `Cell` corresponds to a single *[grapheme cluster]* on some [`Plane`],
 ///

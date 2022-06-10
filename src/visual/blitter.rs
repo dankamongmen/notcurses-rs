@@ -17,16 +17,16 @@
 /// If you don't want this behaviour you have to call the [`degrade`] method of
 /// [`VisualBuilder`] (or the [`set_degrade`] method of [`Visual`]) to *false*.
 ///
-/// [`Visualbuilder`]: crate::VisualBuilder
-/// [`degrade`]: crate::VisualBuilder#method.degrade
-/// [`Visual`]: crate::Visual
-/// [`set_degrade`]: crate::Visual#method.set_degrade
+/// [`Visualbuilder`]: super::VisualBuilder
+/// [`degrade`]: super::VisualBuilder#method.degrade
+/// [`Visual`]: super::Visual
+/// [`set_degrade`]: super::Visual#method.set_degrade
 ///
-/// [`Pixel`]: crate::Blitter#variant.Pixel
-/// [`Sextant`]: crate::Blitter#variant.Sextant
-/// [`Quadrant`]: crate::Blitter#variant.Quadrant
-/// [`Half`]: crate::Blitter#variant.Half
-/// [`Ascii`]: crate::Blitter#variant.Ascii
+/// [`Pixel`]: super::Blitter#variant.Pixel
+/// [`Sextant`]: super::Blitter#variant.Sextant
+/// [`Quadrant`]: super::Blitter#variant.Quadrant
+/// [`Half`]: super::Blitter#variant.Half
+/// [`Ascii`]: super::Blitter#variant.Ascii
 #[non_exhaustive]
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Blitter {

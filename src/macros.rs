@@ -3,110 +3,88 @@
 //!
 //
 
-/// `Plane`.[`putstr`] + `format!`.
+/// Prints to a plane, using the `format!` syntax.
 ///
-/// [`putstr`]: crate::Plane#method.putstr
+/// `Plane`.[`putstr`] using the [`format!`] syntax.
+///
+/// [`putstr`]: crate::plane::Plane#method.putstr
+///
+/// Optionally renders with `+render` as first argument.
 ///
 /// # Example
 /// ```
 /// # use notcurses::*;
 /// # fn main() -> Result<()> {
-/// let mut nc = Notcurses::new_cli()?;
-/// let mut plane = Plane::new(&mut nc)?;
-/// plane.set_scrolling(true);
+/// # let mut nc = Notcurses::new_cli()?;
+/// # let mut plane = Plane::new(&mut nc)?;
+/// # plane.set_scrolling(true);
 /// assert_eq![12, putstr!(plane, "hello\nworld\n")?];
 /// putstr!(plane, "formatted text: {:?}\n", (0, 1.0, "two") )?;
+/// putstr!(+render plane, "renders afterwards = {}", true)?;
 /// # Ok(())
 /// # }
 /// ```
 #[macro_export]
 macro_rules! putstr {
     ($plane:expr, $($args:tt)*) => {
-        $plane.putstr(&format![$($args)*])
+        ({
+            let res = $plane.putstr(&format![$($args)*])?;
+            Ok(res)
+        }) as crate::Result<u32>
     };
-}
-
-/// `Plane`.[`putstrln`] + `format!`.
-///
-/// [`putstrln`]: crate::Plane#method.putstrln
-///
-/// # Example
-/// ```
-/// # use notcurses::*;
-/// # fn main() -> Result<()> {
-/// let mut nc = Notcurses::new_cli()?;
-/// let mut plane = Plane::new(&mut nc)?;
-/// plane.set_scrolling(true);
-/// assert_eq![12, putstrln!(plane, "hello world")?];
-/// putstr!(plane, "formatted text: {:?}", (0, 1.0, "two") )?;
-/// # Ok(())
-/// # }
-/// ```
-#[macro_export]
-macro_rules! putstrln {
-    ($plane:expr) => {
-        $plane.putln()
-    };
-    ($plane:expr, $($args:tt)*) => {
-        $plane.putstrln(&format![$($args)*])
-    };
-}
-
-/// `Plane`.[`putstr`] + `format!` + [`render`].
-///
-/// [`putstr`]: crate::Plane#method.putstr
-/// [`render`]: crate::Plane#method.render
-///
-/// # Example
-/// ```
-/// # use notcurses::*;
-/// # fn main() -> Result<()> {
-/// let mut nc = Notcurses::new_cli()?;
-/// let mut plane = Plane::new(&mut nc)?;
-/// plane.set_scrolling(true);
-/// assert_eq![12, putstr!(plane, "hello\nworld\n")?];
-/// putstr!(plane, "formatted text: {:?}\n", (0, 1.0, "two") )?;
-/// # Ok(())
-/// # }
-/// ```
-#[macro_export]
-macro_rules! printstr {
-    ($plane:expr, $($args:tt)*) => {
+    (+render $plane:expr, $($args:tt)*) => {
         ({
             let res = $plane.putstr(&format![$($args)*])?;
             $plane.render()?;
             Ok(res)
         }) as crate::Result<u32>
     };
+
 }
 
-/// `Plane`.[`putstrln`] + `format!` + [`render`].
+/// Prints to a plane, with a new line, using the `format!` syntax.
 ///
-/// [`putstrln`]: crate::Plane#method.putstrln
-/// [`render`]: crate::Plane#method.render
+/// `Plane`.[`putstrln`] using the [`format!`] syntax.
+///
+/// [`putstrln`]: crate::plane::Plane#method.putstrln
+///
+/// Optionally renders with `+render` as first argument.
 ///
 /// # Example
 /// ```
 /// # use notcurses::*;
 /// # fn main() -> Result<()> {
-/// let mut nc = Notcurses::new_cli()?;
-/// let mut plane = Plane::new(&mut nc)?;
-/// plane.set_scrolling(true);
+/// # let mut nc = Notcurses::new_cli()?;
+/// # let mut plane = Plane::new(&mut nc)?;
+/// # plane.set_scrolling(true);
 /// assert_eq![12, putstrln!(plane, "hello world")?];
-/// putstr!(plane, "formatted text: {:?}", (0, 1.0, "two") )?;
+/// putstrln!(plane, "formatted text: {:?}", (0, 1.0, "two") )?;
+/// putstrln!(+render plane)?;
 /// # Ok(())
 /// # }
 /// ```
 #[macro_export]
-macro_rules! printstrln {
+macro_rules! putstrln {
     ($plane:expr) => {
+        ({
+            let res = $plane.putln()?;
+            Ok(res)
+        }) as crate::Result<u32>
+    };
+    ($plane:expr, $($args:tt)*) => {
+        ({
+            let res = $plane.putstrln(&format![$($args)*])?;
+            Ok(res)
+        }) as crate::Result<u32>
+    };
+    (+render $plane:expr) => {
         ({
             let res = $plane.putln()?;
             $plane.render()?;
             Ok(res)
         }) as crate::Result<u32>
     };
-    ($plane:expr, $($args:tt)*) => {
+    (+render $plane:expr, $($args:tt)*) => {
         ({
             let res = $plane.putstrln(&format![$($args)*])?;
             $plane.render()?;

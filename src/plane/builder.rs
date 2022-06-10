@@ -4,8 +4,10 @@
 //
 
 use crate::{
+    error::Result,
+    plane::{Align, Plane, Position, Size},
     sys::{NcPlane, NcPlaneOptionsBuilder},
-    Align, Notcurses, Plane, Position, Result, Size,
+    Notcurses,
 };
 
 /// A [`Plane`] builder.
@@ -177,7 +179,7 @@ impl PlaneBuilder {
     ///
     /// Effect: (un)sets vertical scrolling.
     ///
-    /// [`set_scrolling(true)`]: crate::Plane#method.set_scrolling
+    /// [`set_scrolling(true)`]: super::Plane#method.set_scrolling
     pub fn scroll(mut self, scroll: bool) -> Self {
         self.options.set_vscroll(scroll);
         self

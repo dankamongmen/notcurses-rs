@@ -1,6 +1,9 @@
 //!
 
-use crate::{Blitter, Notcurses, PixelImplementation};
+use crate::{
+    visual::{Blitter, PixelImplementation},
+    Notcurses,
+};
 
 /// The detected current terminal capabilities.
 ///

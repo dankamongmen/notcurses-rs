@@ -4,8 +4,12 @@
 //
 
 use crate::{
-    sys::NcPlane, Align, Blitter, Capabilities, Cell, Channel, Channels, Notcurses, PlaneBuilder,
-    PlaneGeometry, Position, Result, Size, Style,
+    color::{Channel, Channels},
+    error::Result,
+    notcurses::{Capabilities, Notcurses},
+    plane::{Align, Cell, PlaneBuilder, PlaneGeometry, Position, Size, Style},
+    sys::NcPlane,
+    visual::Blitter,
 };
 
 /// A drawable text surface, composed of [`Cell`]s.
@@ -706,6 +710,17 @@ impl<'plane> Plane {
     /// ## Errors
     /// - if the position falls outside the plane's area.
     /// - if a glyph can't fit in the current line, unless scrolling is enabled.
+    ///
+    /// # Example
+    /// ```
+    /// # use notcurses::*;
+    /// # fn main() -> Result<()> {
+    /// # let mut nc = Notcurses::new_cli()?;
+    /// # let mut plane = Plane::new(&mut nc)?;
+    /// assert_eq![11, plane.putstr("hello world")?];
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn putstr(&mut self, string: &str) -> Result<u32> {
         Ok(self.into_ref_mut().putstr(string)?)
     }
@@ -718,6 +733,18 @@ impl<'plane> Plane {
     /// ## Errors
     /// - if the position falls outside the plane's area.
     /// - if a glyph can't fit in the current line, unless scrolling is enabled.
+    /// # Example
+    /// ```
+    /// # use notcurses::*;
+    /// # fn main() -> Result<()> {
+    /// # let mut nc = Notcurses::new_cli()?;
+    /// # let mut plane = Plane::new(&mut nc)?;
+    /// plane.set_scrolling(true);
+    /// assert_eq![12, plane.putstrln("hello world")?];
+    /// # Ok(())
+    /// # }
+    /// ```
+
     pub fn putstrln(&mut self, string: &str) -> Result<u32> {
         Ok(self.into_ref_mut().putstrln(string)?)
     }

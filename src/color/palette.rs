@@ -4,8 +4,10 @@
 //
 
 use crate::{
+    color::{Channel, Rgb},
+    error::Result,
     sys::{NcChannel, NcPalette},
-    Channel, Notcurses, Result, Rgb,
+    Notcurses,
 };
 
 /// An array of 256 [`Channel`]s.

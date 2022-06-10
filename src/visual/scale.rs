@@ -3,7 +3,7 @@
 //!
 //
 
-/// Indicates how to scale a [`Visual`][crate::Visual] during rendering.
+/// Indicates how to scale a [`Visual`][super::Visual] during rendering.
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Scale {
     /// Maintains the original size. Will Apply no scaling.

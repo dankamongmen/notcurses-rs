@@ -3,9 +3,9 @@
 //!
 //
 
-use crate::{sys::NcPixelGeometry, Blitter, Notcurses, Size};
+use crate::{plane::Size, sys::NcPixelGeometry, visual::Blitter, Notcurses};
 
-/// The geometry of a [`Plane`][crate::Plane] or a terminal.
+/// The geometry of a [`Plane`][super::Plane] or a terminal.
 #[derive(Clone, Copy, Default, PartialEq, Eq)]
 pub struct PlaneGeometry {
     /// The selected blitter.
@@ -24,7 +24,8 @@ pub struct PlaneGeometry {
 }
 
 mod std_impls {
-    use crate::{sys::NcPixelGeometry, Blitter, PlaneGeometry, Size};
+    use super::{Blitter, Size};
+    use crate::{plane::PlaneGeometry, sys::NcPixelGeometry};
     use std::fmt;
 
     #[rustfmt::skip]

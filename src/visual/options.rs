@@ -3,7 +3,12 @@
 //!
 //
 
-use crate::{sys::NcVisualFlag, Align, Blitter, Rgba, Scale};
+use crate::{
+    color::Rgba,
+    plane::Align,
+    sys::NcVisualFlag,
+    visual::{Blitter, Scale},
+};
 
 /// The inner options of a [`Visual`].
 ///

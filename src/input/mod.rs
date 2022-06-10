@@ -4,12 +4,14 @@
 //
 
 mod input;
+mod mice_events;
+mod received;
+
+pub use input::Input;
+pub use mice_events::MiceEvents;
+pub use received::Received;
 
 use crate::sys;
-pub use input::Input;
-
-/// A received [`Input`] event.
-pub use sys::NcReceived as Received;
 
 /// The type of the [`Input`] event.
 pub use sys::NcInputType as InputType;

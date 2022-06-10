@@ -4,8 +4,8 @@
 //
 
 use crate::{
+    color::Channel,
     sys::{c_api::NcChannels_u64, NcChannels},
-    Channel,
 };
 
 /// A pair of both foreground and background [`Channel`]s.

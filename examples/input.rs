@@ -1,30 +1,29 @@
-// noturses::examples::events
+// noturses::examples::input
 
 use notcurses::*;
 use std::time::Instant;
 
 fn main() -> Result<()> {
     let mut nc = Notcurses::new()?;
-    nc.mouse_enable(MouseInput::All)?;
+    nc.mice_enable(MiceEvents::All)?;
 
     let mut plane = Plane::new(&mut nc)?;
     plane.set_scrolling(true);
 
     // blocking
 
-    printstrln!(
-        plane,
+    putstrln!(+render plane,
         "Waiting for a blocking input event. Do anything to continue:"
     )?;
 
     let event = nc.get_event()?;
-    printstrln![plane, ">> {event:?}"]?;
+    putstrln![+render plane, "{event:?}"]?;
 
     // non-blocking
 
-    printstrln!(
-        plane,
-        "\nStarting non-blocking event loop. Press `F01` to exit:\n"
+    putstrln!(+render plane,
+        "\n{0}\nStarting non-blocking event loop. Press `F01` to exit:\n{}\n",
+        "-".repeat(50)
     )?;
 
     let mut counting_time = Instant::now();
@@ -32,23 +31,23 @@ fn main() -> Result<()> {
         let event = nc.poll_event()?;
 
         if event.is_received() {
-            printstrln![plane, "\n{event:?}"]?;
+            putstrln![+render plane, "\n{event:?}"]?;
 
             if event.is_key(Key::F01) {
-                printstr![plane, "\nBye!"]?;
+                putstr![+render plane, "\nBye!"]?;
                 sleep![0, 500];
                 for _ in 0..3 {
-                    printstr![plane, " ."]?;
-                    sleep![0, 250];
+                    putstr![+render plane, " ."]?;
+                    sleep![0, 50];
                 }
-                sleep![1];
+                sleep![0, 250];
                 break;
             }
         }
 
         // do other things in-between
         if counting_time.elapsed().as_millis() > 100 {
-            printstr![plane, "."]?;
+            putstr![+render plane, "."]?;
             counting_time = Instant::now()
         }
     }

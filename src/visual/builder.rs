@@ -4,8 +4,11 @@
 //
 
 use crate::{
-    sys::NcVisual, visual::VisualOptions, Align, Blitter, Palette, Plane, Position, Result, Rgba,
-    Scale, Size, Visual,
+    color::{Palette, Rgba},
+    error::Result,
+    plane::{Align, Plane, Position, Size},
+    sys::NcVisual,
+    visual::{Blitter, Scale, Visual, VisualOptions},
 };
 
 /// A [`Visual`] builder.
@@ -225,7 +228,7 @@ impl VisualBuilder {
     ///
     /// Default: *false* (no blend).
     ///
-    /// [`Alpha::Blend`]: crate::Alpha#associatedconstant.Blend
+    /// [`Alpha::Blend`]: crate::color::Alpha#associatedconstant.Blend
     pub fn blend(mut self, blend: bool) -> Self {
         self.options.set_blend(blend);
         self
@@ -247,7 +250,7 @@ impl VisualBuilder {
         self
     }
 
-    /// Sets the pixel offset within the [`Cell`][crate::Cell].
+    /// Sets the pixel offset within the [`Cell`][crate::plane::Cell].
     pub fn cell_offset(mut self, x: u32, y: u32) -> Self {
         self.options.set_cell_offset(Some((x, y)));
         self

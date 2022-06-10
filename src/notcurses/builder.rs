@@ -4,8 +4,9 @@
 //
 
 use crate::{
+    error::Result,
+    notcurses::{LogLevel, Notcurses},
     sys::{Nc, NcOptionsBuilder},
-    LogLevel, Notcurses, Result,
 };
 
 /// A [`Notcurses`] builder.

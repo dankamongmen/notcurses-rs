@@ -3,20 +3,20 @@
 //!
 //
 
-/// Alpha information, part of a [`Channel`][crate::Channel].
+/// Alpha information, part of a [`Channel`][super::Channel].
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Alpha {
-    /// Indicates a [`Cell`][crate::Cell]'s foreground or background color
+    /// Indicates a [`Cell`][crate::plane::Cell]'s foreground or background color
     /// is used unchanged.
     ///
     /// This is the default.
     Opaque,
 
-    /// Indicates a [`Cell`][crate::Cell]'s foreground or background color
+    /// Indicates a [`Cell`][crate::plane::Cell]'s foreground or background color
     /// is derived entirely from the `Cell`s underneath it.
     Transparent,
 
-    /// Indicates a [`Cell`][crate::Cell]'s foreground or background color will
+    /// Indicates a [`Cell`][crate::plane::Cell]'s foreground or background color will
     /// be a composite between its color and the `Cell`s' corresponding colors.
     Blend,
 

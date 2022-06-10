@@ -3,7 +3,7 @@
 //!
 //
 
-/// Alignment within a [`Plane`][crate::Plane] or terminal.
+/// Alignment within a [`Plane`][super::Plane] or terminal.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Align {
     /// Anyhing unaligned wont be rendered.

@@ -5,8 +5,11 @@
 
 use super::{Blitter, Scale, VisualBuilder, VisualGeometry, VisualOptions};
 use crate::{
+    color::Rgba,
+    error::{Error, Result},
+    plane::{Align, Plane, Position, Size},
     sys::{self, NcVisual, NcVisualOptions},
-    Align, Error, Notcurses, Plane, Position, Result, Rgba, Size,
+    Notcurses,
 };
 
 /// A visual bit of multimedia.
@@ -378,7 +381,7 @@ impl Visual {
     ///
     /// Default: *false* (no blend).
     ///
-    /// [`Alpha::Blend`]: crate::Alpha#associatedconstant.Blend
+    /// [`Alpha::Blend`]: crate::color::Alpha#associatedconstant.Blend
     pub fn set_blend(&mut self, blend: bool) {
         self.options.set_blend(blend);
     }
@@ -398,7 +401,7 @@ impl Visual {
         self.options.set_region(Some((x, y, len_x, len_y)));
     }
 
-    /// Sets the pixel offset within the [`Cell`][crate::Cell].
+    /// Sets the pixel offset within the [`Cell`][crate::plane::Cell].
     pub fn set_cell_offset(&mut self, x: u32, y: u32) {
         self.options.set_cell_offset(Some((x, y)));
     }

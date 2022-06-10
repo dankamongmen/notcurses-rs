@@ -3,7 +3,10 @@
 //!
 //
 
-use crate::{InputType, Key, KeyMod, Position, Received};
+use crate::{
+    input::{InputType, Key, KeyMod, Received},
+    plane::Position,
+};
 
 /// A received input.
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -25,8 +28,8 @@ pub struct Input {
 }
 
 mod std_impls {
-    use super::{Input, Position, Received};
-    use crate::sys::NcInput;
+    use super::{Input, Position};
+    use crate::sys::{NcInput, NcReceived};
     use std::fmt;
 
     impl fmt::Display for Input {
@@ -53,26 +56,26 @@ mod std_impls {
         }
     }
 
-    impl From<(Received, NcInput)> for Input {
-        fn from(received_input: (Received, NcInput)) -> Input {
+    impl From<(NcReceived, NcInput)> for Input {
+        fn from(received_input: (NcReceived, NcInput)) -> Input {
             let (received, input) = received_input;
 
             // cell position & offset is only relevant for mouse events
             let (mut cell, mut offset) = (None, None);
-            if let Received::Key(k) = received {
+            if let NcReceived::Key(k) = received {
                 if k.is_mouse() {
                     if input.y != -1 {
                         // != undefined
-                        cell = Some(Position(input.y, input.x));
+                        cell = Some(Position(input.x, input.y));
                     }
                     if input.ypx != -1 {
-                        offset = Some(Position(input.ypx, input.xpx));
+                        offset = Some(Position(input.xpx, input.ypx));
                     }
                 }
             };
 
             Input {
-                received,
+                received: received.into(),
                 keymod: input.modifiers.into(),
                 itype: input.evtype.into(),
                 cell,
