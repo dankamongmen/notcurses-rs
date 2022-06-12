@@ -58,7 +58,7 @@ mod std_impls {
         fn from(nc: NcReceived) -> Self {
             match nc {
                 NcReceived::NoInput => Received::NoInput,
-                NcReceived::Key(k) => Received::Key(k),
+                NcReceived::Key(k) => Received::Key(k.into()),
                 NcReceived::Char(c) => Received::Char(c),
             }
         }
@@ -67,7 +67,7 @@ mod std_impls {
         fn from(r: Received) -> Self {
             match r {
                 Received::NoInput => NcReceived::NoInput,
-                Received::Key(k) => NcReceived::Key(k),
+                Received::Key(k) => NcReceived::Key(k.into()),
                 Received::Char(c) => NcReceived::Char(c),
             }
         }

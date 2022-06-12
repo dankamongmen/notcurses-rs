@@ -3,7 +3,7 @@
 //!
 //
 
-use crate::sys::{NcKeyMod};
+use crate::sys::NcKeyMod;
 
 /// A bitmask of keyboard modifiers.
 #[derive(Clone, Copy, PartialEq, Eq)]
