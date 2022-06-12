@@ -7,6 +7,8 @@
 
 A rusty wrapper over [notcurses][0], the most blingful TUI library.
 
+[0]:https://github.com/dankamongmen/notcurses
+
 ## Example
 
 ```rust
@@ -15,23 +17,23 @@ use notcurses::*;
 fn main() -> Result<()> {
     let mut nc = Notcurses::new_cli()?;
     let mut cli = nc.cli_plane()?;
-    cli.putstrln("hello world!")?;
+    cli.putstrln("\nhello world!")?;
     cli.render()?;
     Ok(())
 }
 ```
 
 ## Status of the library
+Current version `3.0.0` is compatible with notcurses `3.0.8`.
+
 *Current major version `3` is considered a development version*.
 
 The API is currently undergoing heavy work.
 
 **Main differences with `libnotcurses-sys`:**
-- Coordinates are used in the most common order: *x, y*.
+- Fully safe public API.
 - Allocating types have the `Drop` trait implemented.
+- Coordinates are used in the most common order: *x, y*.
 - There is no *direct* mode, just use the *CLI* mode.
 - The *standard* plane is now known as the *CLI* plane.
 - The `*Options` structs are replaced by `*Builder`s.
-- Fully safe public API.
-
-[0]:https://github.com/dankamongmen/notcurses
