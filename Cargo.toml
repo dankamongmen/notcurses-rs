@@ -1,6 +1,6 @@
 [package]
 name = "notcurses"
-version = "3.0.0"
+version = "3.0.1"
 edition = "2021"
 rust-version = "1.58.1"
 authors = ["José Luis Cruz <joseluis@andamira.net>", "nick black <dankamongmen@gmail.com>"]
@@ -27,6 +27,7 @@ publish = true
 
 [dependencies]
 libnotcurses-sys = "3.6.0"
+
 # libnotcurses-sys = { path = "../libnotcurses-sys" }
 # libnotcurses-sys = { git = "https://github.com/dankamongmen/libnotcurses-sys" }
 
@@ -36,6 +37,12 @@ paste = "1.0.7"
 
 [dev-dependencies]
 rand = "0.8"
+
+[features]
+vendored = ['libnotcurses-sys/use_vendored_bindings']
+
+[package.metadata.docs.rs]
+features = ["vendored"]
 
 [badges]
 maintenance = { status = "actively-developed" }
