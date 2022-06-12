@@ -1,6 +1,6 @@
 // notcurses::lib
 //
-//! A simple high level notcurses wrapper.
+//! A rusty notcurses wrapper.
 //!
 //!
 //! ### Example

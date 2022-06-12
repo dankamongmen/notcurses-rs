@@ -5,7 +5,7 @@
 [![MSRV: 1.58.1](https://flat.badgen.net/badge/MSRV/1.58.1/purple)](https://blog.rust-lang.org/2022/01/20/Rust-1.58.1.html)
 [![Lines Of Code](https://tokei.rs/b1/github/dankamongmen/notcurses-rs?category=code)](https://github.com/dankamongmen/notcurses-rs)
 
-A high-level Rust wrapper over [notcurses][0], the most blingful TUI library.
+A rusty wrapper over [notcurses][0], the most blingful TUI library.
 
 ## Example
 
@@ -15,7 +15,7 @@ use notcurses::*;
 fn main() -> Result<()> {
     let mut nc = Notcurses::new_cli()?;
     let mut cli = nc.cli_plane()?;
-    cli.putstr("\nhello world!\n")?;
+    cli.putstrln("hello world!")?;
     cli.render()?;
     Ok(())
 }

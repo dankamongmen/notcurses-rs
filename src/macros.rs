@@ -3,7 +3,7 @@
 //!
 //
 
-/// Prints to a plane, using the `format!` syntax.
+/// Prints to a plane, similarly as [`print!`].
 ///
 /// `Plane`.[`putstr`] using the [`format!`] syntax.
 ///
@@ -42,7 +42,7 @@ macro_rules! putstr {
 
 }
 
-/// Prints to a plane, with a new line, using the `format!` syntax.
+/// Prints to a plane, with a new line, similarly as [`println!`].
 ///
 /// `Plane`.[`putstrln`] using the [`format!`] syntax.
 ///
