@@ -1,5 +1,3 @@
-# notcurses
-
 [![Crate](https://img.shields.io/crates/v/notcurses.svg)](https://crates.io/crates/notcurses)
 [![API](https://docs.rs/notcurses/badge.svg)](https://docs.rs/notcurses/)
 [![MSRV: 1.58.1](https://flat.badgen.net/badge/MSRV/1.58.1/purple)](https://blog.rust-lang.org/2022/01/20/Rust-1.58.1.html)
@@ -27,8 +25,6 @@ fn main() -> Result<()> {
 Current version `3.0.1` is compatible with notcurses `3.0.8`.
 
 *Current major version `3` is considered a development version*.
-
-The API is currently undergoing heavy work.
 
 **Main differences with `libnotcurses-sys`:**
 - Fully safe public API.
