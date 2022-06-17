@@ -3,7 +3,7 @@
 //!
 //
 
-/// The type of the [`NcInput`][crate::NcInput] event.
+/// The type of the [`Input`][crate::Input] event.
 ///
 /// Note: *Unknown* and *Press* are considered equivalent.
 #[derive(Clone, Copy, PartialEq, Eq)]

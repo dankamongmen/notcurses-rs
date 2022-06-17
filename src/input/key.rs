@@ -2,7 +2,7 @@
 
 use crate::sys::{c_api, NcKey};
 
-/// A synthesized [`Received`] event other than a `char`.
+/// A synthesized [`Received`][crate::Received] input event other than a `char`.
 #[repr(transparent)]
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub struct Key(u32);
