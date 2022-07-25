@@ -49,14 +49,14 @@ mod std_impls {
             let mut string = String::new();
             for s in self.to_vec() {
                 string.push_str(match s {
-                    Style::Italic => "Italic",
-                    Style::Underline => "Underline",
-                    Style::Undercurl => "Undercurl",
-                    Style::Struck => "Struck",
-                    Style::Bold => "Bold",
-                    _ => "None",
+                    Style::Italic => "Italic ",
+                    Style::Underline => "Underline ",
+                    Style::Undercurl => "Undercurl ",
+                    Style::Struck => "Struck ",
+                    Style::Bold => "Bold ",
+                    Style::None => "None ",
+                    _ => "",
                 });
-                string.push('+');
             }
             let _ = string.pop();
             write!(f, "{}", string)
@@ -65,7 +65,20 @@ mod std_impls {
 
     impl fmt::Debug for Style {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            write!(f, "Style::{}", self)
+            let mut string = String::new();
+            for s in self.to_vec() {
+                string.push_str(match s {
+                    Style::Italic => "Italic+",
+                    Style::Underline => "Underline+",
+                    Style::Undercurl => "Undercurl+",
+                    Style::Struck => "Struck+",
+                    Style::Bold => "Bold+",
+                    Style::None => "None ",
+                    _ => "",
+                });
+            }
+            let _ = string.pop();
+            write!(f, "{}", string)
         }
     }
 
@@ -79,24 +92,34 @@ mod std_impls {
 
     impl From<NcStyle> for Style {
         fn from(nc: NcStyle) -> Style {
-            match nc {
-                NcStyle::Italic => Style::Italic,
-                NcStyle::Underline => Style::Underline,
-                NcStyle::Undercurl => Style::Undercurl,
-                NcStyle::Struck => Style::Struck,
-                _ => Style::None,
+            let mut new = Style::None;
+            for s in nc.to_vec() {
+                match s {
+                    NcStyle::Italic => new.set(Style::Italic),
+                    NcStyle::Underline => new.set(Style::Underline),
+                    NcStyle::Undercurl => new.set(Style::Undercurl),
+                    NcStyle::Struck => new.set(Style::Struck),
+                    NcStyle::Bold => new.set(Style::Bold),
+                    _ => (),
+                };
             }
+            new
         }
     }
     impl From<Style> for NcStyle {
         fn from(style: Style) -> NcStyle {
-            match style {
-                Style::Italic => NcStyle::Italic,
-                Style::Underline => NcStyle::Underline,
-                Style::Undercurl => NcStyle::Undercurl,
-                Style::Struck => NcStyle::Struck,
-                _ => NcStyle::None,
+            let mut new = NcStyle::None;
+            for s in style.to_vec() {
+                match s {
+                    Style::Italic => new.set(NcStyle::Italic),
+                    Style::Underline => new.set(NcStyle::Underline),
+                    Style::Undercurl => new.set(NcStyle::Undercurl),
+                    Style::Struck => new.set(NcStyle::Struck),
+                    Style::Bold => new.set(NcStyle::Bold),
+                    _ => (),
+                };
             }
+            new
         }
     }
 
@@ -121,11 +144,11 @@ impl Style {
         let mut style = Style::None;
         for s in names.split(' ') {
             match s.to_lowercase().as_str() {
-                "italic" => style.add(Style::Italic),
-                "underline" => style.add(Style::Underline),
-                "undercurl" => style.add(Style::Undercurl),
-                "struck" => style.add(Style::Struck),
-                "bold" => style.add(Style::Bold),
+                "italic" => style.set(Style::Italic),
+                "underline" => style.set(Style::Underline),
+                "undercurl" => style.set(Style::Undercurl),
+                "struck" => style.set(Style::Struck),
+                "bold" => style.set(Style::Bold),
                 _ => (),
             }
         }
@@ -144,12 +167,14 @@ impl Style {
             Style::Undercurl,
             Style::Struck,
             Style::Bold,
-            Style::None,
         ];
         for s in &styles {
             if self.has(*s) {
                 v.push(*s)
             }
+        }
+        if v.is_empty() {
+            v.push(Style::None);
         }
         v
     }
@@ -160,8 +185,13 @@ impl Style {
         (self.0 & other.0) == other.0
     }
 
-    /// Adds the `other_style` to the current style.
-    pub fn add(&mut self, other: impl Into<Style>) {
+    /// Sets the `other` style in the current style.
+    pub fn set(&mut self, other: impl Into<Style>) {
         self.0 |= other.into().0
+    }
+
+    /// Unsets the `other` style in the current style.
+    pub fn unset(&mut self, other: impl Into<Style>) {
+        self.0 &= !other.into().0
     }
 }
