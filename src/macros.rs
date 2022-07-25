@@ -30,14 +30,14 @@ macro_rules! putstr {
         ({
             let res = $plane.putstr(&format![$($args)*])?;
             Ok(res)
-        }) as crate::Result<u32>
+        }) as $crate::Result<u32>
     };
     (+render $plane:expr, $($args:tt)*) => {
         ({
             let res = $plane.putstr(&format![$($args)*])?;
             $plane.render()?;
             Ok(res)
-        }) as crate::Result<u32>
+        }) as $crate::Result<u32>
     };
 
 }
@@ -69,26 +69,26 @@ macro_rules! putstrln {
         ({
             let res = $plane.putln()?;
             Ok(res)
-        }) as crate::Result<u32>
+        }) as $crate::Result<u32>
     };
     ($plane:expr, $($args:tt)*) => {
         ({
             let res = $plane.putstrln(&format![$($args)*])?;
             Ok(res)
-        }) as crate::Result<u32>
+        }) as $crate::Result<u32>
     };
     (+render $plane:expr) => {
         ({
             let res = $plane.putln()?;
             $plane.render()?;
             Ok(res)
-        }) as crate::Result<u32>
+        }) as $crate::Result<u32>
     };
     (+render $plane:expr, $($args:tt)*) => {
         ({
             let res = $plane.putstrln(&format![$($args)*])?;
             $plane.render()?;
             Ok(res)
-        }) as crate::Result<u32>
+        }) as $crate::Result<u32>
     };
 }

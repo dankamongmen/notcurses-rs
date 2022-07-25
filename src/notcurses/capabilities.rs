@@ -29,7 +29,7 @@ pub struct Capabilities {
 
 mod std_impls {
     use super::Capabilities;
-    use std::fmt;
+    use std::fmt::{self, Write as _};
 
     impl fmt::Display for Capabilities {
         fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -50,7 +50,7 @@ mod std_impls {
                 string += "braille "
             }
             if self.pixel {
-                string += &format!["pixel:{}", self.pixel_implementation]
+                let _ = write![string, "pixel:{}", self.pixel_implementation];
             }
             if self.images {
                 string += "images "
@@ -64,7 +64,7 @@ mod std_impls {
             if self.truecolor {
                 string += "rgb "
             }
-            string += &format!["palette: {} ", self.palette_size];
+            let _ = write![string, "palette:{} ", self.palette_size];
             if self.palette_change {
                 string += "+change "
             }

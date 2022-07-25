@@ -702,7 +702,7 @@ impl Plane {
 }
 
 /// # text and cells
-impl<'plane> Plane {
+impl Plane {
     /// Writes a `string` to the current cursor position, using the current style.
     ///
     /// Returns the number of columns the cursor has advanced.

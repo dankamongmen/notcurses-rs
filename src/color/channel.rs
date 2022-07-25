@@ -17,7 +17,7 @@ pub struct Channel {
 
 mod std_impls {
     use super::*;
-    use std::fmt;
+    use std::fmt::{self, Write as _};
 
     #[rustfmt::skip]
     impl fmt::Display for Channel {
@@ -25,9 +25,9 @@ mod std_impls {
             let mut s = String::new();
 
             if self.is_rgb() {
-                s += &format![ "rgb:{:02X}_{:02X}_{:02X}", self.r(), self.g(), self.b() ];
+                let _ = write![s, "rgb:{:02X}_{:02X}_{:02X}", self.r(), self.g(), self.b()];
             } else if self.is_palindex() {
-                s += &format!["palindex:{:03}", self.palindex()];
+                let _ = write![s, "palindex:{:03}", self.palindex()];
             } else {
                 s += "defaultcolor";
             }
@@ -80,13 +80,7 @@ mod std_impls {
             impl From<[$int; 3]> for Channel {
                 /// Performs a saturating cast to `[u8; 3]`.
                 fn from(arr: [$int; 3]) -> Channel {
-                    use az::SaturatingAs;
-                    let arr_u8 = [
-                        arr[0].saturating_as::<u8>(),
-                        arr[1].saturating_as::<u8>(),
-                        arr[2].saturating_as::<u8>(),
-                    ];
-                    Self::from_rgb(arr_u8)
+                    Self::from((arr[0], arr[1], arr[2]))
                 }
             }
             impl From<$int> for Channel {
@@ -99,7 +93,7 @@ mod std_impls {
             }
         };
     }
-    impl_from_int_tuple_array!(u8, i8, i16, u16, i32, u32, i64, u64, isize, usize);
+    impl_from_int_tuple_array!(i8, u8, i16, u16, i32, u32, i64, u64, isize, usize);
 }
 
 /// # Constructors
