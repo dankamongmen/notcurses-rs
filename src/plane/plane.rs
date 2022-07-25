@@ -924,7 +924,7 @@ impl Plane {
     }
 }
 
-/// # colors and styles
+/// # colors, palette & styles
 impl Plane {
     /// Gets the channels.
     pub fn channels(&self) -> Channels {
@@ -964,6 +964,46 @@ impl Plane {
     /// Sets the foreground channel to the default. Returns the updated channels.
     pub fn unset_fg(&mut self) -> Channels {
         self.set_fg(Channel::with_default())
+    }
+
+    /* palette */
+
+    /// Sets this `Plane`'s foreground [`Palette`][crate::Palette] index.
+    ///
+    /// Also sets the foreground palette index bit, sets it foreground-opaque,
+    /// and clears the foreground default color bit.
+    pub fn set_fg_palindex(&mut self, palindex: impl Into<u8>) {
+        self.into_ref_mut().set_fg_palindex(palindex.into())
+    }
+
+    /// Sets this `Plane`'s background [`Palette`][crate::Palette] index.
+    ///
+    /// Also sets the background palette index bit, sets it foreground-opaque,
+    /// and clears the foreground default color bit.
+    pub fn set_bg_palindex(&mut self, palindex: impl Into<u8>) {
+        self.into_ref_mut().set_bg_palindex(palindex.into())
+    }
+
+    /* styles */
+
+    /// Returns the current styles for this `Plane`.
+    pub fn styles(&self) -> Style {
+        self.into_ref().styles().into()
+    }
+
+    /// Removes the specified `styles` from this `Plane`'s existing spec.
+    pub fn off_styles(&mut self, styles: impl Into<Style>) {
+        self.into_ref_mut().off_styles(styles.into());
+    }
+
+    /// Adds the specified `styles` to this `NcPlane`'s existing spec.
+    pub fn on_styles(&mut self, styles: impl Into<Style>) {
+        self.into_ref_mut().on_styles(styles.into());
+    }
+
+    /// Sets just the specified `styles` for this `NcPlane`.
+    pub fn set_styles(&mut self, styles: impl Into<Style>) {
+        self.into_ref_mut().set_styles(styles.into());
     }
 }
 
