@@ -7,8 +7,8 @@ use crate::{
 
 /// The detected current terminal capabilities.
 ///
-/// It can also be generated from
-/// [`Notcurses.capabilities`][crate::Notcurses#method.capabilities] and
+/// It can be generated from
+/// [`Notcurses.capabilities()`][crate::Notcurses#method.capabilities].
 #[non_exhaustive]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Capabilities {
@@ -25,6 +25,53 @@ pub struct Capabilities {
     pub(crate) truecolor: bool,
     pub(crate) palette_size: u32,
     pub(crate) palette_change: bool,
+}
+
+mod std_impls {
+    use super::Capabilities;
+    use std::fmt;
+
+    impl fmt::Display for Capabilities {
+        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            let mut string = String::new();
+            if self.utf8 {
+                string += "utf8 "
+            }
+            if self.halfblock {
+                string += "halfblock "
+            }
+            if self.quadrant {
+                string += "quadrant "
+            }
+            if self.sextant {
+                string += "sextant "
+            }
+            if self.braille {
+                string += "braille "
+            }
+            if self.pixel {
+                string += &format!["pixel:{}", self.pixel_implementation]
+            }
+            if self.images {
+                string += "images "
+            }
+            if self.videos {
+                string += "videos "
+            }
+            if self.fade {
+                string += "fade "
+            }
+            if self.truecolor {
+                string += "rgb "
+            }
+            string += &format!["palette: {} ", self.palette_size];
+            if self.palette_change {
+                string += "+change "
+            }
+            let _ = string.pop();
+            write!(f, "{}", string)
+        }
+    }
 }
 
 impl Capabilities {

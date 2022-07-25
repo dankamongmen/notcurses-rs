@@ -1027,7 +1027,7 @@ impl Plane {
     /// Sets the plane's base cell's foreground & background `channels`.
     ///
     /// Returns the previous value.
-    pub fn set_base_channels(&mut self, channels: Channels) -> Result<Channels> {
+    pub fn set_base_channels(&mut self, channels: impl Into<Channels>) -> Result<Channels> {
         let mut base = self.base()?;
         Ok(base.set_channels(channels))
     }
@@ -1035,7 +1035,7 @@ impl Plane {
     /// Sets the plane's base cell's foreground `channel`.
     ///
     /// Returns the previous value.
-    pub fn set_base_fg(&mut self, foreground: Channel) -> Result<Channel> {
+    pub fn set_base_fg(&mut self, foreground: impl Into<Channel>) -> Result<Channel> {
         let mut base = self.base()?;
         Ok(base.set_fg(foreground))
     }
@@ -1043,7 +1043,7 @@ impl Plane {
     /// Sets the plane's base cell's background `channel`.
     ///
     /// Returns the previous value.
-    pub fn set_base_bg(&mut self, background: Channel) -> Result<Channel> {
+    pub fn set_base_bg(&mut self, background: impl Into<Channel>) -> Result<Channel> {
         let mut base = self.base()?;
         Ok(base.set_bg(background))
     }

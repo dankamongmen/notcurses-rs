@@ -3,7 +3,7 @@
 //!
 //
 
-use std::{fmt, io::Error as IoError, result};
+use std::{io::Error as IoError, result};
 
 use crate::sys::NcError;
 
@@ -32,7 +32,8 @@ impl Error {
 }
 
 mod std_impls {
-    use super::*;
+    use super::{Error, NcError};
+    use std::fmt;
 
     impl std::error::Error for Error {}
 
