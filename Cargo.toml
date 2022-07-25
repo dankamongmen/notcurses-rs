@@ -1,6 +1,6 @@
 [package]
 name = "notcurses"
-version = "3.0.2"
+version = "3.0.3"
 edition = "2021"
 rust-version = "1.58.1"
 authors = ["José Luis Cruz <joseluis@andamira.net>", "nick black <dankamongmen@gmail.com>"]
@@ -14,19 +14,19 @@ categories = [
 	"command-line-interface",
 	"visualization",
 	"rendering",
-	]
+]
 keywords = ["tui", "cli", "terminal", "ncurses"]
 include = [
-	"src/**/*rs",
-	"examples/hello-world.rs",
-	"Cargo.toml",
-	"LICENSE-*",
-	"README.md",
+	"/src/**/*rs",
+	"/examples/hello-world.rs",
+	"/Cargo.toml",
+	"/LICENSE-*",
+	"/README.md",
 ]
 publish = true
 
 [dependencies]
-libnotcurses-sys = "3.6.1"
+libnotcurses-sys = "3.6.2"
 
 # libnotcurses-sys = { path = "../libnotcurses-sys" }
 # libnotcurses-sys = { git = "https://github.com/dankamongmen/libnotcurses-sys" }
