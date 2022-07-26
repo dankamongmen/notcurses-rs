@@ -28,7 +28,7 @@ mod std_impls {
     impl fmt::Debug for Channels {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
             let (fg, bg) = self.into();
-            write!(f, "fg:{fg} bg:{bg}")
+            write!(f, "Channels {{ fg: {fg:?}, bg: {bg:?} }}")
         }
     }
 

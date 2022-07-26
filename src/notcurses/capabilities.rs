@@ -50,7 +50,7 @@ mod std_impls {
                 string += "braille "
             }
             if self.pixel {
-                let _ = write![string, "pixel:{}", self.pixel_implementation];
+                let _ = write![string, "pixel:{} ", self.pixel_implementation];
             }
             if self.images {
                 string += "images "
@@ -66,7 +66,7 @@ mod std_impls {
             }
             let _ = write![string, "palette:{} ", self.palette_size];
             if self.palette_change {
-                string += "+change "
+                string += "palchange "
             }
             let _ = string.pop();
             write!(f, "{}", string)
