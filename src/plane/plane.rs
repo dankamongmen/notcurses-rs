@@ -36,6 +36,12 @@ mod std_impls {
         }
     }
 
+    impl Clone for Plane {
+        fn clone(&self) -> Self {
+            self.duplicate()
+        }
+    }
+
     impl fmt::Debug for Plane {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
             let mut opts = String::new();
@@ -172,8 +178,8 @@ impl Plane {
     /// The new plane will be bound to the same parent, but since child planes
     /// are not duplicated, it will not have any children planes.
     ///
-    pub fn duplicate(&mut self) -> Plane {
-        self.into_ref_mut().dup().into()
+    pub fn duplicate(&self) -> Plane {
+        self.into_ref().dup().into()
     }
 
     //
@@ -744,7 +750,6 @@ impl Plane {
     /// # Ok(())
     /// # }
     /// ```
-
     pub fn putstrln(&mut self, string: &str) -> Result<u32> {
         Ok(self.into_ref_mut().putstrln(string)?)
     }
