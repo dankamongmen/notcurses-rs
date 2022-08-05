@@ -3,15 +3,37 @@
 //!
 //
 
-use crate::sys::{NcRgb, NcRgba};
+use crate::sys::{
+    c_api::{NcRgb_u32, NcRgba_u32},
+    NcRgb, NcRgba,
+};
 
 /// A 24-bit RGB value.
 #[derive(Clone, Copy, Default, PartialEq, Eq)]
 pub struct Rgb(NcRgb);
+impl Rgb {
+    /// New const RGB color.
+    pub const fn new(r: u8, g: u8, b: u8) -> Self {
+        Self(NcRgb(
+            (r as NcRgb_u32) << 16 | (g as NcRgb_u32) << 8 | b as NcRgb_u32,
+        ))
+    }
+}
 
 /// A 32-bit RGBA value.
 #[derive(Clone, Copy, Default, PartialEq, Eq)]
 pub struct Rgba(NcRgba);
+impl Rgba {
+    /// New const RGBA color.
+    pub const fn new(r: u8, g: u8, b: u8, a: u8) -> Self {
+        Self(NcRgba(
+            (a as NcRgba_u32) << 24
+                | (r as NcRgba_u32) << 16
+                | (g as NcRgba_u32) << 8
+                | b as NcRgba_u32,
+        ))
+    }
+}
 
 mod std_impls {
     use super::{Rgb, Rgba};
