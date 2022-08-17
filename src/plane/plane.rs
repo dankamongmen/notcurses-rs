@@ -308,15 +308,15 @@ impl Plane {
     /// - if `size` is smaller than `keep_size` in any dimension.
     pub fn resize(
         &mut self,
-        size: Size,
-        keep: Position,
-        keep_size: Size,
-        offset: Position,
+        size: impl Into<Size>,
+        keep: impl Into<Position>,
+        keep_size: impl Into<Size>,
+        offset: impl Into<Position>,
     ) -> Result<()> {
-        let (keep_x, keep_y) = keep.into();
-        let (keep_len_x, keep_len_y) = keep_size.into();
-        let (off_x, off_y) = offset.into();
-        let (len_x, len_y) = size.into();
+        let (keep_x, keep_y) = keep.into().into();
+        let (keep_len_x, keep_len_y) = keep_size.into().into();
+        let (off_x, off_y) = offset.into().into();
+        let (len_x, len_y) = size.into().into();
         Ok(self.into_ref_mut().resize(
             keep_y, keep_x, keep_len_y, keep_len_x, off_y, off_x, len_y, len_x,
         )?)
@@ -324,8 +324,9 @@ impl Plane {
 
     /// Resizes this `NcPlane`, retaining what data we can (everything, unless
     /// we're shrinking in some dimension). Keeps the origin where it is.
-    pub fn resize_simple(&mut self, size: Size) -> Result<()> {
-        Ok(self.into_ref_mut().resize_simple(size.w(), size.h())?)
+    pub fn resize_simple(&mut self, size: impl Into<Size>) -> Result<()> {
+        let size = size.into();
+        Ok(self.into_ref_mut().resize_simple(size.h(), size.w())?)
     }
 
     // TODO CHECK callbacks
