@@ -127,6 +127,7 @@ impl VisualBuilder {
     /// Builds a new `Visual` from `pstride`-byte palette-indexed pixels, arranged in
     /// `y` lines of `stride` bytes each, composed of `x` pixels.
     // IMPROVE
+    #[allow(clippy::too_many_arguments)]
     pub fn build_from_palidx(
         self,
         data: &[u8],
@@ -202,7 +203,7 @@ impl VisualBuilder {
     }
 
     /// Sets the [`Pixel`][Blitter::Pixel] blitter.
-    pub fn pixel(mut self) -> Self {
+    pub fn blitter_pixel(mut self) -> Self {
         self.options.set_blitter(Blitter::Pixel);
         self
     }

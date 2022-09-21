@@ -8,7 +8,7 @@ use crate::{
     color::Rgba,
     error::{Error, Result},
     plane::{Align, Plane, Position, Size},
-    sys::{self, NcVisual, NcVisualOptions},
+    sys::{self, NcRgba, NcVisual, NcVisualOptions},
     Notcurses,
 };
 
@@ -352,8 +352,25 @@ impl Visual {
     }
 
     /// Sets the [`Pixel`][Blitter::Pixel] blitter.
-    pub fn set_pixel(&mut self) {
+    pub fn set_blitter_pixel(&mut self) {
         self.options.set_blitter(Blitter::Pixel);
+    }
+
+    /// Gets the Rgba pixel at the provided coordinates.
+    ///
+    /// *Corresponds to [`NcVisual::at_yx`].*
+    pub fn get_pixel(&self, x: u32, y: u32) -> Result<Rgba> {
+        let ncrgba: NcRgba = self.into_ref().at_yx(y, x)?.into();
+        Ok(ncrgba.into())
+    }
+
+    /// Sets the Rgba pixel at the provided coordinates.
+    ///
+    /// *Corresponds to [`NcVisual::set_yx`].*
+    pub fn set_pixel(&mut self, x: u32, y: u32, rgba: impl Into<Rgba>) -> Result<()> {
+        let ncrgba: NcRgba = rgba.into().into();
+        self.into_ref_mut().set_yx(y, x, ncrgba)?;
+        Ok(())
     }
 
     /// (Un)Sets graful degradation.
