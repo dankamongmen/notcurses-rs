@@ -120,6 +120,11 @@ mod std_impls {
             Rgb(array.into())
         }
     }
+    impl From<&[u8; 3]> for Rgb {
+        fn from(array: &[u8; 3]) -> Self {
+            Rgb(array.into())
+        }
+    }
     impl From<Rgb> for [u8; 3] {
         fn from(rgb: Rgb) -> Self {
             rgb.0.into()
@@ -141,6 +146,11 @@ mod std_impls {
             Rgba(array.into())
         }
     }
+    impl From<&[u8; 4]> for Rgba {
+        fn from(array: &[u8; 4]) -> Self {
+            Rgba(array.into())
+        }
+    }
     impl From<Rgba> for [u8; 4] {
         fn from(rgba: Rgba) -> Self {
             rgba.0.into()
@@ -154,6 +164,23 @@ mod std_impls {
     impl From<Rgba> for (u8, u8, u8, u8) {
         fn from(rgba: Rgba) -> Self {
             rgba.0.into()
+        }
+    }
+
+    // between Rgb & Rgba
+
+    impl From<Rgb> for Rgba {
+        #[inline]
+        fn from(rgb: Rgb) -> Self {
+            let a: [u8; 3] = rgb.into();
+            [a[0], a[1], a[2], 255].into()
+        }
+    }
+    impl From<Rgba> for Rgb {
+        #[inline]
+        fn from(rgba: Rgba) -> Self {
+            let a: [u8; 4] = rgba.into();
+            [a[0], a[1], a[2]].into()
         }
     }
 }
