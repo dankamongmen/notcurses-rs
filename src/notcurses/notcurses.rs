@@ -98,6 +98,7 @@ mod std_impls {
 // private functions
 impl Notcurses {
     // Errors if there's already one `Notcurses` instance in this thread.
+    // Activates the lock otherwise.
     pub(super) fn lock_notcurses() -> Result<()> {
         NOTCURSES_LOCK.with(|refcell| {
             let cell = refcell.borrow_mut();
@@ -108,6 +109,11 @@ impl Notcurses {
                 Error::msg("Only one `Notcurses` instance is allowed per thread, at the same time.")
             }
         })
+    }
+
+    /// Returns true if there's already a notcurses instance initialized in this thread.
+    pub fn is_initialized() -> bool {
+        NOTCURSES_LOCK.with(|refcell| refcell.borrow().get().is_some())
     }
 
     // Errors if there's already one `Plane` that refers to the standard plane in this thread.

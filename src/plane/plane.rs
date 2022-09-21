@@ -30,9 +30,12 @@ mod std_impls {
                 CLI_PLANE_LOCK.with(|refcell| {
                     refcell.replace(OnceCell::new());
                 });
+            } else {
+                // Only destroy it if it's not the CLI plane.
+                if crate::Notcurses::is_initialized() {
+                    let _res = self.into_ref_mut().destroy();
+                }
             }
-
-            let _ = self.into_ref_mut().destroy();
         }
     }
 

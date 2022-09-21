@@ -18,7 +18,9 @@ mod std_impls {
 
     impl Drop for Statistics {
         fn drop(&mut self) {
-            unsafe { free(self.into_ref_mut() as *mut NcStats as *mut core::ffi::c_void) }
+            if crate::Notcurses::is_initialized() {
+                unsafe { free(self.into_ref_mut() as *mut NcStats as *mut core::ffi::c_void) }
+            }
         }
     }
 

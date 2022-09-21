@@ -24,7 +24,9 @@ mod std_impls {
 
     impl Drop for Visual {
         fn drop(&mut self) {
-            self.into_ref_mut().destroy()
+            if crate::Notcurses::is_initialized() {
+                self.into_ref_mut().destroy()
+            }
         }
     }
 

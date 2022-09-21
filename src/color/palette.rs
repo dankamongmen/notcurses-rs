@@ -22,7 +22,9 @@ mod std_impls {
 
     impl Drop for Palette {
         fn drop(&mut self) {
-            self.into_ref_mut().free()
+            if crate::Notcurses::is_initialized() {
+                self.into_ref_mut().free()
+            }
         }
     }
 
