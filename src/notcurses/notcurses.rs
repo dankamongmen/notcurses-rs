@@ -30,6 +30,7 @@ mod std_impls {
 
     impl Drop for Notcurses {
         fn drop(&mut self) {
+            unsafe { self.into_ref_mut().drop_planes() };
             unsafe { self.into_ref_mut().stop().expect("Notcurses.drop()") };
             // Allows initializing a new Notcurses instance again.
             NOTCURSES_LOCK.with(|refcell| {

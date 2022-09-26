@@ -1,8 +1,8 @@
 [package]
 name = "notcurses"
-version = "3.0.3"
+version = "3.1.0"
 edition = "2021"
-rust-version = "1.58.1"
+rust-version = "1.64.0"
 authors = ["José Luis Cruz <joseluis@andamira.net>", "nick black <dankamongmen@gmail.com>"]
 license = "MIT OR Apache-2.0"
 description = "A high level Rust wrapper for the notcurses C library"
@@ -26,9 +26,8 @@ include = [
 publish = true
 
 [dependencies]
-libnotcurses-sys = "3.6.2"
-
-# libnotcurses-sys = { path = "../libnotcurses-sys" }
+libnotcurses-sys = "3.7.0"
+# libnotcurses-sys = { version = "3.7.0" , path = "../libnotcurses-sys" }
 # libnotcurses-sys = { git = "https://github.com/dankamongmen/libnotcurses-sys" }
 
 az = "1.2.0"
