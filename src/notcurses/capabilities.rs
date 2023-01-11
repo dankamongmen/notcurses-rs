@@ -104,7 +104,7 @@ impl Capabilities {
         }
     }
 
-    /// Returns true if the provided [`Blitter`] is among the capabilities.
+    /// Returns `true` if the provided [`Blitter`] is among the capabilities.
     pub fn can_blitter(&self, blitter: Blitter) -> bool {
         use Blitter::*;
         match blitter {

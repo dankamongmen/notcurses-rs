@@ -179,7 +179,7 @@ impl Style {
         v
     }
 
-    /// Returns true if the current style has included the `other_style`.
+    /// Returns `true` if the current style has included the `other_style`.
     pub fn has(&self, other: impl Into<Style>) -> bool {
         let other = other.into();
         (self.0 & other.0) == other.0

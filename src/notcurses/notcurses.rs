@@ -112,7 +112,7 @@ impl Notcurses {
         })
     }
 
-    /// Returns true if there's already a notcurses instance initialized in this thread.
+    /// Returns `true` if there's already a notcurses instance initialized in this thread.
     pub fn is_initialized() -> bool {
         NOTCURSES_LOCK.with(|refcell| refcell.borrow().get().is_some())
     }

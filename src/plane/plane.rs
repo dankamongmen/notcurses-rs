@@ -541,7 +541,7 @@ impl Plane {
 
     //
 
-    // /// Returns true if the plane is a root plane (has no parents).
+    // /// Returns `true` if the plane is a root plane (has no parents).
     //
     // WIP TRACKING ISSUE: https://github.com/dankamongmen/notcurses/issues/2657
     // pub fn is_root(&self) -> bool {
@@ -608,7 +608,7 @@ impl Plane {
 
     /// (Un)Sets the *autogrow* behaviour of this plane.
     ///
-    /// Returns true if scrolling was previously enabled or false otherwise.
+    /// Returns `true` if scrolling was previously enabled or false otherwise.
     ///
     /// By default, planes are created with autogrow disabled.
     ///
@@ -629,14 +629,14 @@ impl Plane {
         self.into_ref_mut().set_autogrow(autogrow)
     }
 
-    /// Returns true if this plane has scrolling enabled or false otherwise.
+    /// Returns `true` if this plane has scrolling enabled or false otherwise.
     #[inline]
     pub fn is_scrolling(&self) -> bool {
         self.into_ref().scrolling_p()
     }
 
     /// Sets the scrolling behaviour of this plane.
-    /// Returns true if scrolling was previously enabled or false otherwise.
+    /// Returns `true` if scrolling was previously enabled or false otherwise.
     #[inline]
     pub fn set_scrolling(&mut self, scrolling: bool) -> bool {
         // NOTE: if this is the cli mode, it should update Notcurses's options,
