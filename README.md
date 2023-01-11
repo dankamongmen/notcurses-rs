@@ -1,6 +1,6 @@
 [![Crate](https://img.shields.io/crates/v/notcurses.svg)](https://crates.io/crates/notcurses)
 [![API](https://docs.rs/notcurses/badge.svg)](https://docs.rs/notcurses/)
-[![MSRV: 1.58.1](https://flat.badgen.net/badge/MSRV/1.58.1/purple)](https://blog.rust-lang.org/2022/01/20/Rust-1.58.1.html)
+[![MSRV: 1.64.0](https://flat.badgen.net/badge/MSRV/1.64.0/purple)](https://releases.rs/docs/released/1.64.0/)
 [![Lines Of Code](https://tokei.rs/b1/github/dankamongmen/notcurses-rs?category=code)](https://github.com/dankamongmen/notcurses-rs)
 
 A rusty wrapper over [notcurses][0], the most blingful TUI library.
