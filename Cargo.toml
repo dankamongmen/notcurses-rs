@@ -1,6 +1,6 @@
 [package]
 name = "notcurses"
-version = "3.1.0"
+version = "3.2.0"
 edition = "2021"
 rust-version = "1.64.0"
 authors = ["José Luis Cruz <joseluis@andamira.net>", "nick black <dankamongmen@gmail.com>"]

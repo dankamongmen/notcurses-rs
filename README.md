@@ -22,7 +22,7 @@ fn main() -> Result<()> {
 ```
 
 ## Status of the library
-Current version `3.1.0` is compatible with notcurses `3.0.8`.
+Current version `3.2.0` is compatible with notcurses `3.0.9`.
 
 *Current major version `3` is considered a development version*.
 
