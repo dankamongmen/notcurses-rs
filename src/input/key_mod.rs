@@ -120,47 +120,56 @@ mod std_impls {
 
 /// # methods
 impl KeyMod {
-    /// Returns true if no modifiers are present.
+    /// Returns `true` if no modifiers are present.
+    #[inline]
     pub fn has_none(&self) -> bool {
         *self == KeyMod::None
     }
 
-    /// Returns true if the `Shift` modifier is present.
+    /// Returns `true` if the `Shift` modifier is present.
+    #[inline]
     pub fn has_shift(&self) -> bool {
         *self & KeyMod::Shift != KeyMod::None
     }
 
-    /// Returns true if the `Alt` modifier is present.
+    /// Returns `true` if the `Alt` modifier is present.
+    #[inline]
     pub fn has_alt(&self) -> bool {
         *self & KeyMod::Alt != KeyMod::None
     }
 
-    /// Returns true if the `Ctrl` modifier is present.
+    /// Returns `true` if the `Ctrl` modifier is present.
+    #[inline]
     pub fn has_ctrl(&self) -> bool {
         *self & KeyMod::Ctrl != KeyMod::None
     }
 
-    /// Returns true if the `Super` modifier is present.
+    /// Returns `true` if the `Super` modifier is present.
+    #[inline]
     pub fn has_super(&self) -> bool {
         *self & KeyMod::Super != KeyMod::None
     }
 
-    /// Returns true if the `Hyper` modifier is present.
+    /// Returns `true` if the `Hyper` modifier is present.
+    #[inline]
     pub fn has_hyper(&self) -> bool {
         *self & KeyMod::Hyper != KeyMod::None
     }
 
-    /// Returns true if the `Meta` modifier is present.
+    /// Returns `true` if the `Meta` modifier is present.
+    #[inline]
     pub fn has_meta(&self) -> bool {
         *self & KeyMod::Meta != KeyMod::None
     }
 
-    /// Returns true if the `CapsLock` modifier is present.
+    /// Returns `true` if the `CapsLock` modifier is present.
+    #[inline]
     pub fn has_capslock(&self) -> bool {
         *self & KeyMod::CapsLock != KeyMod::None
     }
 
-    /// Returns true if the `NumLock` modifier is present.
+    /// Returns `true` if the `NumLock` modifier is present.
+    #[inline]
     pub fn has_numlock(&self) -> bool {
         *self & KeyMod::NumLock != KeyMod::None
     }

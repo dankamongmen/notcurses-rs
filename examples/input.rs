@@ -30,7 +30,7 @@ fn main() -> Result<()> {
     loop {
         let event = nc.poll_event()?;
 
-        if event.is_received() {
+        if event.received() {
             putstrln![+render plane, "\n{event:?}"]?;
 
             if event.is_key(Key::F01) {

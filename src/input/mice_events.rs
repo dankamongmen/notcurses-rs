@@ -72,7 +72,7 @@ mod std_impls {
 
 /// # methods
 impl MiceEvents {
-    /// Returns true if the current mice events has `other` included.
+    /// Returns `true` if the current mice events has `other` included.
     pub fn has(&self, other: NcMiceEvents) -> bool {
         (self.0 & other.0) == other.0
     }

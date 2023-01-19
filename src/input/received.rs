@@ -5,7 +5,7 @@
 
 use super::Key;
 
-/// Alpha information, part of a [`Channel`][crate::color::Channel].
+/// A received [`char`] or [`Key`].
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Received {
     /// No input was received.
@@ -18,6 +18,40 @@ pub enum Received {
 
     /// A valid [`char`] was received.
     Char(char),
+}
+
+impl Received {
+    /// Returns `true` if a specific `Key` has been received.
+    #[inline]
+    pub fn is_key(&self, key: Key) -> bool {
+        matches!(self, Self::Key(k) if *k == key)
+    }
+
+    /// Returns `true` if a specific `char` has been received.
+    #[inline]
+    pub const fn is_char(&self, c: char) -> bool {
+        matches!(self, Self::Char(ch) if *ch == c)
+    }
+
+    /// Returns the received `Key`, if any.
+    #[inline]
+    pub const fn key(&self) -> Option<Key> {
+        if let Self::Key(k) = self {
+            Some(*k)
+        } else {
+            None
+        }
+    }
+
+    /// Returns the received `char`, if any.
+    #[inline]
+    pub const fn char(&self) -> Option<char> {
+        if let Self::Char(c) = self {
+            Some(*c)
+        } else {
+            None
+        }
+    }
 }
 
 mod std_impls {

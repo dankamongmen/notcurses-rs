@@ -87,28 +87,55 @@ mod std_impls {
 
 /// # methods
 impl Input {
-    /// Returns true if any actual input has been received.
-    pub fn is_received(&self) -> bool {
-        self.received != Received::NoInput
+    /* Received */
+
+    /// Returns `true` if any actual input has been received.
+    #[inline]
+    pub const fn received(&self) -> bool {
+        !matches![self.received, Received::NoInput]
     }
 
-    /// Returns true if a [`Key`] has been received.
-    pub fn has_key(&self) -> bool {
+    /// Returns `true` if some [`Key`] has been received.
+    #[inline]
+    pub const fn some_key(&self) -> bool {
         matches!(self.received, Received::Key(_))
     }
 
-    /// Returns true if a specific [`Key`] has been received.
+    /// Returns `true` if a specific [`Key`] has been received.
+    #[inline]
     pub fn is_key(&self, key: Key) -> bool {
-        matches!(self.received, Received::Key(k) if k == key)
+        self.received.is_key(key)
     }
 
-    /// Returns true if a [`char`] has been received.
-    pub fn has_char(&self) -> bool {
+    /// Returns `true` if some `character` has been received.
+    #[inline]
+    pub const fn some_char(&self) -> bool {
         matches!(self.received, Received::Char(_))
     }
 
-    /// Returns true if a specific [`char`] has been received.
-    pub fn is_char(&self, character: char) -> bool {
-        matches!(self.received, Received::Char(c) if c == character)
+    /// Returns `true` if a specific `character` has been received.
+    #[inline]
+    pub const fn is_char(&self, character: char) -> bool {
+        self.received.is_char(character)
+    }
+
+    /* InputType */
+
+    /// Returns `true` if this' a `Press` input type.
+    #[inline]
+    pub const fn is_press(&self) -> bool {
+        self.itype.is_press()
+    }
+
+    /// Returns `true` if this' a `Repeat` input type.
+    #[inline]
+    pub const fn is_repeat(&self) -> bool {
+        self.itype.is_repeat()
+    }
+
+    /// Returns `true` if this' a `Release` input type.
+    #[inline]
+    pub const fn is_release(&self) -> bool {
+        self.itype.is_release()
     }
 }

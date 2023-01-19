@@ -21,6 +21,23 @@ pub enum InputType {
     Release,
 }
 
+impl InputType {
+    /// Returns `true` if it's a `Press` input type.
+    pub const fn is_press(&self) -> bool {
+        matches!(self, Self::Press)
+    }
+
+    /// Returns `true` if it's a `Repeat` input type.
+    pub const fn is_repeat(&self) -> bool {
+        matches!(self, Self::Repeat)
+    }
+
+    /// Returns `true` if it's a `Release` input type.
+    pub const fn is_release(&self) -> bool {
+        matches!(self, Self::Release)
+    }
+}
+
 mod std_impls {
     use super::InputType;
     use crate::sys::{c_api::NcInputType_u32, NcInputType};
