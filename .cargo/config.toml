@@ -2,12 +2,22 @@
 
 # CHECK
 cl = "clippy"
+clq = "clippy --quiet"
+
+# CLEAN PACKAGE
+cp = "clean --package"
+crp = "clean --release --package"
 
 # DOC
 d = "doc --no-deps"
 do = "doc --no-deps --open"
 dd = "doc"
 ddo = "doc --open"
+# +nightly
+nd = "doc --no-deps --all-features"
+ndo = "doc --no-deps --open --all-features"
+ndd = "doc --all-features"
+nddo = "doc --open --all-features"
 
 # BUILD
 b = "build"
@@ -39,3 +49,21 @@ rrqe = "run --release --quiet --example"
 # fix IO errors: https://github.com/dankamongmen/notcurses/issues/766
 t = "test -- --test-threads 1 --nocapture"
 t_all = "test --no-fail-fast -- --test-threads 1 --nocapture"
+
+# TREE
+tr = "tree"
+trf = "tree --format {p}:{f}" # with feature list
+trr = "tree --format {p}:{r}" # with repository url
+
+# PUBLISH
+p = "publish --dry-run"
+pa = "publish --dry-run --allow-dirty"
+pp = "publish"
+ppa = "publish --allow-dirty"
+
+# Cargo subcommands:
+## cargo-expand
+E = "expand"
+Eb = "expand --bin"
+Ee = "expand --example"
+El = "expand --lib"
