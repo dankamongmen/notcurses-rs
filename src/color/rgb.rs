@@ -42,6 +42,7 @@ mod core_impls {
         NcRgb, NcRgba,
     };
     use core::fmt;
+    use rgb::{RGB, RGBA};
 
     impl fmt::Display for Rgb {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -181,6 +182,32 @@ mod core_impls {
         fn from(rgba: Rgba) -> Self {
             let a: [u8; 4] = rgba.into();
             [a[0], a[1], a[2]].into()
+        }
+    }
+
+    // for rgb crate
+
+    impl From<RGB<u8>> for Rgb {
+        fn from(item: RGB<u8>) -> Self {
+            Self::new(item.r, item.g, item.b)
+        }
+    }
+    impl From<Rgb> for RGB<u8> {
+        fn from(item: Rgb) -> Self {
+            let a: [u8; 3] = item.into();
+            Self::new(a[0], a[1], a[2])
+        }
+    }
+
+    impl From<RGBA<u8>> for Rgba {
+        fn from(item: RGBA<u8>) -> Self {
+            Self::new(item.r, item.g, item.b, item.a)
+        }
+    }
+    impl From<Rgba> for RGBA<u8> {
+        fn from(item: Rgba) -> Self {
+            let a: [u8; 4] = item.into();
+            Self::new(a[0], a[1], a[2], a[3])
         }
     }
 }
