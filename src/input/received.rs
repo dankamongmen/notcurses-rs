@@ -54,10 +54,10 @@ impl Received {
     }
 }
 
-mod std_impls {
+mod core_impls {
     use super::Received;
     use crate::sys::NcReceived;
-    use std::fmt;
+    use core::fmt;
 
     impl Default for Received {
         fn default() -> Self {

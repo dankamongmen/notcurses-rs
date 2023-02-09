@@ -31,11 +31,9 @@ impl Error {
     }
 }
 
-mod std_impls {
+mod core_impls {
     use super::{Error, NcError};
-    use std::fmt;
-
-    impl std::error::Error for Error {}
+    use core::fmt;
 
     impl fmt::Display for Error {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -53,4 +51,10 @@ mod std_impls {
             Self::NcError(e)
         }
     }
+}
+
+mod std_impls {
+    use super::Error;
+
+    impl std::error::Error for Error {}
 }

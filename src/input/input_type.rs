@@ -38,10 +38,10 @@ impl InputType {
     }
 }
 
-mod std_impls {
+mod core_impls {
     use super::InputType;
     use crate::sys::{c_api::NcInputType_u32, NcInputType};
-    use std::fmt;
+    use core::fmt;
 
     impl Default for InputType {
         fn default() -> Self {

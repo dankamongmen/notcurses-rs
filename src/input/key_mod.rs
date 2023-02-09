@@ -43,9 +43,9 @@ impl KeyMod {
     pub const Mask: Self = Self(u32::MAX);
 }
 
-mod std_impls {
+mod core_impls {
     use super::{KeyMod, NcKeyMod};
-    use std::fmt;
+    use core::fmt;
 
     impl Default for KeyMod {
         fn default() -> Self {

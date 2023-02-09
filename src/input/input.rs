@@ -27,10 +27,10 @@ pub struct Input {
     pub offset: Option<Position>,
 }
 
-mod std_impls {
+mod core_impls {
     use super::{Input, Position};
     use crate::sys::{NcInput, NcReceived};
-    use std::fmt;
+    use core::fmt;
 
     impl fmt::Display for Input {
         #[rustfmt::skip]

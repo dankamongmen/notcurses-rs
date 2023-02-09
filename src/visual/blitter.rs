@@ -80,10 +80,10 @@ impl Blitter {
     pub const _3x2: Blitter = Blitter::Sextant;
 }
 
-mod std_impls {
+mod core_impls {
     use super::Blitter;
     use crate::sys::{c_api::NcBlitter_u32, NcBlitter};
-    use std::fmt;
+    use core::fmt;
 
     impl Default for Blitter {
         fn default() -> Self {

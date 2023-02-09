@@ -11,10 +11,10 @@ pub struct Statistics {
     nc: *mut NcStats,
 }
 
-mod std_impls {
+mod core_impls {
     use super::{NcStats, Statistics};
     use crate::sys::c_api::libc::free;
-    use std::fmt;
+    use core::fmt;
 
     impl Drop for Statistics {
         fn drop(&mut self) {

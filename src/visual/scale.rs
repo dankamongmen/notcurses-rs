@@ -31,10 +31,10 @@ pub enum Scale {
     Stretch,
 }
 
-mod std_impls {
+mod core_impls {
     use super::Scale;
     use crate::sys::{c_api::NcScale_u32, NcScale};
-    use std::fmt;
+    use core::fmt;
 
     impl Default for Scale {
         fn default() -> Self {

@@ -35,10 +35,10 @@ pub enum PixelImplementation {
     KittySelfRef,
 }
 
-mod std_impls {
+mod core_impls {
     use super::PixelImplementation;
     use crate::sys::{c_api::NcPixelImpl_u32, NcPixelImpl};
-    use std::fmt;
+    use core::fmt;
 
     impl Default for PixelImplementation {
         fn default() -> Self {

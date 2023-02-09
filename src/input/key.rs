@@ -7,9 +7,9 @@ use crate::sys::{c_api, NcKey};
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub struct Key(u32);
 
-mod std_impls {
+mod core_impls {
     use super::{Key, NcKey};
-    use std::fmt;
+    use core::fmt;
 
     impl fmt::Display for Key {
         fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

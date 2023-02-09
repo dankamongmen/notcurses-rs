@@ -15,7 +15,7 @@ pub struct NotcursesBuilder {
     options: NcOptionsBuilder,
 }
 
-mod std_impls {
+mod core_impls {
     use super::{NcOptionsBuilder, NotcursesBuilder};
 
     impl Default for NotcursesBuilder {

@@ -37,10 +37,10 @@ pub enum LogLevel {
     Trace,
 }
 
-mod std_impls {
+mod core_impls {
     use super::LogLevel;
     use crate::sys::{c_api::NcLogLevel_i32, NcLogLevel};
-    use std::fmt;
+    use core::fmt;
 
     impl Default for LogLevel {
         fn default() -> Self {

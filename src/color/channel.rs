@@ -15,9 +15,9 @@ pub struct Channel {
     pub nc: NcChannel,
 }
 
-mod std_impls {
+mod core_impls {
     use super::*;
-    use std::fmt::{self, Write as _};
+    use core::fmt::{self, Write as _};
 
     #[rustfmt::skip]
     impl fmt::Display for Channel {

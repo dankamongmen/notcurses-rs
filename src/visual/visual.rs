@@ -18,9 +18,9 @@ pub struct Visual {
     pub(super) options: VisualOptions,
 }
 
-mod std_impls {
+mod core_impls {
     use super::{Align, Visual};
-    use std::fmt;
+    use core::fmt;
 
     impl Drop for Visual {
         fn drop(&mut self) {

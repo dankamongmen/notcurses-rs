@@ -34,9 +34,9 @@ impl Style {
     pub const Mask: Self = Self(NcStyle::Mask.0);
 }
 
-mod std_impls {
+mod core_impls {
     use super::{NcStyle, NcStyle_u16, Style};
-    use std::fmt;
+    use core::fmt;
 
     impl Default for Style {
         fn default() -> Self {

@@ -31,7 +31,7 @@ impl MiceEvents {
     pub const All: Self = Self(NcMiceEvents::All.0);
 }
 
-mod std_impls {
+mod core_impls {
     use super::{MiceEvents, NcMiceEvents, NcMiceEvents_u32};
 
     impl Default for MiceEvents {

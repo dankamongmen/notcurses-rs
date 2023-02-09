@@ -17,11 +17,11 @@ pub struct Plane {
     pub(super) nc: *mut NcPlane,
 }
 
-mod std_impls {
+mod core_impls {
     use super::{NcPlane, Plane};
     use crate::CLI_PLANE_LOCK;
+    use core::fmt;
     use once_cell::sync::OnceCell;
-    use std::fmt;
 
     impl Drop for Plane {
         fn drop(&mut self) {
@@ -206,7 +206,7 @@ impl Plane {
     pub fn is_cli(&self) -> bool {
         let nc = unsafe { self.into_ref().notcurses_const() }.expect("notcurses_const");
         let stdplane = unsafe { nc.stdplane_const() };
-        std::ptr::eq(stdplane, self.into_ref())
+        core::ptr::eq(stdplane, self.into_ref())
     }
 }
 

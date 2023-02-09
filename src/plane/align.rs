@@ -29,10 +29,10 @@ impl Align {
     pub const Bottom: Align = Align::Right;
 }
 
-mod std_impls {
+mod core_impls {
     use super::Align;
     use crate::sys::{c_api::NcAlign_u32, NcAlign};
-    use std::fmt;
+    use core::fmt;
 
     impl Default for Align {
         fn default() -> Self {

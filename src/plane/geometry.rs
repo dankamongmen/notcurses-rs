@@ -23,10 +23,10 @@ pub struct PlaneGeometry {
     pub max_bitmap_pixels: Option<Size>,
 }
 
-mod std_impls {
+mod core_impls {
     use super::{Blitter, Size};
     use crate::{plane::PlaneGeometry, sys::NcPixelGeometry};
-    use std::fmt;
+    use core::fmt;
 
     #[rustfmt::skip]
     impl fmt::Debug for PlaneGeometry {

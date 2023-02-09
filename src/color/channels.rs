@@ -15,9 +15,9 @@ pub struct Channels {
     pub nc: NcChannels,
 }
 
-mod std_impls {
+mod core_impls {
     use super::*;
-    use std::fmt;
+    use core::fmt;
 
     impl fmt::Display for Channels {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

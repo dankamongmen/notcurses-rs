@@ -24,9 +24,9 @@ pub struct Notcurses {
     pub(super) options: NcOptionsBuilder,
 }
 
-mod std_impls {
+mod core_impls {
     use super::{Notcurses, OnceCell, NOTCURSES_LOCK};
-    use std::fmt;
+    use core::fmt;
 
     impl Drop for Notcurses {
         fn drop(&mut self) {

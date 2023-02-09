@@ -25,9 +25,9 @@ pub struct Cell {
     nc: NcCell,
 }
 
-mod std_impls {
+mod core_impls {
     use super::{Cell, Channels, NcCell, Style};
-    use std::fmt;
+    use core::fmt;
 
     impl fmt::Display for Cell {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -114,7 +114,7 @@ impl Cell {
         } else {
             let bytes = self.nc.gcluster.to_ne_bytes();
             let no_nuls = bytes.split(|b| *b == 0).next().unwrap();
-            std::str::from_utf8(no_nuls).ok().map(|s| s.to_string())
+            core::str::from_utf8(no_nuls).ok().map(|s| s.to_string())
         }
     }
 

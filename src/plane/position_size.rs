@@ -55,18 +55,18 @@ macro_rules! create_pair {
 
             /// Swaps the values.
             pub fn set_swap(&mut self) {
-                std::mem::swap(&mut self.0, &mut self.1)
+                core::mem::swap(&mut self.0, &mut self.1)
             }
         }
 
-        impl std::fmt::Display for $tname {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        impl core::fmt::Display for $tname {
+            fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
                 write!(f, "{},{}", self.0, self.1)
             }
         }
 
-        impl std::fmt::Debug for $tname {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        impl core::fmt::Debug for $tname {
+            fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
                 write!(f, "{}({})", stringify![$tname], self)
             }
         }

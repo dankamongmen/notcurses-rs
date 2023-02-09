@@ -55,9 +55,9 @@ pub struct VisualGeometry {
     pub max_bitmap_pixels: Option<Size>,
 }
 
-mod std_impls {
+mod core_impls {
     use super::{NcVisualGeometry, Position, Size, VisualGeometry};
-    // use std::fmt;
+    // use core::fmt;
 
     // TODO
     // #[rustfmt::skip]

@@ -27,10 +27,10 @@ pub enum Alpha {
     HighContrast,
 }
 
-mod std_impls {
+mod core_impls {
     use super::Alpha;
     use crate::sys::{c_api::NcAlpha_u32, NcAlpha};
-    use std::fmt;
+    use core::fmt;
 
     impl Default for Alpha {
         fn default() -> Self {

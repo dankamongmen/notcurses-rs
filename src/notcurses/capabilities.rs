@@ -27,9 +27,9 @@ pub struct Capabilities {
     pub(crate) palette_change: bool,
 }
 
-mod std_impls {
+mod core_impls {
     use super::Capabilities;
-    use std::fmt::{self, Write as _};
+    use core::fmt::{self, Write as _};
 
     impl fmt::Display for Capabilities {
         fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

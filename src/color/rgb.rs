@@ -35,13 +35,13 @@ impl Rgba {
     }
 }
 
-mod std_impls {
+mod core_impls {
     use super::{Rgb, Rgba};
     use crate::sys::{
         c_api::{NcRgb_u32, NcRgba_u32},
         NcRgb, NcRgba,
     };
-    use std::fmt;
+    use core::fmt;
 
     impl fmt::Display for Rgb {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

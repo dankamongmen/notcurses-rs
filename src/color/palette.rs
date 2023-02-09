@@ -16,9 +16,9 @@ pub struct Palette {
     nc: *mut NcPalette,
 }
 
-mod std_impls {
+mod core_impls {
     use super::{NcPalette, Palette};
-    use std::fmt;
+    use core::fmt;
 
     impl Drop for Palette {
         fn drop(&mut self) {

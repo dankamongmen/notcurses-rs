@@ -26,7 +26,7 @@ pub(super) struct VisualOptions {
     pub(crate) flags: NcVisualFlag,
 }
 
-mod std_impls {
+mod core_impls {
     use super::VisualOptions;
     use crate::sys::{NcVisualOptions, NcVisualOptionsBuilder};
 
