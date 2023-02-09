@@ -39,6 +39,7 @@ rgb = { version = "0.8.35", default-features = false }
 rand = "0.8"
 
 [features]
+default = ['vendored']
 vendored = ['libnotcurses-sys/use_vendored_bindings']
 
 [package.metadata.docs.rs]
