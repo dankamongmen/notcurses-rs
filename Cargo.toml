@@ -26,8 +26,8 @@ include = [
 publish = true
 
 [dependencies]
-libnotcurses-sys = "3.7.1"
-# libnotcurses-sys = { version = "3.7.1" , path = "../libnotcurses-sys" }
+libnotcurses-sys = "3.7.2"
+# libnotcurses-sys = { path = "../libnotcurses-sys" }
 # libnotcurses-sys = { git = "https://github.com/dankamongmen/libnotcurses-sys" }
 
 az = "1.2.1"
