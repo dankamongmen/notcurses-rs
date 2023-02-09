@@ -116,6 +116,11 @@ mod core_impls {
             Self(u)
         }
     }
+    impl From<KeyMod> for u32 {
+        fn from(km: KeyMod) -> u32 {
+            km.0
+        }
+    }
 }
 
 /// # methods
