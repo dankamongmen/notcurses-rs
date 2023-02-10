@@ -26,7 +26,7 @@ include = [
 publish = true
 
 [dependencies]
-libnotcurses-sys = "3.7.2"
+libnotcurses-sys = "3.7.4"
 # libnotcurses-sys = { path = "../libnotcurses-sys" }
 # libnotcurses-sys = { git = "https://github.com/dankamongmen/libnotcurses-sys" }
 
@@ -39,7 +39,6 @@ rgb = { version = "0.8.35", default-features = false }
 rand = "0.8"
 
 [features]
-default = ['vendored']
 vendored = ['libnotcurses-sys/use_vendored_bindings']
 
 [package.metadata.docs.rs]
