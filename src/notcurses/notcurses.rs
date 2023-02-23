@@ -346,14 +346,14 @@ impl Notcurses {
         Nc::hostname()
     }
 
+    /// Returns the name of the detected OS version.
+    pub fn osversion() -> String {
+        Nc::osversion()
+    }
+
     /// Returns the name of the detected terminal.
     pub fn detected_terminal(&self) -> String {
         self.into_ref().detected_terminal()
-    }
-
-    /// Returns the name of the detected OS version.
-    pub fn osversion(&self) -> String {
-        self.into_ref().osversion()
     }
 }
 
