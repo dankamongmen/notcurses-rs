@@ -9,12 +9,7 @@
 //
 
 #![warn(clippy::all)]
-#![allow(
-    clippy::float_arithmetic,
-    clippy::implicit_return,
-    clippy::module_inception,
-    clippy::pattern_type_mismatch
-)]
+#![allow(clippy::module_inception, non_upper_case_globals)]
 
 use core::cell::RefCell;
 use once_cell::sync::OnceCell;
