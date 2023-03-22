@@ -25,21 +25,20 @@ include = [
 ]
 publish = true
 
+[features]
+default = []
+vendored = ['libnotcurses-sys/use_vendored_bindings']
+
 [dependencies]
-libnotcurses-sys = "3.7.5"
-# libnotcurses-sys = { path = "../libnotcurses-sys" }
-# libnotcurses-sys = { git = "https://github.com/dankamongmen/libnotcurses-sys" }
+libnotcurses-sys = { version = "3.8.0", features = ["std"] }
 
 az = "1.2.1"
 once_cell = "1.17.0"
-paste = "1.0.11"
+paste = "1.0.12"
 rgb = { version = "0.8.35", default-features = false }
 
 [dev-dependencies]
 rand = "0.8"
-
-[features]
-vendored = ['libnotcurses-sys/use_vendored_bindings']
 
 [package.metadata.docs.rs]
 features = ["vendored"]
