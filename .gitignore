@@ -2,6 +2,7 @@
 Cargo.lock
 /target
 _*
-*.swp                                                                                                                   
+*.swp
+/tools/
 *.swo
 strace*
