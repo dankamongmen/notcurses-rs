@@ -1,0 +1,84 @@
+permissions:
+  contents: read
+
+# runs on push to the main branch, and PRs
+on:
+  push:
+    branches: [main]
+  pull_request:
+name: "check"
+jobs:
+
+  # 1. formatting
+  fmt:
+    name: "stable / fmt"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "checkout"
+        uses: actions/checkout@v3
+      - name: "Install stable"
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - name: "cargo fmt --check"
+        run: cargo fmt --check
+
+  # 2. clippy lints
+  clippy:
+    name: "${{ matrix.toolchain }} / clippy"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+    strategy:
+      fail-fast: false
+      matrix:
+        toolchain: [stable]
+        # toolchain: [stable, beta]
+    steps:
+      - name: "checkout"
+        uses: actions/checkout@v3
+      - name: "Install ${{ matrix.toolchain }}"
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          components: clippy
+      - name: "cargo clippy"
+        # NOTE: custom
+        run: cargo clippy --features=std,use_vendored_bindings
+
+  # 2. documentation
+  doc:
+    runs-on: ubuntu-latest
+    name: nightly / doc
+    steps:
+      - name: "checkout"
+        uses: actions/checkout@v3
+      - name: "Install nightly"
+        uses: dtolnay/rust-toolchain@nightly
+      - name: "cargo doc"
+        # NOTE: custom
+        run: cargo doc --features=nightly,std,use_vendored_bindings
+        env:
+          RUSTDOCFLAGS: --cfg docsrs
+
+  # 4. MSRV
+  msrv:
+    name: "ubuntu / ${{ matrix.msrv }}"
+    runs-on: ubuntu-latest
+    # we use a matrix here just because env can't be used in job names
+    # https://docs.github.com/en/actions/learn-github-actions/contexts#context-availability
+    strategy:
+      matrix:
+        # NOTE: custom
+        msrv: [1.64.0]
+    steps:
+      - name: "checkout"
+        uses: actions/checkout@v3
+      - name: "Install ${{ matrix.msrv }}"
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.msrv }}
+      - name: "cargo +${{ matrix.msrv }} check"
+        # NOTE: custom
+        run: cargo check --features=std,use_vendored_bindings

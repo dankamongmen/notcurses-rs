@@ -2,7 +2,7 @@
 name = "notcurses"
 version = "3.2.3"
 edition = "2021"
-rust-version = "1.64.0"
+rust-version = "1.64.0" # keep in sync with .github/workflows/check.yml
 authors = ["José Luis Cruz <joseluis@andamira.net>", "nick black <dankamongmen@gmail.com>"]
 license = "MIT OR Apache-2.0"
 description = "A high level Rust wrapper for the notcurses C library"
