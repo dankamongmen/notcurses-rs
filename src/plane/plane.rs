@@ -85,6 +85,7 @@ impl Plane {
     /// Returns the *cli* Plane for the provided `notcurses` instance.
     ///
     /// Returns an error if there's already one *cli* plane instantiated.
+    #[inline]
     pub fn from_cli(notcurses: &mut Notcurses) -> Result<Plane> {
         notcurses.cli_plane()
     }
@@ -92,6 +93,7 @@ impl Plane {
     //
 
     /// Returns a new [`PlaneBuilder`].
+    #[inline]
     pub fn builder() -> PlaneBuilder {
         PlaneBuilder::new()
     }
@@ -101,6 +103,7 @@ impl Plane {
     /// Returns a new root plane with default options.
     ///
     /// The plane will be positioned at `(0, 0)` and have the size of the terminal.
+    #[inline]
     pub fn new(nc: &mut Notcurses) -> Result<Self> {
         Self::builder().build(nc)
     }
@@ -108,6 +111,7 @@ impl Plane {
     /// Returns a new root plane at a specific `position`.
     ///
     /// The plane will have the size of the terminal.
+    #[inline]
     pub fn new_at(nc: &mut Notcurses, position: impl Into<Position>) -> Result<Self> {
         Self::builder().position(position).build(nc)
     }
@@ -116,6 +120,7 @@ impl Plane {
     ///
     /// - `size` must be greater than `0` in both dimensions.
     /// - The plane will be positioned at `(0, 0)`.
+    #[inline]
     pub fn new_sized(nc: &mut Notcurses, size: impl Into<Size>) -> Result<Self> {
         Self::builder().size(size).build(nc)
     }
@@ -123,6 +128,7 @@ impl Plane {
     /// Returns a new root plane with a specific `size` and `position`.
     ///
     /// `size` must be greater than `0` in both dimensions.
+    #[inline]
     pub fn new_sized_at(
         nc: &mut Notcurses,
         size: impl Into<Size>,
@@ -136,6 +142,7 @@ impl Plane {
     /// Returns a new child plane with default options.
     ///
     /// The plane will be positioned at `(0, 0)` and have the size of the terminal.
+    #[inline]
     pub fn new_child(&mut self) -> Result<Plane> {
         Self::builder().build_child(self)
     }
@@ -143,6 +150,7 @@ impl Plane {
     /// Returns a new child plane at a specific `position`.
     ///
     /// The plane will be terminal sized.
+    #[inline]
     pub fn new_child_at(&mut self, position: impl Into<Position>) -> Result<Plane> {
         Self::builder().position(position).build_child(self)
     }
@@ -151,6 +159,7 @@ impl Plane {
     ///
     /// - `size` must be greater than `0` in both dimensions.
     /// - The plane will be positioned at `(0, 0)`.
+    #[inline]
     pub fn new_child_sized(&mut self, size: impl Into<Size>) -> Result<Plane> {
         Self::builder().size(size).build_child(self)
     }
@@ -158,6 +167,7 @@ impl Plane {
     /// Returns a new child plane with a specific `position` and `size`.
     ///
     /// `size` must be greater than `0` in both dimensions.
+    #[inline]
     pub fn new_child_sized_at(
         &mut self,
         size: impl Into<Size>,
@@ -181,6 +191,7 @@ impl Plane {
     /// The new plane will be bound to the same parent, but since child planes
     /// are not duplicated, it will not have any children planes.
     ///
+    #[inline]
     pub fn duplicate(&self) -> Plane {
         self.into_ref().dup().into()
     }
@@ -188,11 +199,13 @@ impl Plane {
     //
 
     /// Returns a shared reference to the inner [`NcPlane`].
+    #[inline]
     pub fn into_ref(&self) -> &NcPlane {
         unsafe { &*self.nc }
     }
 
     /// Returns an exclusive reference to the inner [`NcPlane`].
+    #[inline]
     pub fn into_ref_mut(&mut self) -> &mut NcPlane {
         unsafe { &mut *self.nc }
     }
@@ -203,6 +216,7 @@ impl Plane {
     /// Is this plane the [*CLI* plane][Plane#the-cli-plane]?
     ///
     /// > There can only be one.
+    #[inline]
     pub fn is_cli(&self) -> bool {
         let nc = unsafe { self.into_ref().notcurses_const() }.expect("notcurses_const");
         let stdplane = unsafe { nc.stdplane_const() };
@@ -213,6 +227,7 @@ impl Plane {
 /// # rendering
 impl Plane {
     /// Renders and rasterizes the pile of which this `Plane` is part.
+    #[inline]
     pub fn render(&mut self) -> Result<()> {
         Ok(self.into_ref_mut().render_raster()?)
     }
@@ -223,6 +238,7 @@ impl Plane {
     /// To actually write out the render, call [`rasterize`] afterwards.
     ///
     /// [`rasterize`]: Plane#method.rasterize
+    #[inline]
     pub fn render_only(&mut self) -> Result<()> {
         Ok(self.into_ref_mut().render()?)
     }
@@ -231,6 +247,7 @@ impl Plane {
     ///
     /// This is a blocking call. Don't call this before the pile has been
     /// rendered (doing so will likely result in a blank screen).
+    #[inline]
     pub fn rasterize(&mut self) -> Result<()> {
         Ok(self.into_ref_mut().rasterize()?)
     }
@@ -243,6 +260,7 @@ impl Plane {
     // /// Using this function, the user can control the writeout process.
     // /// The returned buffer must be freed by the caller.
     // ///
+    // #[inline]
     // pub fn render_to_buffer(&mut self, buffer: &mut Vec<u8>) -> Result<()> {
     //     Ok(self.into_ref_mut().render_to_buffer(buffer)?)
     // }
@@ -250,6 +268,7 @@ impl Plane {
     // TODO
     // /// Writes the last rendered frame, in its entirety, to `file`.
     // ///
+    // #[inline]
     // pub fn render_to_file(&mut self, file: &mut File) -> Result<()> {
     //     Ok(self.into_ref_mut().render_to_file(file)?)
     // }
@@ -258,6 +277,7 @@ impl Plane {
 /// # size, geometry
 impl Plane {
     // convenience function to get the capabilities directly from a Plane.
+    #[inline]
     fn capabilities(&self) -> Capabilities {
         let nc = unsafe { self.into_ref().notcurses_const() }.expect("notcurses_const");
 
@@ -279,6 +299,7 @@ impl Plane {
     }
 
     /// Returns the geometry of the plane, using the best blitter available.
+    #[inline]
     pub fn geometry_best(&self) -> PlaneGeometry {
         let blitter = self.capabilities().best_blitter();
         let ncgeom = self.into_ref().pixel_geom();
@@ -286,12 +307,14 @@ impl Plane {
     }
 
     /// Returns the geometry of the plane, using the provided blitter.
+    #[inline]
     pub fn geometry_with(&self, blitter: Blitter) -> PlaneGeometry {
         let ncgeom = self.into_ref().pixel_geom();
         (ncgeom, blitter).into()
     }
 
     /// Returns the size of the plane.
+    #[inline]
     pub fn size(&self) -> Size {
         Size::from(self.into_ref().dim_yx()).swap()
     }
@@ -309,6 +332,7 @@ impl Plane {
     /// - if `keep` falls outside of the plane.
     /// - if `keep_size` is zero in just one dimension.
     /// - if `size` is smaller than `keep_size` in any dimension.
+    #[inline]
     pub fn resize(
         &mut self,
         size: impl Into<Size>,
@@ -327,6 +351,7 @@ impl Plane {
 
     /// Resizes this `NcPlane`, retaining what data we can (everything, unless
     /// we're shrinking in some dimension). Keeps the origin where it is.
+    #[inline]
     pub fn resize_simple(&mut self, size: impl Into<Size>) -> Result<()> {
         let size = size.into();
         Ok(self.into_ref_mut().resize_simple(size.h(), size.w())?)
@@ -338,6 +363,7 @@ impl Plane {
     // /// at creation time.
     // ///
     // /// Suitable for use as a [`ResizeCallback`].
+    // #[inline]
     // pub fn resize_realign(&mut self) -> Result<()> {
     //     Ok(self.into_ref_mut().resize_realign()?)
     // }
@@ -347,21 +373,25 @@ impl Plane {
     // ///
     // /// This is suitable for use as a [`ResizeCallback`] on planes created
     // /// with [`maximize`][PlaneBuilder#method.maximize].
+    // #[inline]
     // pub fn resize_maximize(&mut self) -> Result<()> {
     //     Ok(self.into_ref_mut().resize_maximize()?)
     // }
 
     // /// Resizes this plane to the visual area's size.
+    // #[inline]
     // pub fn resize_maximize_visual(&mut self) -> Result<()> {
     //     Ok(self.into_ref_mut().resize_maximize()?)
     // }
 
     // /// Returns this plane's current resize callback, or `None` if not set.
+    // #[inline]
     // pub fn resize_cb(&self) -> Option<ResizeCb> {
     //     self.into_ref().resizecb()
     // }
 
     // /// (Un)Sets this plane's resize callback.
+    // #[inline]
     // pub fn set_resize_cb(&self, Option<ResizeCb>) {
     //     self.into_ref_mut().set_resizecb()
     // }
@@ -386,6 +416,7 @@ impl Plane {
     }
 
     /// Moves this plane relative to its parent (or to its pile, if it's a root plane).
+    #[inline]
     pub fn move_to(&mut self, position: impl Into<Position>) -> Result<()> {
         let (x, y) = position.into().into();
         Ok(self.into_ref_mut().move_yx(y, x)?)
@@ -395,6 +426,7 @@ impl Plane {
     ///
     /// - Negative values move up and left, respectively.
     /// - Pass 0 to hold an axis constant.
+    #[inline]
     pub fn move_rel(&mut self, offset: impl Into<Position>) -> Result<()> {
         let (cols, rows) = offset.into().into();
         Ok(self.into_ref_mut().move_rel(rows, cols)?)
@@ -403,6 +435,7 @@ impl Plane {
     /// Moves the plane such that it is entirely within its parent, if possible.
     ///
     /// No resizing is performed.
+    #[inline]
     pub fn place_within(&mut self) -> Result<()> {
         Ok(self.into_ref_mut().resize_placewithin()?)
     }
@@ -423,6 +456,7 @@ impl Plane {
     /// # Ok(())
     /// # }
     /// ```
+    #[inline]
     pub fn translate(&self, position: impl Into<Position>, target: &Plane) -> Position {
         let (mut x, mut y) = position.into().into();
         self.into_ref().translate(target.into_ref(), &mut y, &mut x);
@@ -448,6 +482,7 @@ impl Plane {
     /// # Ok(())
     /// # }
     /// ```
+    #[inline]
     pub fn translate_root(&self, position: impl Into<Position>) -> (Position, bool) {
         let (mut x, mut y) = position.into().into();
         let inside = self.into_ref().translate_abs(&mut y, &mut x);
@@ -458,11 +493,13 @@ impl Plane {
 /// # z-buffer positioning
 impl Plane {
     /// Returns `true` if this plane is at the top of the pile.
+    #[inline]
     pub fn is_top(&mut self) -> bool {
         self.into_ref_mut().above().is_none()
     }
 
     /// Relocates this plane at the top of the z-buffer of its pile.
+    #[inline]
     pub fn move_top(&mut self) {
         self.into_ref_mut().move_top()
     }
@@ -473,6 +510,7 @@ impl Plane {
     ///
     /// For a plane E bound to C, with z-ordering A B C D E, moving the C family
     /// to the top results in C E A B D.
+    #[inline]
     pub fn move_family_top(&mut self) {
         self.into_ref_mut().move_family_top()
     }
@@ -480,11 +518,13 @@ impl Plane {
     //
 
     /// Returns `true` if this plane is at the bottom of the pile.
+    #[inline]
     pub fn is_bottom(&mut self) -> bool {
         self.into_ref_mut().below().is_none()
     }
 
     /// Relocates this plane at the bottom of the z-buffer of its pile.
+    #[inline]
     pub fn move_bottom(&mut self) {
         self.into_ref_mut().move_bottom()
     }
@@ -495,6 +535,7 @@ impl Plane {
     ///
     /// For a plane E bound to C, with z-ordering A B C D E, moving the C family
     /// to the bottom results in A B D C E.
+    #[inline]
     pub fn move_family_bottom(&mut self) {
         self.into_ref_mut().move_family_bottom()
     }
@@ -505,6 +546,7 @@ impl Plane {
     ///
     /// Errors if the current plane is already in the desired location,
     /// or if both planes are the same.
+    #[inline]
     pub fn move_above(&mut self, other: &mut Plane) -> Result<()> {
         Ok(self.into_ref_mut().move_above(other.into_ref_mut())?)
     }
@@ -513,6 +555,7 @@ impl Plane {
     ///
     /// Errors if the current plane is already in the desired location,
     /// or if both planes are the same.
+    #[inline]
     pub fn move_family_above(&mut self, other: &mut Plane) -> Result<()> {
         Ok(self
             .into_ref_mut()
@@ -525,6 +568,7 @@ impl Plane {
     ///
     /// Errors if the current plane is already in the desired location,
     /// or if both planes are the same.
+    #[inline]
     pub fn move_below(&mut self, other: &mut Plane) -> Result<()> {
         Ok(self.into_ref_mut().move_below(other.into_ref_mut())?)
     }
@@ -533,6 +577,7 @@ impl Plane {
     ///
     /// Errors if the current plane is already in the desired location,
     /// or if both planes are the same.
+    #[inline]
     pub fn move_family_below(&mut self, other: &mut Plane) -> Result<()> {
         Ok(self
             .into_ref_mut()
@@ -544,6 +589,7 @@ impl Plane {
     // /// Returns `true` if the plane is a root plane (has no parents).
     //
     // WIP TRACKING ISSUE: https://github.com/dankamongmen/notcurses/issues/2657
+    // #[inline]
     // pub fn is_root(&self) -> bool {
     //     let ncp = unsafe { self.into_ref().parent_const() };
     //     println!("is_root >>> {:?}", ncp);
@@ -557,6 +603,7 @@ impl Plane {
     ///
     /// If this plane is equal to `new_parent` it becomes the root of a new pile,
     /// unless it's already the root of a pile, in which case this is a no-op.
+    #[inline]
     pub fn reparent(&mut self, new_parent: &mut Plane) {
         let _ = self.into_ref_mut().reparent(new_parent.into_ref_mut());
     }
@@ -566,6 +613,7 @@ impl Plane {
     ///
     /// If this plane is equal to `new_parent` it becomes the root of a new pile,
     /// unless it's already the root of a pile, in which case this is a no-op.
+    #[inline]
     pub fn reparent_family(&mut self, new_parent: &mut Plane) {
         let _ = self.into_ref_mut().reparent(new_parent.into_ref_mut());
     }
@@ -668,6 +716,7 @@ impl Plane {
 /// # cursor related methods
 impl Plane {
     /// Returns the current cursor position within this plane.
+    #[inline]
     pub fn cursor(&self) -> Position {
         Position::from(self.into_ref().cursor_yx()).swap()
     }
@@ -675,6 +724,7 @@ impl Plane {
     //
 
     /// Moves the cursor to the home position `(0, 0)`.
+    #[inline]
     pub fn cursor_home(&mut self) {
         self.into_ref_mut().cursor_home()
     }
@@ -685,6 +735,7 @@ impl Plane {
     ///
     /// Errors if the coordinates exceed the plane's dimensions, and the cursor
     /// will remain unchanged in that case.
+    #[inline]
     pub fn cursor_move_to(&mut self, position: impl Into<Position>) -> Result<()> {
         let (col, row) = position.into().into();
         Ok(self.into_ref_mut().cursor_move_yx(row, col)?)
@@ -696,6 +747,7 @@ impl Plane {
     ///
     /// Errors if the row number exceed the plane's rows, and the cursor
     /// will remain unchanged in that case.
+    #[inline]
     pub fn cursor_move_to_row(&mut self, row: u32) -> Result<()> {
         Ok(self.into_ref_mut().cursor_move_y(row)?)
     }
@@ -706,6 +758,7 @@ impl Plane {
     ///
     /// Errors if the column number exceed the plane's columns, and the cursor
     /// will remain unchanged in that case.
+    #[inline]
     pub fn cursor_move_to_col(&mut self, column: u32) -> Result<()> {
         Ok(self.into_ref_mut().cursor_move_x(column)?)
     }
@@ -796,6 +849,7 @@ impl Plane {
     /// # Ok(())
     /// # }
     /// ```
+    #[inline]
     pub fn putstr(&mut self, string: &str) -> Result<u32> {
         Ok(self.into_ref_mut().putstr(string)?)
     }
@@ -819,6 +873,7 @@ impl Plane {
     /// # Ok(())
     /// # }
     /// ```
+    #[inline]
     pub fn putstrln(&mut self, string: &str) -> Result<u32> {
         Ok(self.into_ref_mut().putstrln(string)?)
     }
@@ -826,6 +881,7 @@ impl Plane {
     /// Writes a newline to the current cursor position.
     ///
     /// A newline counts as 1 column advanced.
+    #[inline]
     pub fn putln(&mut self) -> Result<u32> {
         Ok(self.into_ref_mut().putln()?)
     }
@@ -838,6 +894,7 @@ impl Plane {
     /// ## Errors
     /// - if the position falls outside the plane's area.
     /// - if a glyph can't fit in the current line, unless scrolling is enabled.
+    #[inline]
     pub fn putstr_aligned(
         &mut self,
         y: Option<u32>,
@@ -854,6 +911,7 @@ impl Plane {
     /// ## Errors
     /// - if the position falls outside the plane's area.
     /// - if a glyph can't fit in the current line, unless scrolling is enabled.
+    #[inline]
     pub fn putstr_stained(&mut self, string: &str) -> Result<u32> {
         Ok(self.into_ref_mut().putstr_stained(string)?)
     }
@@ -866,6 +924,7 @@ impl Plane {
     /// ## Errors
     /// - if the position falls outside the plane's area.
     /// - if a glyph can't fit in the current line, unless scrolling is enabled.
+    #[inline]
     pub fn putstr_aligned_stained(
         &mut self,
         y: Option<u32>,
@@ -886,6 +945,7 @@ impl Plane {
     /// ## Errors
     /// - if the position falls outside the plane's area.
     /// - if a glyph can't fit in the current line, unless scrolling is enabled.
+    #[inline]
     pub fn putstr_at(&mut self, position: impl Into<Position>, string: &str) -> Result<u32> {
         let (x, y): (u32, u32) = position.into().into();
         Ok(self.into_ref_mut().putstr_yx(y.into(), x.into(), string)?)
@@ -900,6 +960,7 @@ impl Plane {
     /// ## Errors
     /// - if the position falls outside the plane's area.
     /// - if a glyph can't fit in the current line, unless scrolling is enabled.
+    #[inline]
     pub fn putstr_at_xy(&mut self, x: Option<u32>, y: Option<u32>, string: &str) -> Result<u32> {
         Ok(self.into_ref_mut().putstr_yx(y, x, string)?)
     }
@@ -914,6 +975,7 @@ impl Plane {
     /// ## Errors
     /// - if the position falls outside the plane's area.
     /// - if a glyph can't fit in the current line, unless scrolling is enabled.
+    #[inline]
     pub fn putstr_len(&mut self, len: usize, string: &str) -> Result<u32> {
         Ok(self.into_ref_mut().putnstr(len, string)?)
     }
@@ -926,6 +988,7 @@ impl Plane {
     /// ## Errors
     /// - if the position falls outside the plane's area.
     /// - if a glyph can't fit in the current line, unless scrolling is enabled.
+    #[inline]
     pub fn putstr_len_at(
         &mut self,
         position: impl Into<Position>,
@@ -946,6 +1009,7 @@ impl Plane {
     /// ## Errors
     /// - if the position falls outside the plane's area.
     /// - if a glyph can't fit in the current line, unless scrolling is enabled.
+    #[inline]
     pub fn putstr_len_at_xy(
         &mut self,
         x: Option<u32>,
@@ -964,6 +1028,7 @@ impl Plane {
     /// ## Errors
     /// - if the position falls outside the plane's area.
     /// - if a glyph can't fit in the current line, unless scrolling is enabled.
+    #[inline]
     pub fn putstr_len_aligned(
         &mut self,
         y: Option<u32>,
@@ -982,6 +1047,7 @@ impl Plane {
     /// Returns the number of cells polyfilled.
     ///
     /// Errors if the position falls outside the plane's area.
+    #[inline]
     pub fn polyfill_xy(&mut self, position: impl Into<Position>, cell: &Cell) -> Result<usize> {
         let (x, y): (u32, u32) = position.into().into();
         Ok(self.into_ref_mut().polyfill_yx(y, x, cell.into())?)
@@ -990,6 +1056,7 @@ impl Plane {
     //
 
     /// Returns the cell at `position`.
+    #[inline]
     pub fn cell_at(&mut self, position: impl Into<Position>) -> Result<Cell> {
         let (x, y) = position.into().into();
         let mut cell = crate::sys::NcCell::new();
@@ -1001,41 +1068,49 @@ impl Plane {
 /// # colors, palette & styles
 impl Plane {
     /// Gets the channels.
+    #[inline]
     pub fn channels(&self) -> Channels {
         self.into_ref().channels().into()
     }
 
     /// Gets the foreground channel.
+    #[inline]
     pub fn fg(&self) -> Channel {
         self.into_ref().fchannel().into()
     }
 
     /// Gets the foreground channel.
+    #[inline]
     pub fn bg(&self) -> Channel {
         self.into_ref().bchannel().into()
     }
 
     /// Sets the channels.
+    #[inline]
     pub fn set_channels(&mut self, channels: impl Into<Channels>) {
         self.into_ref_mut().set_channels(channels.into())
     }
 
     /// Sets the `foreground` channel. Returns the updated channels.
+    #[inline]
     pub fn set_fg(&mut self, foreground: impl Into<Channel>) -> Channels {
         self.into_ref_mut().set_fchannel(foreground.into()).into()
     }
 
     /// Sets the `background` channel. Returns the updated channels.
+    #[inline]
     pub fn set_bg(&mut self, background: impl Into<Channel>) -> Channels {
         self.into_ref_mut().set_bchannel(background.into()).into()
     }
 
     /// Sets the background channel to the default. Returns the updated channels.
+    #[inline]
     pub fn unset_bg(&mut self) -> Channels {
         self.set_bg(Channel::with_default())
     }
 
     /// Sets the foreground channel to the default. Returns the updated channels.
+    #[inline]
     pub fn unset_fg(&mut self) -> Channels {
         self.set_fg(Channel::with_default())
     }
@@ -1046,6 +1121,7 @@ impl Plane {
     ///
     /// Also sets the foreground palette index bit, sets it foreground-opaque,
     /// and clears the foreground default color bit.
+    #[inline]
     pub fn set_fg_palindex(&mut self, palindex: impl Into<u8>) {
         self.into_ref_mut().set_fg_palindex(palindex.into())
     }
@@ -1061,21 +1137,25 @@ impl Plane {
     /* styles */
 
     /// Returns the current styles for this `Plane`.
+    #[inline]
     pub fn styles(&self) -> Style {
         self.into_ref().styles().into()
     }
 
     /// Removes the specified `styles` from this `Plane`'s existing spec.
+    #[inline]
     pub fn off_styles(&mut self, styles: impl Into<Style>) {
         self.into_ref_mut().off_styles(styles.into());
     }
 
     /// Adds the specified `styles` to this `NcPlane`'s existing spec.
+    #[inline]
     pub fn on_styles(&mut self, styles: impl Into<Style>) {
         self.into_ref_mut().on_styles(styles.into());
     }
 
     /// Sets just the specified `styles` for this `NcPlane`.
+    #[inline]
     pub fn set_styles(&mut self, styles: impl Into<Style>) {
         self.into_ref_mut().set_styles(styles.into());
     }
@@ -1084,6 +1164,7 @@ impl Plane {
 /// # base cell
 impl Plane {
     /// Returns this plane's base `Cell`.
+    #[inline]
     pub fn base(&mut self) -> Result<Cell> {
         Ok(self.into_ref_mut().base()?.into())
     }
@@ -1095,6 +1176,7 @@ impl Plane {
     /// The base cell shows anywhere in the plane with an empty `egc`.
     ///
     /// Note that erasing the plane does not reset the base cell.
+    #[inline]
     pub fn set_base(
         &mut self,
         egc: &str,
@@ -1109,6 +1191,7 @@ impl Plane {
     // /// The base cell shows anywhere in the plane with an empty `egc`.
     // //
     // // NOTE: this doesn't CHECK the cell's egc points to this Plane's egcpool.
+    // #[inline]
     // pub fn set_base_cell(&mut self, cell: &Cell) -> Result<()> {
     //     Ok(self.into_ref_mut().set_base_cell(cell.into())?)
     // }
@@ -1120,6 +1203,7 @@ impl Plane {
     // // THINK using NcCell extended_gcluster (&str) or strdup (String)
     // //
     // // pub fn set_base_egc(&mut self, egc: &str) -> Result<&str> {
+    // #[inline]
     // pub fn set_base_egc(&mut self, egc: &str) -> Result<String> {
     //     let mut base = self.base()?;
     //
@@ -1133,6 +1217,7 @@ impl Plane {
     /// Sets the plane's base cell's `styles`,
     ///
     /// Returns the previous value.
+    #[inline]
     pub fn set_base_styles(&mut self, styles: Style) -> Result<Style> {
         let mut base = self.base()?;
         Ok(base.set_styles(styles))
@@ -1141,6 +1226,7 @@ impl Plane {
     /// Sets the plane's base cell's foreground & background `channels`.
     ///
     /// Returns the previous value.
+    #[inline]
     pub fn set_base_channels(&mut self, channels: impl Into<Channels>) -> Result<Channels> {
         let mut base = self.base()?;
         Ok(base.set_channels(channels))
@@ -1149,6 +1235,7 @@ impl Plane {
     /// Sets the plane's base cell's foreground `channel`.
     ///
     /// Returns the previous value.
+    #[inline]
     pub fn set_base_fg(&mut self, foreground: impl Into<Channel>) -> Result<Channel> {
         let mut base = self.base()?;
         Ok(base.set_fg(foreground))
@@ -1157,6 +1244,7 @@ impl Plane {
     /// Sets the plane's base cell's background `channel`.
     ///
     /// Returns the previous value.
+    #[inline]
     pub fn set_base_bg(&mut self, background: impl Into<Channel>) -> Result<Channel> {
         let mut base = self.base()?;
         Ok(base.set_bg(background))
