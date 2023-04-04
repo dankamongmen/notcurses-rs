@@ -2,7 +2,7 @@
 
 use notcurses::*;
 
-fn main() -> Result<()> {
+fn main() -> NotcursesResult<()> {
     let mut nc = Notcurses::new_cli()?;
     let mut cli = nc.cli_plane()?;
 

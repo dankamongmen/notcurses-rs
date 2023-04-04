@@ -4,7 +4,7 @@
 //
 
 use crate::{
-    error::Result,
+    error::NotcursesResult as Result,
     plane::{Align, Plane, Position, Size},
     sys::{NcPlane, NcPlaneOptionsBuilder},
     Notcurses,

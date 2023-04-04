@@ -13,7 +13,7 @@ const H: u32 = 20;
 const W: u32 = 10;
 const NUMPIX: usize = (H * W) as usize;
 
-fn main() -> Result<()> {
+fn main() -> NotcursesResult<()> {
     let mut nc = Notcurses::new_cli()?;
 
     // Create a byte buffer with random rgba pixels:

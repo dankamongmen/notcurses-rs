@@ -8,36 +8,37 @@ use std::{io::Error as IoError, result};
 use crate::sys::NcError;
 
 /// The *Notcurses* result type.
-pub type Result<T> = result::Result<T, Error>;
+pub type NotcursesResult<T> = result::Result<T, NotcursesError>;
 
 /// The *Notcurses* error type.
 #[derive(Debug)]
 #[non_exhaustive]
-pub enum Error {
+pub enum NotcursesError {
     /// A `libnotcurses-sys` error.
     NcError(NcError),
 
+    /// An `std::io::Error`.
     IoError(IoError),
 
-    /// A generic error message (WIP).
+    /// An error message string.
     Message(String),
 }
 
 /// # Methods
-impl Error {
-    /// Returns an `Error::Message` already wraped in a `Result`.
-    pub fn msg<T>(string: &str) -> Result<T> {
+impl NotcursesError {
+    /// Returns a `NotcursesError::Message` already wraped in a `Result`.
+    pub fn msg<T>(string: &str) -> NotcursesResult<T> {
         Err(Self::Message(string.into()))
     }
 }
 
 mod core_impls {
-    use super::{Error, NcError};
+    use super::{NcError, NotcursesError};
     use core::fmt;
 
-    impl fmt::Display for Error {
+    impl fmt::Display for NotcursesError {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            use Error::*;
+            use NotcursesError::*;
             match self {
                 NcError(e) => e.fmt(f),
                 IoError(e) => e.fmt(f),
@@ -46,7 +47,7 @@ mod core_impls {
         }
     }
 
-    impl From<NcError> for Error {
+    impl From<NcError> for NotcursesError {
         fn from(e: NcError) -> Self {
             Self::NcError(e)
         }
@@ -54,7 +55,7 @@ mod core_impls {
 }
 
 mod std_impls {
-    use super::Error;
+    use super::NotcursesError;
 
-    impl std::error::Error for Error {}
+    impl std::error::Error for NotcursesError {}
 }

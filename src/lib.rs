@@ -24,7 +24,7 @@ mod visual;
 
 pub use self::notcurses::{Capabilities, LogLevel, Notcurses, NotcursesBuilder, Statistics};
 pub use color::{Alpha, Channel, Channels, Palette, Rgb, Rgba};
-pub use error::{Error, Result};
+pub use error::{NotcursesError, NotcursesResult};
 pub use input::{Input, InputType, Key, KeyMod, MiceEvents, Received};
 pub use plane::{Align, Cell, Plane, PlaneBuilder, PlaneGeometry, Position, Size, Style};
 pub use visual::{Blitter, PixelImplementation, Scale, Visual, VisualBuilder, VisualGeometry};

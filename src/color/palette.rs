@@ -5,7 +5,7 @@
 
 use crate::{
     color::{Channel, Rgb},
-    error::Result,
+    error::NotcursesResult as Result,
     sys::{NcChannel, NcPalette},
     Notcurses,
 };

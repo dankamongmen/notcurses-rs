@@ -5,7 +5,7 @@
 
 use crate::{
     color::{Alpha, Channel, Channels},
-    error::Result,
+    error::NotcursesResult as Result,
     plane::{Plane, Style},
     sys::NcCell,
 };

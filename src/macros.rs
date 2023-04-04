@@ -14,7 +14,7 @@
 /// # Example
 /// ```
 /// # use notcurses::*;
-/// # fn main() -> Result<()> {
+/// # fn main() -> NotcursesResult<()> {
 /// # let mut nc = Notcurses::new_cli()?;
 /// # let mut plane = Plane::new(&mut nc)?;
 /// # plane.set_scrolling(true);
@@ -30,14 +30,14 @@ macro_rules! putstr {
         ({
             let res = $plane.putstr(&format![$($args)*])?;
             Ok(res)
-        }) as $crate::Result<u32>
+        }) as $crate::NotcursesResult<u32>
     };
     (+render $plane:expr, $($args:tt)*) => {
         ({
             let res = $plane.putstr(&format![$($args)*])?;
             $plane.render()?;
             Ok(res)
-        }) as $crate::Result<u32>
+        }) as $crate::NotcursesResult<u32>
     };
 
 }
@@ -53,7 +53,7 @@ macro_rules! putstr {
 /// # Example
 /// ```
 /// # use notcurses::*;
-/// # fn main() -> Result<()> {
+/// # fn main() -> NotcursesResult<()> {
 /// # let mut nc = Notcurses::new_cli()?;
 /// # let mut plane = Plane::new(&mut nc)?;
 /// # plane.set_scrolling(true);
@@ -69,26 +69,26 @@ macro_rules! putstrln {
         ({
             let res = $plane.putln()?;
             Ok(res)
-        }) as $crate::Result<u32>
+        }) as $crate::NotcursesResult<u32>
     };
     ($plane:expr, $($args:tt)*) => {
         ({
             let res = $plane.putstrln(&format![$($args)*])?;
             Ok(res)
-        }) as $crate::Result<u32>
+        }) as $crate::NotcursesResult<u32>
     };
     (+render $plane:expr) => {
         ({
             let res = $plane.putln()?;
             $plane.render()?;
             Ok(res)
-        }) as $crate::Result<u32>
+        }) as $crate::NotcursesResult<u32>
     };
     (+render $plane:expr, $($args:tt)*) => {
         ({
             let res = $plane.putstrln(&format![$($args)*])?;
             $plane.render()?;
             Ok(res)
-        }) as $crate::Result<u32>
+        }) as $crate::NotcursesResult<u32>
     };
 }

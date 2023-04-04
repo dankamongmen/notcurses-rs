@@ -4,7 +4,7 @@ use notcurses::*;
 use std::time::Instant;
 use std::{thread::sleep, time::Duration};
 
-fn main() -> Result<()> {
+fn main() -> NotcursesResult<()> {
     let mut nc = Notcurses::new()?;
     nc.mice_enable(MiceEvents::All)?;
 

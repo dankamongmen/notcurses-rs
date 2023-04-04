@@ -5,7 +5,7 @@
 
 use crate::{
     color::{Channel, Channels},
-    error::Result,
+    error::NotcursesResult as Result,
     notcurses::{Capabilities, Notcurses},
     plane::{Align, Cell, PlaneBuilder, PlaneGeometry, Position, Size, Style},
     sys::NcPlane,
@@ -446,7 +446,7 @@ impl Plane {
     /// # Example
     /// ```ignore
     /// # use notcurses::*;
-    /// # fn main() -> Result<()> {
+    /// # fn main() -> NotcursesResult<()> {
     /// # let nc = Notcurses::new()?;
     ///     assert_eq![
     ///         Plane::new(&mut nc)?
@@ -473,7 +473,7 @@ impl Plane {
     /// # Example
     /// ```ignore
     /// # use notcurses::*;
-    /// # fn main() -> Result<()> {
+    /// # fn main() -> NotcursesResult<()> {
     /// # let nc = Notcurses::new()?;
     /// assert_eq![
     ///     Plane::new_at(&mut nc, (8, 8))?.translate_root(Position(7, 7)),
@@ -842,7 +842,7 @@ impl Plane {
     /// # Example
     /// ```
     /// # use notcurses::*;
-    /// # fn main() -> Result<()> {
+    /// # fn main() -> NotcursesResult<()> {
     /// # let mut nc = Notcurses::new_cli()?;
     /// # let mut plane = Plane::new(&mut nc)?;
     /// assert_eq![11, plane.putstr("hello world")?];
@@ -865,7 +865,7 @@ impl Plane {
     /// # Example
     /// ```
     /// # use notcurses::*;
-    /// # fn main() -> Result<()> {
+    /// # fn main() -> NotcursesResult<()> {
     /// # let mut nc = Notcurses::new_cli()?;
     /// # let mut plane = Plane::new(&mut nc)?;
     /// plane.set_scrolling(true);

@@ -5,7 +5,7 @@
 
 use crate::{
     color::{Palette, Rgba},
-    error::Result,
+    error::NotcursesResult as Result,
     plane::{Align, Plane, Position, Size},
     sys::NcVisual,
     visual::{Blitter, Scale, Visual, VisualOptions},

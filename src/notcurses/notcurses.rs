@@ -8,7 +8,7 @@ use once_cell::sync::OnceCell;
 use super::{Capabilities, Statistics};
 use crate::{
     color::{Palette, Rgb},
-    error::{Error, Result},
+    error::{NotcursesError as Error, NotcursesResult as Result},
     input::{Input, MiceEvents},
     plane::{Plane, PlaneGeometry, Position, Size, Style},
     sys::{Nc, NcInput, NcOptionsBuilder},

@@ -6,7 +6,7 @@
 use super::{Blitter, Scale, VisualBuilder, VisualGeometry, VisualOptions};
 use crate::{
     color::Rgba,
-    error::{Error, Result},
+    error::{NotcursesError as Error, NotcursesResult as Result},
     plane::{Align, Plane, Position, Size},
     sys::{self, NcRgba, NcVisual, NcVisualOptions},
     Notcurses,

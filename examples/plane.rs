@@ -7,7 +7,7 @@
 
 use notcurses::*;
 
-fn main() -> Result<()> {
+fn main() -> NotcursesResult<()> {
     let mut nc = Notcurses::new_cli()?;
 
     // # constructors

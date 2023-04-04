@@ -4,7 +4,7 @@
 //
 
 use crate::{
-    error::Result,
+    error::NotcursesResult as Result,
     notcurses::{LogLevel, Notcurses},
     sys::{Nc, NcOptionsBuilder},
 };
