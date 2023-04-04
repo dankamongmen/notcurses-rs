@@ -30,7 +30,7 @@ default = []
 vendored = ['libnotcurses-sys/use_vendored_bindings']
 
 [dependencies]
-libnotcurses-sys = { version = "3.8.0", features = ["std"] }
+libnotcurses-sys = { version = "3.9.0", features = ["std"] }
 
 az = "1.2.1"
 once_cell = "1.17.0"

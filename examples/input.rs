@@ -2,6 +2,7 @@
 
 use notcurses::*;
 use std::time::Instant;
+use std::{thread::sleep, time::Duration};
 
 fn main() -> Result<()> {
     let mut nc = Notcurses::new()?;
@@ -35,12 +36,12 @@ fn main() -> Result<()> {
 
             if event.is_key(Key::F01) {
                 putstr![+render plane, "\nBye!"]?;
-                sleep![0, 500];
+                sleep(Duration::from_millis(500));
                 for _ in 0..3 {
                     putstr![+render plane, " ."]?;
-                    sleep![0, 50];
+                    sleep(Duration::from_millis(50));
                 }
-                sleep![0, 250];
+                sleep(Duration::from_millis(250));
                 break;
             }
         }

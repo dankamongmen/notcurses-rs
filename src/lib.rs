@@ -45,8 +45,6 @@ thread_local!(
 #[doc(inline)]
 pub use libnotcurses_sys as sys;
 
-pub use sys::sleep;
-
 pub(crate) use sys::from_primitive;
 pub(crate) use sys::unit_impl_fmt;
 pub(crate) use sys::unit_impl_ops;
