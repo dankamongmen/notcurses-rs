@@ -667,7 +667,7 @@ impl Plane {
 
 /// # cursor related methods
 impl Plane {
-    /// Returns the current cursor `(row, column)` position within this plane.
+    /// Returns the current cursor position within this plane.
     pub fn cursor(&self) -> Position {
         Position::from(self.into_ref().cursor_yx()).swap()
     }
@@ -713,6 +713,71 @@ impl Plane {
 
 /// # text and cells
 impl Plane {
+    /// Erases every [`Cell`] in this plane.
+    ///
+    /// The cursor is homed. Resets all attributes to normal, all colors to the
+    /// default color, and all cells to undrawn.
+    #[inline]
+    pub fn erase(&mut self) {
+        self.into_ref_mut().erase()
+    }
+
+    /// Erases every [`Cell`] in the region beginning at some (`beg_x`, `beg_y`)
+    /// and having some size (`len_x`, `len_y`) for non-zero lengths.
+    ///
+    /// If `beg_x` and/or `beg_y` are `None`, the current cursor position
+    /// along that axis is used.
+    ///
+    /// - A negative `len_x` means to move left from the origin, a positive
+    ///   `len_x` moves right.
+    /// - A negative `len_y` means to move up from the origin, and a positive
+    ///   `len_y` moves down.
+    ///
+    /// A value of `0` for the length erases everything along that dimension.
+    ///
+    /// # Errors
+    /// It is an error if the starting coordinate is not in the plane,
+    /// but the ending coordinate may be outside the plane.
+    #[inline]
+    pub fn erase_region(
+        &mut self,
+        beg_x: Option<u32>,
+        beg_y: Option<u32>,
+        len_x: i32,
+        len_y: i32,
+    ) -> Result<()> {
+        Ok(self
+            .into_ref_mut()
+            .erase_region(beg_y, beg_x, len_y, len_x)?)
+    }
+
+    /// Returns a `String` from all the plane graphemes.
+    #[inline]
+    pub fn contents(&mut self) -> Result<String> {
+        Ok(self.into_ref_mut().contents(Some(0), Some(0), None, None)?)
+    }
+
+    /// Returns a String from the graphemes of the selected region of the plane.
+    ///
+    /// Starts at the plane's `beg_x` * `beg_y` coordinates (which must lie on
+    /// the plane), continuing for `len_x` x `len_y` cells.
+    ///
+    /// Use `None` for either or all of `beg_y` and `beg_x` in order to
+    /// use the current cursor position along that axis.
+    ///
+    /// Use `None` for either or both of `len_y` and `len_x` in order to
+    /// go through the boundary of the plane in that axis (same as `0`).
+    #[inline]
+    pub fn contents_region(
+        &mut self,
+        beg_x: Option<u32>,
+        beg_y: Option<u32>,
+        len_x: Option<u32>,
+        len_y: Option<u32>,
+    ) -> Result<String> {
+        Ok(self.into_ref_mut().contents(beg_y, beg_x, len_y, len_x)?)
+    }
+
     /// Writes a `string` to the current cursor position, using the current style.
     ///
     /// Returns the number of columns the cursor has advanced.
