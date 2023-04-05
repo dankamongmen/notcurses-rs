@@ -14,7 +14,7 @@ mod visual;
 pub use blitter::Blitter;
 pub use builder::VisualBuilder;
 pub use geometry::VisualGeometry;
-use options::VisualOptions;
+pub use options::VisualOptions;
 pub use pixel::PixelImplementation;
 pub use scale::Scale;
 pub use visual::Visual;

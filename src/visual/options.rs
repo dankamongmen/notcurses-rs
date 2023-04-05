@@ -10,12 +10,12 @@ use crate::{
     visual::{Blitter, Scale},
 };
 
-/// The inner options of a [`Visual`].
+/// The inner options of a [`Visual`][crate::Visual].
 ///
 /// The main difference with [`NcVisualOptions`][crate::sys::NcVisualOptions]
-/// is the absence of a reference to a [`Plane`].
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
-pub(super) struct VisualOptions {
+/// is the absence of a reference to a [`Plane`][crate::Plane].
+#[derive(Clone, Copy, Default, PartialEq, Eq)]
+pub struct VisualOptions {
     pub(crate) y: i32,
     pub(crate) x: i32,
     pub(crate) scale: Scale,
@@ -27,8 +27,9 @@ pub(super) struct VisualOptions {
 }
 
 mod core_impls {
-    use super::VisualOptions;
+    use super::{Align, VisualOptions};
     use crate::sys::{NcVisualOptions, NcVisualOptionsBuilder};
+    use core::fmt;
 
     impl<'n> From<VisualOptions> for NcVisualOptionsBuilder<'n> {
         fn from(vo: VisualOptions) -> NcVisualOptionsBuilder<'n> {
@@ -112,6 +113,104 @@ mod core_impls {
     impl<'n> From<NcVisualOptionsBuilder<'n>> for VisualOptions {
         fn from(ob: NcVisualOptionsBuilder<'n>) -> VisualOptions {
             ob.build().into()
+        }
+    }
+
+    // Returns a string with the visual option flags.
+    fn flags_string(options: &VisualOptions) -> String {
+        let mut flags = String::new();
+        if options.is_horaligned() {
+            flags += "HorAligned+";
+        }
+        if options.is_veraligned() {
+            flags += "VerAligned+";
+        }
+        if options.does_blend() {
+            flags += "Blend+";
+        }
+        if !options.does_degrade() {
+            flags += "NoDegrade+";
+        }
+        if !options.does_interpolate() {
+            flags += "NoInterpolate+";
+        }
+        flags.pop();
+        flags
+    }
+
+    impl fmt::Display for VisualOptions {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            let (x, y) = (self.x, self.y);
+            let (horizontal, vertical);
+
+            if self.is_horaligned() {
+                horizontal = Align::from(x).to_string();
+            } else {
+                horizontal = x.to_string();
+            }
+            if self.is_veraligned() {
+                vertical = Align::from(y).to_string();
+            } else {
+                vertical = y.to_string();
+            }
+
+            let transcolor = if let Some(color) = self.transcolor {
+                color.to_string()
+            } else {
+                "None".to_string()
+            };
+
+            let flags = flags_string(self);
+
+            write!(
+                f,
+                "({0}, {1}) scale:{2} {3} t:{4} o:{5:?} r:{6:?} [{flags}]",
+                horizontal,           //0
+                vertical,             //1
+                self.scale,           //2
+                self.blitter,         //3
+                transcolor,           //4
+                self.cell_offset_xy,  //5
+                self.region_xy_lenxy, //6
+            )
+        }
+    }
+
+    impl fmt::Debug for VisualOptions {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            let (x, y) = (self.x, self.y);
+            let (horizontal, vertical);
+
+            if self.is_horaligned() {
+                horizontal = Align::from(x).to_string();
+            } else {
+                horizontal = x.to_string();
+            }
+            if self.is_veraligned() {
+                vertical = Align::from(y).to_string();
+            } else {
+                vertical = y.to_string();
+            }
+
+            let transcolor = if let Some(color) = self.transcolor {
+                color.to_string()
+            } else {
+                "None".to_string()
+            };
+
+            let flags = flags_string(self);
+
+            write!(
+                f,
+                "VisualOptions {{ ({0}, {1}) Scale:{2} Blitter:{3} transp:{4} offset:{5:?} region:{6:?} [{flags}] }}",
+                horizontal,           //0
+                vertical,             //1
+                self.scale,           //2
+                self.blitter,         //3
+                transcolor,           //4
+                self.cell_offset_xy,  //5
+                self.region_xy_lenxy, //6
+            )
         }
     }
 }

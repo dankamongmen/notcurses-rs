@@ -8,7 +8,7 @@ use crate::{
     color::Rgba,
     error::{NotcursesError as Error, NotcursesResult as Result},
     plane::{Align, Plane, Position, Size},
-    sys::{self, NcRgba, NcVisual, NcVisualOptions},
+    sys::{self, NcRgba, NcVisual},
     Notcurses,
 };
 
@@ -19,7 +19,7 @@ pub struct Visual {
 }
 
 mod core_impls {
-    use super::{Align, Visual};
+    use super::Visual;
     use core::fmt;
 
     impl Drop for Visual {
@@ -32,101 +32,13 @@ mod core_impls {
 
     impl fmt::Display for Visual {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            let mut flags = String::new();
-            let (x, y) = (self.options.x, self.options.y);
-            let (horizontal, vertical);
-
-            if self.options.is_horaligned() {
-                flags += "HorAligned+";
-                horizontal = Align::from(x).to_string();
-            } else {
-                horizontal = x.to_string();
-            }
-            if self.options.is_veraligned() {
-                flags += "VerAligned+";
-                vertical = Align::from(y).to_string();
-            } else {
-                vertical = y.to_string();
-            }
-
-            if self.options.does_blend() {
-                flags += "Blend+";
-            }
-            if !self.options.does_degrade() {
-                flags += "NoDegrade+";
-            }
-            if !self.options.does_interpolate() {
-                flags += "NoInterpolate+";
-            }
-            flags.pop();
-
-            let transcolor = if let Some(color) = self.options.transcolor {
-                color.to_string()
-            } else {
-                "None".to_string()
-            };
-
-            write!(
-                f,
-                "({0}, {1}) scale:{2} {3} t:{4} o:{5:?} r:{6:?} [{flags}]",
-                horizontal,                   //0
-                vertical,                     //1
-                self.options.scale,           //2
-                self.options.blitter,         //3
-                transcolor,                   //4
-                self.options.cell_offset_xy,  //5
-                self.options.region_xy_lenxy, //6
-            )
+            write![f, "{}", self.options]
         }
     }
 
     impl fmt::Debug for Visual {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            let mut flags = String::new();
-            let (x, y) = (self.options.x, self.options.y);
-            let (horizontal, vertical);
-
-            if self.options.is_horaligned() {
-                flags += "HorAligned+";
-                horizontal = Align::from(x).to_string();
-            } else {
-                horizontal = x.to_string();
-            }
-            if self.options.is_veraligned() {
-                flags += "VerAligned+";
-                vertical = Align::from(y).to_string();
-            } else {
-                vertical = y.to_string();
-            }
-
-            if self.options.does_blend() {
-                flags += "Blend+";
-            }
-            if !self.options.does_degrade() {
-                flags += "NoDegrade+";
-            }
-            if !self.options.does_interpolate() {
-                flags += "NoInterpolate+";
-            }
-            flags.pop();
-
-            let transcolor = if let Some(color) = self.options.transcolor {
-                color.to_string()
-            } else {
-                "None".to_string()
-            };
-
-            write!(
-                f,
-                "Visual {{ ({0}, {1}) Scale:{2} Blitter:{3} transp:{4} offset:{5:?} region:{6:?} [{flags}] }}",
-                horizontal,                   //0
-                vertical,                     //1
-                self.options.scale,           //2
-                self.options.blitter,         //3
-                transcolor,                   //4
-                self.options.cell_offset_xy,  //5
-                self.options.region_xy_lenxy, //6 
-            )
+            write!(f, "Visual {{ {:?} }}", self.options)
         }
     }
 }
@@ -207,9 +119,16 @@ impl Visual {
         unsafe { &mut *self.nc }
     }
 
-    // Returns the visual options.
-    pub(crate) fn options(&self) -> NcVisualOptions {
-        self.options.into()
+    /// Returns the visual options.
+    #[inline]
+    pub fn options(&self) -> VisualOptions {
+        self.options
+    }
+
+    /// Sets the visual `options`.
+    #[inline]
+    pub fn set_options(&mut self, options: VisualOptions) {
+        self.options = options;
     }
 }
 
@@ -246,14 +165,14 @@ impl Visual {
     pub fn geometry(&self, notcurses: &Notcurses) -> Result<VisualGeometry> {
         Ok(self
             .into_ref()
-            .geom(Some(notcurses.into_ref()), Some(&self.options()))?
+            .geom(Some(notcurses.into_ref()), Some(&self.options().into()))?
             .into())
     }
 
     /// Returns the internal size of the visual, in pixels.
     pub fn size(&self) -> Result<Size> {
         self.into_ref()
-            .geom(None, Some(&self.options()))?
+            .geom(None, Some(&self.options().into()))?
             .pix_yx
             .map(|s| Size::from(s).swap())
             .ok_or_else(|| Error::Message("visual size error".to_string()))

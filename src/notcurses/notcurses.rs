@@ -284,7 +284,7 @@ impl Notcurses {
     pub fn visual_geometry(&self, visual: &Visual) -> Result<VisualGeometry> {
         Ok(self
             .into_ref()
-            .visual_geom(Some(visual.into_ref()), Some(&visual.options()))?
+            .visual_geom(Some(visual.into_ref()), Some(&visual.options().into()))?
             .into())
     }
 
