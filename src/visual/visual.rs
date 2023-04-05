@@ -23,6 +23,7 @@ mod core_impls {
     use core::fmt;
 
     impl Drop for Visual {
+        #[inline]
         fn drop(&mut self) {
             if crate::Notcurses::is_initialized() {
                 self.into_ref_mut().destroy()
@@ -46,23 +47,27 @@ mod core_impls {
 /// # `Visual` constructors and deconstructors.
 impl Visual {
     /// Returns a new `Visual` builder.
+    #[inline]
     pub fn builder() -> VisualBuilder {
         VisualBuilder::new()
     }
 
     /// Returns a new `Visual` from a byte buffer with RGBA content.
+    #[inline]
     pub fn from_rgba(rgba: &[u8], size: impl Into<Size>) -> Result<Visual> {
         Visual::builder().build_from_rgba(rgba, size.into())
     }
 
     /// Builds a new `Visual` from a byte buffer with RGB content, providing
     /// the alpha to assign to all the pixels.
+    #[inline]
     pub fn from_rgb(rgb: &[u8], size: impl Into<Size>, alpha: u8) -> Result<Visual> {
         Visual::builder().build_from_rgb(rgb, size.into(), alpha)
     }
 
     /// Builds a new `Visual` from a byte buffer with RGBX content, overriding
     /// the alpha byte *X* for all the pixels.
+    #[inline]
     pub fn from_rgbx(rgbx: &[u8], size: impl Into<Size>, alpha: u8) -> Result<Visual> {
         Visual::builder().build_from_rgbx(rgbx, size.into(), alpha)
     }
@@ -71,6 +76,7 @@ impl Visual {
     ///
     /// This is slower than [`build_from_rgba`][VisualBuilder#method.build_fromrgba],
     /// since it has to convert the pixels to the rgba format used internally.
+    #[inline]
     pub fn from_bgra(bgra: &[u8], size: impl Into<Size>) -> Result<Visual> {
         Visual::builder().build_from_bgra(bgra, size.into())
     }
@@ -79,6 +85,7 @@ impl Visual {
     /// and decodes the first image to memory.
     ///
     /// It needs notcurses to be compiled with multimedia capabilities.
+    #[inline]
     pub fn from_file(self, file: &str) -> Result<Visual> {
         Visual::builder().build_from_file(file)
     }
@@ -98,6 +105,7 @@ impl Visual {
     /// Use `None` for either or both of `len_y` and `len_x` in order to
     /// go through the boundary of the plane in that axis (same as `0`).
     ///
+    #[inline]
     pub fn from_plane(
         plane: &Plane,
         blitter: Blitter,
@@ -110,11 +118,13 @@ impl Visual {
     }
 
     /// Returns a shared reference to the inner [`NcVisual`].
+    #[inline]
     pub fn into_ref(&self) -> &NcVisual {
         unsafe { &*self.nc }
     }
 
     /// Returns an exclusive reference to the inner [`NcVisual`].
+    #[inline]
     pub fn into_ref_mut(&mut self) -> &mut NcVisual {
         unsafe { &mut *self.nc }
     }
@@ -135,6 +145,7 @@ impl Visual {
 /// # `Visual` methods.
 impl Visual {
     /// Renders the `Visual` to a new [`Plane`], which is returned.
+    #[inline]
     pub fn blit(&mut self, nc: &mut Notcurses) -> Result<Plane> {
         let vo: sys::NcVisualOptions = self.options.into();
         let ncplane = unsafe { self.into_ref_mut().blit(nc.into_ref_mut(), Some(&vo))? };
@@ -142,6 +153,7 @@ impl Visual {
     }
 
     /// Renders the `Visual` to an existing `target` [`Plane`].
+    #[inline]
     pub fn blit_plane(&mut self, nc: &mut Notcurses, target: &mut Plane) -> Result<()> {
         let mut vo: sys::NcVisualOptions = self.options.into();
         vo.n = target.into_ref_mut();
@@ -150,6 +162,7 @@ impl Visual {
     }
 
     /// Renders the `Visual` to a new child [`Plane`] of a `parent` plane, which is returned.
+    #[inline]
     pub fn blit_child(&mut self, nc: &mut Notcurses, parent: &mut Plane) -> Result<Plane> {
         let mut vo: sys::NcVisualOptions = self.options.into();
         vo.n = parent.into_ref_mut();
@@ -162,6 +175,7 @@ impl Visual {
     //
 
     /// Returns the visual geometry.
+    #[inline]
     pub fn geometry(&self, notcurses: &Notcurses) -> Result<VisualGeometry> {
         Ok(self
             .into_ref()
@@ -170,6 +184,7 @@ impl Visual {
     }
 
     /// Returns the internal size of the visual, in pixels.
+    #[inline]
     pub fn size(&self) -> Result<Size> {
         self.into_ref()
             .geom(None, Some(&self.options().into()))?
@@ -183,6 +198,7 @@ impl Visual {
     /// Resizes the visual to the new `size` using bilinear interpolation.
     ///
     /// This is a lossy transformation, unless the size is unchanged.
+    #[inline]
     pub fn resize(&mut self, size: Size) -> Result<()> {
         Ok(self.into_ref_mut().resize(size.y(), size.x())?)
     }
@@ -190,6 +206,7 @@ impl Visual {
     /// Resizes the visual to the new `size` using nearest neighbor interpolation.
     ///
     /// This is a lossy transformation, unless the size is unchanged.
+    #[inline]
     pub fn resize_nearest(&mut self, size: Size) -> Result<()> {
         Ok(self
             .into_ref_mut()
@@ -201,6 +218,7 @@ impl Visual {
     /// Rotates the visual a number of `radians`.
     ///
     /// Only M_PI/2 and -M_PI/2 are supported at the moment.
+    #[inline]
     pub fn rotate(&mut self, radians: f64) -> Result<()> {
         Ok(self.into_ref_mut().rotate(radians)?)
     }
@@ -210,6 +228,7 @@ impl Visual {
     /// Sets the horizontal placement, overriding horizontal alignment.
     ///
     /// Default: *`0`*.
+    #[inline]
     pub fn set_x(&mut self, x: i32) {
         self.options.set_x(x);
     }
@@ -217,6 +236,7 @@ impl Visual {
     /// Sets the vertical placement, overriding vertical alignment.
     ///
     /// Default: *`0`*.
+    #[inline]
     pub fn set_y(&mut self, y: i32) {
         self.options.set_y(y);
     }
@@ -225,12 +245,14 @@ impl Visual {
     /// overriding both horizontal & vertical alignment.
     ///
     /// Default: *`(0, 0)`*.
+    #[inline]
     pub fn set_xy(&mut self, x: i32, y: i32) {
         self.options.set_x(x);
         self.options.set_y(y);
     }
 
     /// Convenience wrapper around [`set_yx`][Visual#method.yx].
+    #[inline]
     pub fn set_position(&mut self, position: Position) {
         let (x, y) = position.into();
         self.set_xy(x, y);
@@ -239,6 +261,7 @@ impl Visual {
     /// Sets the horizontal alignment.
     ///
     /// Default: *[`Align::Left`]*.
+    #[inline]
     pub fn set_halign(&mut self, horizontal: Align) {
         self.options.set_halign(horizontal);
     }
@@ -246,6 +269,7 @@ impl Visual {
     /// Sets the vertical alignment.
     ///
     /// Default: *[`Align::Top`]*.
+    #[inline]
     pub fn set_valign(&mut self, vertical: Align) {
         self.options.set_valign(vertical);
     }
@@ -253,6 +277,7 @@ impl Visual {
     /// Sets both the vertical & horizontal alignment.
     ///
     /// Default: *`(`[`Align::Top`]*`, `*[`Align::Left`]`)`*.
+    #[inline]
     pub fn set_align(&mut self, vertical: Align, horizontal: Align) {
         self.options.set_halign(horizontal);
         self.options.set_valign(vertical);
@@ -261,6 +286,7 @@ impl Visual {
     /// Sets the [`Scale`].
     ///
     /// Default: `Scale::None`.
+    #[inline]
     pub fn set_scale(&mut self, scale: Scale) {
         self.options.set_scale(scale);
     }
@@ -268,11 +294,13 @@ impl Visual {
     /// Sets the [`Blitter`].
     ///
     /// Default: `Blitter::Default`.
+    #[inline]
     pub fn set_blitter(&mut self, blitter: Blitter) {
         self.options.set_blitter(blitter);
     }
 
     /// Sets the [`Pixel`][Blitter::Pixel] blitter.
+    #[inline]
     pub fn set_blitter_pixel(&mut self) {
         self.options.set_blitter(Blitter::Pixel);
     }
@@ -280,6 +308,7 @@ impl Visual {
     /// Gets the Rgba pixel at the provided coordinates.
     ///
     /// *Corresponds to [`NcVisual::at_yx`].*
+    #[inline]
     pub fn get_pixel(&self, x: u32, y: u32) -> Result<Rgba> {
         let ncrgba: NcRgba = self.into_ref().at_yx(y, x)?.into();
         Ok(ncrgba.into())
@@ -288,6 +317,7 @@ impl Visual {
     /// Sets the Rgba pixel at the provided coordinates.
     ///
     /// *Corresponds to [`NcVisual::set_yx`].*
+    #[inline]
     pub fn set_pixel(&mut self, x: u32, y: u32, rgba: impl Into<Rgba>) -> Result<()> {
         let ncrgba: NcRgba = rgba.into().into();
         self.into_ref_mut().set_yx(y, x, ncrgba)?;
@@ -300,6 +330,7 @@ impl Visual {
     /// `Blitter` is not supported by the terminal.
     ///
     /// Default: true (degrade).
+    #[inline]
     pub fn set_degrade(&mut self, degrade: bool) {
         self.options.set_degrade(degrade);
     }
@@ -307,6 +338,7 @@ impl Visual {
     /// (Un)Sets this color as transparent.
     ///
     /// Default: `None`.
+    #[inline]
     pub fn set_transparency(&mut self, color: Option<Rgba>) {
         self.options.set_transparency(color);
     }
@@ -320,6 +352,7 @@ impl Visual {
     /// Default: *false* (no blend).
     ///
     /// [`Alpha::Blend`]: crate::color::Alpha#associatedconstant.Blend
+    #[inline]
     pub fn set_blend(&mut self, blend: bool) {
         self.options.set_blend(blend);
     }
@@ -327,6 +360,7 @@ impl Visual {
     /// (Un)Sets scaling interpolation.
     ///
     /// Default: true (interpolate).
+    #[inline]
     pub fn set_interpolate(&mut self, interpolate: bool) {
         self.options.set_interpolate(interpolate);
     }
@@ -335,11 +369,13 @@ impl Visual {
     ///
     /// - `y`, `x`: origin of the rendered region in pixels.
     /// - `len_y`, `len_x`: size of the rendered region in pixels.
+    #[inline]
     pub fn set_region(&mut self, x: u32, y: u32, len_x: u32, len_y: u32) {
         self.options.set_region(Some((x, y, len_x, len_y)));
     }
 
     /// Sets the pixel offset within the [`Cell`][crate::plane::Cell].
+    #[inline]
     pub fn set_cell_offset(&mut self, x: u32, y: u32) {
         self.options.set_cell_offset(Some((x, y)));
     }
