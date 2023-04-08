@@ -158,7 +158,7 @@ impl PlaneBuilder {
 
     /// If `true`, the plane will **not** scroll with the parent.
     ///
-    /// Default: *false* (scrolls with the parent).
+    /// Default: *`false`* (scrolls with the parent).
     ///
     /// Effect: (un)fixes the plane.
     ///
@@ -175,7 +175,7 @@ impl PlaneBuilder {
     /// This is equivalent to immediately calling [`set_scrolling(true)`]
     /// following `Plane` creation.
     ///
-    /// Default: *false*.
+    /// Default: *`false`*.
     ///
     /// Effect: (un)sets vertical scrolling.
     ///
@@ -187,7 +187,7 @@ impl PlaneBuilder {
 
     /// If `true`, the plane will grow automatically.
     ///
-    /// Default: *false*.
+    /// Default: *`false`*.
     ///
     /// Effect: (un)sets the plane to automatically grow to accomodate output.
     ///

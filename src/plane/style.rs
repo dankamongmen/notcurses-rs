@@ -78,7 +78,7 @@ mod core_impls {
                 });
             }
             let _ = string.pop();
-            write!(f, "{}", string)
+            write!(f, "Style:{}", string)
         }
     }
 
