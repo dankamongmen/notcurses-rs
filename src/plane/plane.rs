@@ -1220,7 +1220,11 @@ impl Plane {
     #[inline]
     pub fn set_base_styles(&mut self, styles: Style) -> Result<Style> {
         let mut base = self.base()?;
-        Ok(base.set_styles(styles))
+        let old_styles = base.styles();
+        base.set_styles(styles);
+        let egc = base.egc(self);
+        self.into_ref_mut().set_base(egc, base.styles(), base.channels())?;
+        Ok(old_styles)
     }
 
     /// Sets the plane's base cell's foreground & background `channels`.
@@ -1229,7 +1233,11 @@ impl Plane {
     #[inline]
     pub fn set_base_channels(&mut self, channels: impl Into<Channels>) -> Result<Channels> {
         let mut base = self.base()?;
-        Ok(base.set_channels(channels))
+        let old_channels = base.channels();
+        base.set_channels(channels);
+        let egc = base.egc(self);
+        self.into_ref_mut().set_base(egc, base.styles(), base.channels())?;
+        Ok(old_channels)
     }
 
     /// Sets the plane's base cell's foreground `channel`.
@@ -1238,7 +1246,11 @@ impl Plane {
     #[inline]
     pub fn set_base_fg(&mut self, foreground: impl Into<Channel>) -> Result<Channel> {
         let mut base = self.base()?;
-        Ok(base.set_fg(foreground))
+        let old_fg = base.fg();
+        base.set_fg(foreground);
+        let egc = base.egc(self);
+        self.into_ref_mut().set_base(egc, base.styles(), base.channels())?;
+        Ok(old_fg)
     }
 
     /// Sets the plane's base cell's background `channel`.
@@ -1247,6 +1259,10 @@ impl Plane {
     #[inline]
     pub fn set_base_bg(&mut self, background: impl Into<Channel>) -> Result<Channel> {
         let mut base = self.base()?;
-        Ok(base.set_bg(background))
+        let old_bg = base.bg();
+        base.set_bg(background);
+        let egc = base.egc(self);
+        self.into_ref_mut().set_base(egc, base.styles(), base.channels())?;
+        Ok(old_bg)
     }
 }
