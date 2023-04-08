@@ -1223,7 +1223,8 @@ impl Plane {
         let old_styles = base.styles();
         base.set_styles(styles);
         let egc = base.egc(self);
-        self.into_ref_mut().set_base(egc, base.styles(), base.channels())?;
+        self.into_ref_mut()
+            .set_base(egc, base.styles(), base.channels())?;
         Ok(old_styles)
     }
 
@@ -1236,7 +1237,8 @@ impl Plane {
         let old_channels = base.channels();
         base.set_channels(channels);
         let egc = base.egc(self);
-        self.into_ref_mut().set_base(egc, base.styles(), base.channels())?;
+        self.into_ref_mut()
+            .set_base(egc, base.styles(), base.channels())?;
         Ok(old_channels)
     }
 
@@ -1249,7 +1251,8 @@ impl Plane {
         let old_fg = base.fg();
         base.set_fg(foreground);
         let egc = base.egc(self);
-        self.into_ref_mut().set_base(egc, base.styles(), base.channels())?;
+        self.into_ref_mut()
+            .set_base(egc, base.styles(), base.channels())?;
         Ok(old_fg)
     }
 
@@ -1262,7 +1265,8 @@ impl Plane {
         let old_bg = base.bg();
         base.set_bg(background);
         let egc = base.egc(self);
-        self.into_ref_mut().set_base(egc, base.styles(), base.channels())?;
+        self.into_ref_mut()
+            .set_base(egc, base.styles(), base.channels())?;
         Ok(old_bg)
     }
 }
