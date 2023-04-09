@@ -68,11 +68,10 @@ mod core_impls {
             impl From<($int, $int, $int)> for Channel {
                 /// Performs a saturating cast to `[u8; 3]`.
                 fn from(tuple: ($int, $int, $int)) -> Channel {
-                    use az::SaturatingAs;
                     let arr_u8 = [
-                        tuple.0.saturating_as::<u8>(),
-                        tuple.1.saturating_as::<u8>(),
-                        tuple.2.saturating_as::<u8>(),
+                        tuple.0.clamp(0, <$int>::MAX) as u8,
+                        tuple.1.clamp(0, <$int>::MAX) as u8,
+                        tuple.2.clamp(0, <$int>::MAX) as u8,
                     ];
                     Self::from_rgb(arr_u8)
                 }
@@ -87,8 +86,7 @@ mod core_impls {
                 /// Performs a saturating cast to `u32`
                 /// and then extracts the components from the first three bytes.
                 fn from(int: $int) -> Channel {
-                    use az::SaturatingAs;
-                    NcChannel::from_rgb(int.saturating_as::<u32>()).into()
+                    NcChannel::from_rgb(int.clamp(0, <$int>::MAX) as u32).into()
                 }
             }
         };

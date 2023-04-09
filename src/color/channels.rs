@@ -75,16 +75,15 @@ mod core_impls {
                 ///
                 /// Performs a saturating cast to `[u8; 3], [u8; 3]`.
                 fn from(tuple: ($i, $i, $i, $i, $i, $i)) -> Channels {
-                    use az::SaturatingAs;
                     let fg_arr_u8 = [
-                        tuple.0.saturating_as::<u8>(),
-                        tuple.1.saturating_as::<u8>(),
-                        tuple.2.saturating_as::<u8>(),
+                        tuple.0.clamp(0, <$i>::MAX) as u8,
+                        tuple.1.clamp(0, <$i>::MAX) as u8,
+                        tuple.2.clamp(0, <$i>::MAX) as u8,
                     ];
                     let bg_arr_u8 = [
-                        tuple.3.saturating_as::<u8>(),
-                        tuple.4.saturating_as::<u8>(),
-                        tuple.5.saturating_as::<u8>(),
+                        tuple.3.clamp(0, <$i>::MAX) as u8,
+                        tuple.4.clamp(0, <$i>::MAX) as u8,
+                        tuple.5.clamp(0, <$i>::MAX) as u8,
                     ];
                     Self::from_rgb(fg_arr_u8, bg_arr_u8)
                 }
@@ -142,11 +141,10 @@ mod core_impls {
                 ///
                 /// Performs a saturating cast to `[u8; 3], [u8; 3]`.
                 fn from(tuple: ($i, $i, $i)) -> Channels {
-                    use az::SaturatingAs;
                     let arr_u8 = [
-                        tuple.0.saturating_as::<u8>(),
-                        tuple.1.saturating_as::<u8>(),
-                        tuple.2.saturating_as::<u8>(),
+                        tuple.0.clamp(0, <$i>::MAX) as u8,
+                        tuple.1.clamp(0, <$i>::MAX) as u8,
+                        tuple.2.clamp(0, <$i>::MAX) as u8,
                     ];
                     Self::from_rgb_both(arr_u8)
                 }
