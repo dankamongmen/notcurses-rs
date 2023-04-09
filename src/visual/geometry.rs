@@ -182,7 +182,7 @@ impl VisualGeometry {
                 Blitter::Default => None, // ←FIX
                 _ => blitter
                     .cell_size()
-                    .map(|(h, w)| max * Size::new(w as i32, h as i32)),
+                    .map(|(w, h)| max * Size::new(w as i32, h as i32)),
             }
         } else {
             None
