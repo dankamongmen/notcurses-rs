@@ -17,28 +17,28 @@ fn main() -> NotcursesResult<()> {
     let child = rootp.new_child_at((2, 2))?;
 
     // check their position relative to their parent
-    assert_eq![rootp.position(), Position(1, 1)];
-    assert_eq![child.position(), Position(2, 2)];
+    assert_eq![rootp.position(), Position::new(1, 1)];
+    assert_eq![child.position(), Position::new(2, 2)];
 
     // check their position relative to the root of their pile
-    assert_eq![rootp.root_position(), Position(1, 1)]; // same for a root plane
-    assert_eq![child.root_position(), Position(3, 3)];
+    assert_eq![rootp.root_position(), Position::new(1, 1)]; // same for a root plane
+    assert_eq![child.root_position(), Position::new(3, 3)];
 
     // # translate position coordinates
 
-    // create a square of Size(5, 5) at Position(10, 10)
-    let size = Size(5, 5);
-    let top_left = Position(10, 10);
+    // create a square of Size::new(5, 5) at Position::new(10, 10)
+    let size = Size::new(5, 5);
+    let top_left = Position::new(10, 10);
     let p1 = Plane::new_sized_at(&mut nc, size, top_left)?;
 
     // check top-left and bottom-right square coordinates are inside the plane:
-    assert_eq![p1.translate_root(top_left), (Position(0, 0), true)];
-    assert_eq![p1.translate_root((14, 14)), (Position(4, 4), true)];
-    // assert_eq![p1.translate_root(top_left + size -1), (Position(4, 4), true)];
+    assert_eq![p1.translate_root(top_left), (Position::new(0, 0), true)];
+    assert_eq![p1.translate_root((14, 14)), (Position::new(4, 4), true)];
+    // assert_eq![p1.translate_root(top_left + size -1), (Position::new(4, 4), true)];
 
     // some other coordinates outside the plane:
-    assert_eq![p1.translate_root((2, 2)), (Position(-8, -8), false)];
-    assert_eq![p1.translate_root((20, 20)), (Position(10, 10), false)];
+    assert_eq![p1.translate_root((2, 2)), (Position::new(-8, -8), false)];
+    assert_eq![p1.translate_root((20, 20)), (Position::new(10, 10), false)];
 
     // # cursor
     // ...

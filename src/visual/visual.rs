@@ -7,9 +7,9 @@ use super::{Blitter, Scale, VisualBuilder, VisualGeometry, VisualOptions};
 use crate::{
     color::Rgba,
     error::{NotcursesError as Error, NotcursesResult as Result},
-    plane::{Align, Plane, Position, Size},
+    plane::{Align, Plane},
     sys::{self, NcRgba, NcVisual},
-    Notcurses,
+    Notcurses, Position, Size,
 };
 
 /// A visual bit of multimedia.
@@ -189,7 +189,7 @@ impl Visual {
         self.into_ref()
             .geom(None, Some(&self.options().into()))?
             .pix_yx
-            .map(|s| Size::from(s).swap())
+            .map(|s| Size::from(s).swapped())
             .ok_or_else(|| Error::Message("visual size error".to_string()))
     }
 
@@ -200,7 +200,8 @@ impl Visual {
     /// This is a lossy transformation, unless the size is unchanged.
     #[inline]
     pub fn resize(&mut self, size: Size) -> Result<()> {
-        Ok(self.into_ref_mut().resize(size.y(), size.x())?)
+        let (w, h) = size.into();
+        Ok(self.into_ref_mut().resize(h, w)?)
     }
 
     /// Resizes the visual to the new `size` using nearest neighbor interpolation.
@@ -208,9 +209,8 @@ impl Visual {
     /// This is a lossy transformation, unless the size is unchanged.
     #[inline]
     pub fn resize_nearest(&mut self, size: Size) -> Result<()> {
-        Ok(self
-            .into_ref_mut()
-            .resize_noninterpolative(size.y(), size.x())?)
+        let (w, h) = size.into();
+        Ok(self.into_ref_mut().resize_noninterpolative(h, w)?)
     }
 
     //

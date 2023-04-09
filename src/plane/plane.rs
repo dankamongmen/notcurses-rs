@@ -7,9 +7,10 @@ use crate::{
     color::{Channel, Channels},
     error::NotcursesResult as Result,
     notcurses::{Capabilities, Notcurses},
-    plane::{Align, Cell, PlaneBuilder, PlaneGeometry, Position, Size, Style},
+    plane::{Align, Cell, PlaneBuilder, PlaneGeometry, Style},
     sys::NcPlane,
     visual::Blitter,
+    Position, Size,
 };
 
 /// A drawable text surface, composed of [`Cell`]s.
@@ -316,7 +317,7 @@ impl Plane {
     /// Returns the size of the plane.
     #[inline]
     pub fn size(&self) -> Size {
-        Size::from(self.into_ref().dim_yx()).swap()
+        Size::from(self.into_ref().dim_yx()).swapped()
     }
 
     /// Resizes the plane to a new `size`.
@@ -353,8 +354,8 @@ impl Plane {
     /// we're shrinking in some dimension). Keeps the origin where it is.
     #[inline]
     pub fn resize_simple(&mut self, size: impl Into<Size>) -> Result<()> {
-        let size = size.into();
-        Ok(self.into_ref_mut().resize_simple(size.h(), size.w())?)
+        let (w, h) = size.into().into();
+        Ok(self.into_ref_mut().resize_simple(h, w)?)
     }
 
     // TODO CHECK callbacks
@@ -405,14 +406,14 @@ impl Plane {
     /// [`root_position`][Position#method.root_position].
     #[inline]
     pub fn position(&self) -> Position {
-        Position::from(self.into_ref().yx()).swap()
+        Position::from(self.into_ref().yx()).swapped()
     }
 
     /// Returns the root position of this plane,
     /// which is relative to the root of the pile this plane is part of.
     #[inline]
     pub fn root_position(&self) -> Position {
-        Position::from(self.into_ref().abs_yx()).swap()
+        Position::from(self.into_ref().abs_yx()).swapped()
     }
 
     /// Moves this plane relative to its parent (or to its pile, if it's a root plane).
@@ -451,7 +452,7 @@ impl Plane {
     ///     assert_eq![
     ///         Plane::new(&mut nc)?
     ///             .translate((0, 0), &Plane::new_at(&mut nc, (1, 0))?),
-    ///         Position(-1, 0),
+    ///         Position::new(-1, 0),
     ///     ];
     /// # Ok(())
     /// # }
@@ -460,7 +461,7 @@ impl Plane {
     pub fn translate(&self, position: impl Into<Position>, target: &Plane) -> Position {
         let (mut x, mut y) = position.into().into();
         self.into_ref().translate(target.into_ref(), &mut y, &mut x);
-        Position(x, y)
+        Position::new(x, y)
     }
 
     /// Translates a `position` relative to the root,
@@ -476,8 +477,8 @@ impl Plane {
     /// # fn main() -> NotcursesResult<()> {
     /// # let nc = Notcurses::new()?;
     /// assert_eq![
-    ///     Plane::new_at(&mut nc, (8, 8))?.translate_root(Position(7, 7)),
-    ///     (Position(-1, -1), false),
+    ///     Plane::new_at(&mut nc, (8, 8))?.translate_root(Position::new(7, 7)),
+    ///     (Position::new(-1, -1), false),
     /// ];
     /// # Ok(())
     /// # }
@@ -486,7 +487,7 @@ impl Plane {
     pub fn translate_root(&self, position: impl Into<Position>) -> (Position, bool) {
         let (mut x, mut y) = position.into().into();
         let inside = self.into_ref().translate_abs(&mut y, &mut x);
-        (Position(x, y), inside)
+        (Position::new(x, y), inside)
     }
 }
 
@@ -718,7 +719,7 @@ impl Plane {
     /// Returns the current cursor position within this plane.
     #[inline]
     pub fn cursor(&self) -> Position {
-        Position::from(self.into_ref().cursor_yx()).swap()
+        Position::from(self.into_ref().cursor_yx()).swapped()
     }
 
     //

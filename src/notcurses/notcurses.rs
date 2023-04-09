@@ -10,10 +10,10 @@ use crate::{
     color::{Palette, Rgb},
     error::{NotcursesError as Error, NotcursesResult as Result},
     input::{Input, MiceEvents},
-    plane::{Plane, PlaneGeometry, Position, Size, Style},
+    plane::{Plane, PlaneGeometry, Style},
     sys::{Nc, NcInput, NcOptionsBuilder},
     visual::{Blitter, Visual, VisualGeometry},
-    CLI_PLANE_LOCK, NOTCURSES_LOCK,
+    Position, Size, CLI_PLANE_LOCK, NOTCURSES_LOCK,
 };
 
 /// *Notcurses* state for a given terminal, composed of [`Plane`][crate::plane::Plane]s.
@@ -244,7 +244,7 @@ impl Notcurses {
 impl Notcurses {
     /// Returns the terminal size.
     pub fn size(&self) -> Size {
-        Size::from(self.into_ref().term_dim_yx()).swap()
+        Size::from(self.into_ref().term_dim_yx()).swapped()
     }
 
     /// Returns the terminal geometry with the best resolution blitter available,

@@ -6,9 +6,10 @@
 use crate::{
     color::{Palette, Rgba},
     error::NotcursesResult as Result,
-    plane::{Align, Plane, Position, Size},
+    plane::{Align, Plane},
     sys::NcVisual,
     visual::{Blitter, Scale, Visual, VisualOptions},
+    Position, Size,
 };
 
 /// A [`Visual`] builder.

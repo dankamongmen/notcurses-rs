@@ -3,11 +3,7 @@
 //!
 //
 
-use crate::{
-    plane::{Position, Size},
-    sys::NcVisualGeometry,
-    visual::Blitter,
-};
+use crate::{sys::NcVisualGeometry, visual::Blitter, Position, Size};
 
 /// The geometry of a [`Visual`][super::Visual].
 ///
@@ -71,13 +67,13 @@ mod core_impls {
         fn from(nc: NcVisualGeometry) -> VisualGeometry {
             Self {
                 blitter: nc.blitter.into(),
-                pixels: Size::from(nc.pix_yx.unwrap_or((0, 0))).swap(),
-                rendered_pixels: Size::from(nc.rpix_yx.unwrap_or((0, 0))).swap(),
-                rendered_cells: Size::from(nc.rcell_yx.unwrap_or((0, 0))).swap(),
-                pixels_per_cell: Size::from(nc.cdim_yx.unwrap_or((0, 0))).swap(),
-                region_position: Position::from(nc.beg_yx.unwrap_or((0, 0))).swap(),
-                region_size: Size::from(nc.len_yx.unwrap_or((0, 0))).swap(),
-                max_bitmap_pixels: nc.maxpixel_yx.map(|s| Size::from(s).swap()),
+                pixels: Size::from(nc.pix_yx.unwrap_or((0, 0))).swapped(),
+                rendered_pixels: Size::from(nc.rpix_yx.unwrap_or((0, 0))).swapped(),
+                rendered_cells: Size::from(nc.rcell_yx.unwrap_or((0, 0))).swapped(),
+                pixels_per_cell: Size::from(nc.cdim_yx.unwrap_or((0, 0))).swapped(),
+                region_position: Position::from(nc.beg_yx.unwrap_or((0, 0))).swapped(),
+                region_size: Size::from(nc.len_yx.unwrap_or((0, 0))).swapped(),
+                max_bitmap_pixels: nc.maxpixel_yx.map(|s| Size::from(s).swapped()),
             }
         }
     }
@@ -146,10 +142,10 @@ impl VisualGeometry {
         if self.blitter == Blitter::Pixel {
             self.pixels_per_cell
         } else {
-            Size::from((
-                self.blitter.cell_width().unwrap_or(0),
-                self.blitter.cell_height().unwrap_or(0),
-            ))
+            Size::new(
+                self.blitter.cell_width().unwrap_or(0) as i32,
+                self.blitter.cell_height().unwrap_or(0) as i32,
+            )
         }
     }
 
@@ -184,7 +180,9 @@ impl VisualGeometry {
             match blitter {
                 Blitter::Pixel => self.max_bitmap_pixels,
                 Blitter::Default => None, // ←FIX
-                _ => blitter.cell_size().map(|cs| max * Size::from(cs)),
+                _ => blitter
+                    .cell_size()
+                    .map(|(h, w)| max * Size::new(w as i32, h as i32)),
             }
         } else {
             None
