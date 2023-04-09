@@ -33,7 +33,6 @@ mod builder;
 mod cell;
 mod geometry;
 mod plane;
-mod position_size;
 mod style;
 
 pub use align::Align;
@@ -41,5 +40,4 @@ pub use builder::PlaneBuilder;
 pub use cell::Cell;
 pub use geometry::PlaneGeometry;
 pub use plane::Plane;
-pub use position_size::{Position, Size};
 pub use style::Style;

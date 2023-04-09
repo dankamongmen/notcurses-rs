@@ -5,9 +5,9 @@
 
 use crate::{
     error::NotcursesResult as Result,
-    plane::{Align, Plane, Position, Size},
+    plane::{Align, Plane},
     sys::{NcPlane, NcPlaneOptionsBuilder},
-    Notcurses,
+    Notcurses, Position, Size,
 };
 
 /// A [`Plane`] builder.

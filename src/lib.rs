@@ -26,7 +26,7 @@ pub use self::notcurses::{Capabilities, LogLevel, Notcurses, NotcursesBuilder, S
 pub use color::{Alpha, Channel, Channels, Palette, Rgb, Rgba};
 pub use error::{NotcursesError, NotcursesResult};
 pub use input::{Input, InputType, Key, KeyMod, MiceEvents, Received};
-pub use plane::{Align, Cell, Plane, PlaneBuilder, PlaneGeometry, Position, Size, Style};
+pub use plane::{Align, Cell, Plane, PlaneBuilder, PlaneGeometry, Style};
 pub use visual::{
     Blitter, PixelImplementation, Scale, Visual, VisualBuilder, VisualGeometry, VisualOptions,
 };
@@ -50,3 +50,6 @@ pub use libnotcurses_sys as sys;
 pub(crate) use sys::from_primitive;
 pub(crate) use sys::unit_impl_fmt;
 pub(crate) use sys::unit_impl_ops;
+
+#[doc(inline)]
+pub use cuadra::{Position32 as Position, Size32 as Size};

@@ -5,7 +5,7 @@
 
 use crate::{
     input::{InputType, Key, KeyMod, Received},
-    plane::Position,
+    Position,
 };
 
 /// A received input.
@@ -66,10 +66,10 @@ mod core_impls {
                 if k.is_mouse() {
                     if input.y != -1 {
                         // != undefined
-                        cell = Some(Position(input.x, input.y));
+                        cell = Some(Position::new(input.x, input.y));
                     }
                     if input.ypx != -1 {
-                        offset = Some(Position(input.xpx, input.ypx));
+                        offset = Some(Position::new(input.xpx, input.ypx));
                     }
                 }
             };

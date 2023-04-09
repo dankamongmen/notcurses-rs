@@ -3,7 +3,7 @@
 //!
 //
 
-use crate::{plane::Size, sys::NcPixelGeometry, visual::Blitter, Notcurses};
+use crate::{sys::NcPixelGeometry, visual::Blitter, Notcurses, Size};
 
 /// The geometry of a [`Plane`][super::Plane] or a terminal.
 #[derive(Clone, Copy, Default, PartialEq, Eq)]
@@ -33,18 +33,18 @@ mod core_impls {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
             let size = format![
                 "[p{:?} b{:?} c{:?}]",
-                self.pixels.into_tuple(),
-                self.blits().into_tuple(),
-                self.cells().into_tuple(),
+                self.pixels.as_tuple(),
+                self.blits().as_tuple(),
+                self.cells().as_tuple(),
             ];
 
             let max = if self.max_bitmap_pixels.is_some() {
                 format![
                     "[p{:?}, b{:?}, c{:?}]",
-                    self.max_bitmap_pixels.unwrap().into_tuple(),
-                    self.max_bitmap_blits().unwrap().into_tuple(),
-                    // self.max_bitmap_blitter(self.blitter), // .unwrap().into_tuple(),
-                    self.max_bitmap_cells().unwrap().into_tuple(),
+                    self.max_bitmap_pixels.unwrap().as_tuple(),
+                    self.max_bitmap_blits().unwrap().as_tuple(),
+                    // self.max_bitmap_blitter(self.blitter), // .unwrap().as_tuple(),
+                    self.max_bitmap_cells().unwrap().as_tuple(),
                 ]
             } else {
                 "None".to_string()
@@ -52,8 +52,8 @@ mod core_impls {
 
             let cell = format![
                 "[p{:?} b{:?}]",
-                self.pixels_per_cell().into_tuple(),
-                self.blits_per_cell().into_tuple(),
+                self.pixels_per_cell().as_tuple(),
+                self.blits_per_cell().as_tuple(),
             ];
 
             write!(f, "PlaneGeometry {{ {} size:{size} max:{max} cell:{cell}] }}", self.blitter)
@@ -66,15 +66,15 @@ mod core_impls {
             let (g, blitter) = geom_blitter;
 
             let max_bitmap_pixels = if g.max_bitmap_x + g.max_bitmap_y > 0 {
-                Some(Size(g.max_bitmap_x, g.max_bitmap_y))
+                Some(Size::from((g.max_bitmap_x, g.max_bitmap_y)))
             } else {
                 None
             };
 
             PlaneGeometry {
                 blitter,
-                pixels: Size(g.term_x, g.term_y),
-                pixels_per_cell: Size(g.cell_x, g.cell_y),
+                pixels: Size::from((g.term_x, g.term_y)),
+                pixels_per_cell: Size::from((g.cell_x, g.cell_y)),
                 max_bitmap_pixels,
             }
         }
@@ -82,13 +82,16 @@ mod core_impls {
 
     impl From<PlaneGeometry> for NcPixelGeometry {
         fn from(g: PlaneGeometry) -> NcPixelGeometry {
-            let (max_bitmap_x, max_bitmap_y) = g.max_bitmap_pixels.unwrap_or(Size(0, 0)).into();
+            let (term_x, term_y) = g.pixels.into();
+            let (cell_x, cell_y) = g.pixels_per_cell.into();
+            let (max_bitmap_x, max_bitmap_y) =
+                g.max_bitmap_pixels.unwrap_or(Size::new(0, 0)).into();
 
             NcPixelGeometry {
-                term_y: g.pixels.h(),
-                term_x: g.pixels.w(),
-                cell_y: g.pixels_per_cell.h(),
-                cell_x: g.pixels_per_cell.w(),
+                term_y,
+                term_x,
+                cell_y,
+                cell_x,
                 max_bitmap_y,
                 max_bitmap_x,
             }
@@ -102,10 +105,10 @@ impl PlaneGeometry {
     pub fn from_term(nc: &Notcurses, blitter: Blitter) -> Self {
         let pg: NcPixelGeometry = unsafe { nc.into_ref().stdplane_const().pixel_geom() };
 
-        let pixels_per_cell = Size::new(pg.cell_x, pg.cell_y);
-        let pixels = Size::new(pg.term_x, pg.term_y);
+        let pixels_per_cell = Size::from((pg.cell_x, pg.cell_y));
+        let pixels = Size::from((pg.term_x, pg.term_y));
         let cells = pixels / pixels_per_cell;
-        let cells2 = Size::new(pg.term_x / pg.cell_x, pg.term_y / pg.cell_y);
+        let cells2 = Size::from((pg.term_x / pg.cell_x, pg.term_y / pg.cell_y));
         assert_eq![cells, cells2];
 
         let max_bitmap_pixels = if pg.max_bitmap_x + pg.max_bitmap_y > 0 {
@@ -195,10 +198,10 @@ impl PlaneGeometry {
         if self.blitter == Blitter::Pixel {
             self.pixels_per_cell
         } else {
-            Size::from((
-                self.blitter.cell_width().unwrap_or(0),
-                self.blitter.cell_height().unwrap_or(0),
-            ))
+            Size::new(
+                self.blitter.cell_width().unwrap_or(0) as i32,
+                self.blitter.cell_height().unwrap_or(0) as i32,
+            )
         }
     }
 
@@ -233,7 +236,9 @@ impl PlaneGeometry {
             match blitter {
                 Blitter::Pixel => self.max_bitmap_pixels,
                 Blitter::Default => None, // ←FIX
-                _ => blitter.cell_size().map(|cs| max * Size::from(cs)),
+                _ => blitter
+                    .cell_size()
+                    .map(|(h, w)| max * Size::new(w as i32, h as i32)),
             }
         } else {
             None
