@@ -173,7 +173,7 @@ impl Blitter {
     pub const fn cell_height(&self) -> Option<u8> {
         // self.cell_size().and_then(|size| Some(size.0) ) // not const
         if let Some(size) = self.cell_size() {
-            Some(size.0)
+            Some(size.1)
         } else {
             None
         }
@@ -185,25 +185,25 @@ impl Blitter {
     pub const fn cell_width(&self) -> Option<u8> {
         // self.cell_size().and_then(|size| Some(size.1) ) // not const
         if let Some(size) = self.cell_size() {
-            Some(size.1)
+            Some(size.0)
         } else {
             None
         }
     }
 
-    /// The inner Cell's dimensions `(height, width)` using the current blitter.
+    /// The inner Cell's dimensions `(width, height)` using the current blitter.
     ///
     /// Default & Pixel returns `None`.
     pub const fn cell_size(&self) -> Option<(u8, u8)> {
         use Blitter::*;
         match self {
             Ascii => Some((1, 1)),
-            Half => Some((2, 1)),
+            Half => Some((1, 2)),
             Quadrant => Some((2, 2)),
-            Sextant => Some((3, 2)),
-            Braille => Some((4, 2)),
-            _4x1 => Some((4, 1)),
-            _8x1 => Some((8, 1)),
+            Sextant => Some((2, 3)),
+            Braille => Some((2, 4)),
+            _4x1 => Some((1, 4)),
+            _8x1 => Some((1, 8)),
             _ => None, // Default, Pixel, …
         }
     }
