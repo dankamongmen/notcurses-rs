@@ -42,15 +42,14 @@ mod core_impls {
 
     impl fmt::Display for Align {
         fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-            use Align::*;
             write!(
                 f,
                 "{}",
                 match self {
-                    Left => "Left",
-                    Center => "Center",
-                    Right => "Right",
-                    Unaligned => "Unaligned",
+                    Align::Left => "Left",
+                    Align::Center => "Center",
+                    Align::Right => "Right",
+                    Align::Unaligned => "Unaligned",
                 }
             )
         }

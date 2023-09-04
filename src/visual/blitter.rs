@@ -93,20 +93,19 @@ mod core_impls {
 
     impl fmt::Display for Blitter {
         fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-            use Blitter::*;
             write!(
                 f,
                 "{}",
                 match self {
-                    Default => "Default",
-                    Ascii => "Ascii",
-                    Half => "Half",
-                    Quadrant => "Quadrant",
-                    Sextant => "Sextant",
-                    Braille => "Braille",
-                    Pixel => "Pixel",
-                    _4x1 => "4x1",
-                    _8x1 => "8x1",
+                    Blitter::Default => "Default",
+                    Blitter::Ascii => "Ascii",
+                    Blitter::Half => "Half",
+                    Blitter::Quadrant => "Quadrant",
+                    Blitter::Sextant => "Sextant",
+                    Blitter::Braille => "Braille",
+                    Blitter::Pixel => "Pixel",
+                    Blitter::_4x1 => "4x1",
+                    Blitter::_8x1 => "8x1",
                 }
             )
         }
@@ -195,15 +194,14 @@ impl Blitter {
     ///
     /// Default & Pixel returns `None`.
     pub const fn cell_size(&self) -> Option<(u8, u8)> {
-        use Blitter::*;
         match self {
-            Ascii => Some((1, 1)),
-            Half => Some((1, 2)),
-            Quadrant => Some((2, 2)),
-            Sextant => Some((2, 3)),
-            Braille => Some((2, 4)),
-            _4x1 => Some((1, 4)),
-            _8x1 => Some((1, 8)),
+            Blitter::Ascii => Some((1, 1)),
+            Blitter::Half => Some((1, 2)),
+            Blitter::Quadrant => Some((2, 2)),
+            Blitter::Sextant => Some((2, 3)),
+            Blitter::Braille => Some((2, 4)),
+            Blitter::_4x1 => Some((1, 4)),
+            Blitter::_8x1 => Some((1, 8)),
             _ => None, // Default, Pixel, …
         }
     }

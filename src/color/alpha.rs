@@ -40,15 +40,14 @@ mod core_impls {
 
     impl fmt::Display for Alpha {
         fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-            use Alpha::*;
             write!(
                 f,
                 "{}",
                 match self {
-                    Opaque => "Opaque",
-                    Transparent => "Transparent",
-                    Blend => "Blend",
-                    HighContrast => "HighContrast",
+                    Alpha::Opaque => "Opaque",
+                    Alpha::Transparent => "Transparent",
+                    Alpha::Blend => "Blend",
+                    Alpha::HighContrast => "HighContrast",
                 }
             )
         }
@@ -92,12 +91,11 @@ mod core_impls {
 impl Alpha {
     /// Displays the short name identifier of the alpha value.
     pub fn display_short(&self) -> &str {
-        use Alpha::*;
         match self {
-            Blend => "B",
-            HighContrast => "H",
-            Opaque => "O",
-            Transparent => "T",
+            Alpha::Blend => "B",
+            Alpha::HighContrast => "H",
+            Alpha::Opaque => "O",
+            Alpha::Transparent => "T",
         }
     }
 }

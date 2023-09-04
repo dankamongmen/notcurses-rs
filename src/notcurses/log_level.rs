@@ -50,20 +50,19 @@ mod core_impls {
 
     impl fmt::Display for LogLevel {
         fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-            use LogLevel::*;
             write!(
                 f,
                 "{}",
                 match self {
-                    Silent => "Silent",
-                    Panic => "Panic",
-                    Fatal => "Fatal",
-                    Error => "Error",
-                    Warning => "Warning",
-                    Info => "Info",
-                    Verbose => "Verbose",
-                    Debug => "Debug",
-                    Trace => "Trace",
+                    LogLevel::Silent => "Silent",
+                    LogLevel::Panic => "Panic",
+                    LogLevel::Fatal => "Fatal",
+                    LogLevel::Error => "Error",
+                    LogLevel::Warning => "Warning",
+                    LogLevel::Info => "Info",
+                    LogLevel::Verbose => "Verbose",
+                    LogLevel::Debug => "Debug",
+                    LogLevel::Trace => "Trace",
                 }
             )
         }

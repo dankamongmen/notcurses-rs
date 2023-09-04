@@ -48,18 +48,17 @@ mod core_impls {
 
     impl fmt::Display for PixelImplementation {
         fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-            use PixelImplementation::*;
             write!(
                 f,
                 "{}",
                 match self {
                     PixelImplementation::None => "None",
-                    Sixel => "Sixel",
-                    LinuxFb => "LinuxFb",
-                    Iterm2 => "Iterm2",
-                    KittyStatic => "KittyStatic",
-                    KittyAnimated => "KittyAnimated",
-                    KittySelfRef => "KittySelfRef",
+                    PixelImplementation::Sixel => "Sixel",
+                    PixelImplementation::LinuxFb => "LinuxFb",
+                    PixelImplementation::Iterm2 => "Iterm2",
+                    PixelImplementation::KittyStatic => "KittyStatic",
+                    PixelImplementation::KittyAnimated => "KittyAnimated",
+                    PixelImplementation::KittySelfRef => "KittySelfRef",
                 }
             )
         }

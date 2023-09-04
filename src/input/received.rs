@@ -67,22 +67,20 @@ mod core_impls {
 
     impl fmt::Display for Received {
         fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-            use Received::*;
             let string = match self {
-                Key(k) => format!["{k}"],
-                Char(c) => format!["{c:?}"],
-                NoInput => "NoInput".to_string(),
+                Received::Key(k) => format!["{k}"],
+                Received::Char(c) => format!["{c:?}"],
+                Received::NoInput => "NoInput".to_string(),
             };
             write!(f, "{}", string)
         }
     }
     impl fmt::Debug for Received {
         fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-            use Received::*;
             let string = match self {
-                Key(k) => format!["Key({k})"],
-                Char(c) => format!["Char({c:?})"],
-                NoInput => "NoInput".to_string(),
+                Received::Key(k) => format!["Key({k})"],
+                Received::Char(c) => format!["Char({c:?})"],
+                Received::NoInput => "NoInput".to_string(),
             };
             write!(f, "Received::{}", string)
         }

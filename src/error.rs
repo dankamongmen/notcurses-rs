@@ -38,11 +38,10 @@ mod core_impls {
 
     impl fmt::Display for NotcursesError {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            use NotcursesError::*;
             match self {
-                NcError(e) => e.fmt(f),
-                IoError(e) => e.fmt(f),
-                Message(string) => write!(f, "Message: {}", string),
+                NotcursesError::NcError(e) => e.fmt(f),
+                NotcursesError::IoError(e) => e.fmt(f),
+                NotcursesError::Message(string) => write!(f, "Message: {}", string),
             }
         }
     }

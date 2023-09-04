@@ -106,17 +106,16 @@ impl Capabilities {
 
     /// Returns `true` if the provided [`Blitter`] is among the capabilities.
     pub fn can_blitter(&self, blitter: Blitter) -> bool {
-        use Blitter::*;
         match blitter {
-            Default => true,
-            Ascii => true,
-            Half => self.halfblock,
-            Quadrant => self.quadrant,
-            Sextant => self.sextant,
-            Braille => self.braille,
-            Pixel => self.pixel,
-            _4x1 => self.utf8,
-            _8x1 => self.utf8,
+            Blitter::Default => true,
+            Blitter::Ascii => true,
+            Blitter::Half => self.halfblock,
+            Blitter::Quadrant => self.quadrant,
+            Blitter::Sextant => self.sextant,
+            Blitter::Braille => self.braille,
+            Blitter::Pixel => self.pixel,
+            Blitter::_4x1 => self.utf8,
+            Blitter::_8x1 => self.utf8,
         }
     }
 

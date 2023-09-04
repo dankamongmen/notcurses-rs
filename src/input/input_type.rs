@@ -51,15 +51,14 @@ mod core_impls {
 
     impl fmt::Display for InputType {
         fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-            use InputType::*;
             write!(
                 f,
                 "{}",
                 match self {
-                    Unknown => "Unknown",
-                    Press => "Press",
-                    Repeat => "Repeat",
-                    Release => "Release",
+                    InputType::Unknown => "Unknown",
+                    InputType::Press => "Press",
+                    InputType::Repeat => "Repeat",
+                    InputType::Release => "Release",
                 }
             )
         }
