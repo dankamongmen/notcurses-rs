@@ -2,7 +2,7 @@
 name = "notcurses"
 version = "3.4.1"
 edition = "2021"
-rust-version = "1.64.0" # keep in sync with .github/workflows/check.yml
+rust-version = "1.65.0" # keep in sync with .github/workflows/check.yml
 authors = ["José Luis Cruz <joseluis@andamira.net>", "nick black <dankamongmen@gmail.com>"]
 license = "MIT OR Apache-2.0"
 description = "A high level Rust wrapper for the notcurses C library"
@@ -32,7 +32,8 @@ nightly_docs = ["vendored"]
 vendored = ['libnotcurses-sys/use_vendored_bindings']
 
 [dependencies]
-libnotcurses-sys = { version = "3.9.1", features = ["std"] }
+libnotcurses-sys = { version = "3.10.0", features = ["std"] }
+# libnotcurses-sys = { path = "../libnotcurses-sys", features = ["std"] }
 
 once_cell = "1.17.0"
 paste = "1.0.12"

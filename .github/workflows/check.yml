@@ -1,68 +1,78 @@
 permissions:
   contents: read
 
-# runs on push to the main branch, and PRs
+# runs on push to the master branch, and PRs
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
-name: "check"
-jobs:
+name: check
 
-  # 1. formatting
+jobs:
+  # 1. format
   fmt:
     name: "stable / fmt"
     runs-on: ubuntu-latest
     steps:
       - name: "checkout"
         uses: actions/checkout@v3
+        with:
+            submodules: true
+
       - name: "Install stable"
         uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt
+
       - name: "cargo fmt --check"
         run: cargo fmt --check
 
-  # 2. clippy lints
-  clippy:
-    name: "${{ matrix.toolchain }} / clippy"
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      checks: write
-    strategy:
-      fail-fast: false
-      matrix:
-        toolchain: [stable]
-        # toolchain: [stable, beta]
-    steps:
-      - name: "checkout"
-        uses: actions/checkout@v3
-      - name: "Install ${{ matrix.toolchain }}"
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: ${{ matrix.toolchain }}
-          components: clippy
-      - name: "cargo clippy"
-        # NOTE: custom
-        run: cargo clippy --features=std,use_vendored_bindings
+  # # 2. clippy lints
+  # clippy:
+  #   name: "${{ matrix.toolchain }} / clippy"
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: read
+  #     checks: write
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       toolchain: [stable]
+  #       # toolchain: [stable, beta]
+  #   steps:
+  #     - name: "checkout"
+  #       uses: actions/checkout@v3
+  #       with:
+  #           submodules: true
+  #
+  #     - name: "Install ${{ matrix.toolchain }}"
+  #       uses: dtolnay/rust-toolchain@master
+  #       with:
+  #         toolchain: ${{ matrix.toolchain }}
+  #         components: clippy
+  #
+  #     - name: "cargo clippy"
+  #       run: cargo clippy --features=vendored
 
-  # 2. documentation
+  # 3. documentation
   doc:
+    name: "nightly / doc"
     runs-on: ubuntu-latest
-    name: nightly / doc
     steps:
       - name: "checkout"
         uses: actions/checkout@v3
+        with:
+            submodules: true
+
       - name: "Install nightly"
         uses: dtolnay/rust-toolchain@nightly
+
       - name: "cargo doc"
-        # NOTE: custom
-        run: cargo doc --features=nightly,std,use_vendored_bindings
+        run: cargo doc --features=nightly_docs
         env:
           RUSTDOCFLAGS: --cfg docsrs
 
-  # 4. MSRV
+  # 4. minimum supported Rust version
   msrv:
     name: "ubuntu / ${{ matrix.msrv }}"
     runs-on: ubuntu-latest
@@ -70,15 +80,17 @@ jobs:
     # https://docs.github.com/en/actions/learn-github-actions/contexts#context-availability
     strategy:
       matrix:
-        # NOTE: custom
-        msrv: [1.64.0]
+        msrv: [1.65.0] # sync with ../../{readme, Cargo.toml, check.sh}
     steps:
       - name: "checkout"
         uses: actions/checkout@v3
+        with:
+            submodules: true
+
       - name: "Install ${{ matrix.msrv }}"
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.msrv }}
+
       - name: "cargo +${{ matrix.msrv }} check"
-        # NOTE: custom
-        run: cargo check --features=std,use_vendored_bindings
+        run: cargo check --features=vendored

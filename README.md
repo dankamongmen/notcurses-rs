@@ -1,6 +1,6 @@
 [![Crate](https://img.shields.io/crates/v/notcurses.svg)](https://crates.io/crates/notcurses)
 [![API](https://docs.rs/notcurses/badge.svg)](https://docs.rs/notcurses/)
-[![MSRV: 1.64.0](https://flat.badgen.net/badge/MSRV/1.64.0/purple)](https://releases.rs/docs/released/1.64.0/)
+[![MSRV: 1.65.0](https://flat.badgen.net/badge/MSRV/1.65.0/purple)](https://releases.rs/docs/1.65.0/)
 
 A rusty wrapper over [notcurses][0], the most blingful TUI library.
 
