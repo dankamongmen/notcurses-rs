@@ -27,6 +27,8 @@ publish = true
 
 [features]
 default = []
+
+nightly_docs = ["vendored"]
 vendored = ['libnotcurses-sys/use_vendored_bindings']
 
 [dependencies]
@@ -41,7 +43,7 @@ cuadra = "0.3.0"
 rand = "0.8"
 
 [package.metadata.docs.rs]
-features = ["vendored"]
+features = ["nightly_docs"]
 
 [badges]
 maintenance = { status = "actively-developed" }
