@@ -1,10 +1,10 @@
 permissions:
   contents: read
 
-# runs on push to the master branch, and PRs
+# runs on push to the main branch, and PRs
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
 name: check
 
