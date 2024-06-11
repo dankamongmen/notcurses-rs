@@ -86,7 +86,7 @@ impl Visual {
     ///
     /// It needs notcurses to be compiled with multimedia capabilities.
     #[inline]
-    pub fn from_file(self, file: &str) -> Result<Visual> {
+    pub fn from_file(file: &str) -> Result<Visual> {
         Visual::builder().build_from_file(file)
     }
 
