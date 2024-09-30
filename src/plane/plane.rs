@@ -616,7 +616,9 @@ impl Plane {
     /// unless it's already the root of a pile, in which case this is a no-op.
     #[inline]
     pub fn reparent_family(&mut self, new_parent: &mut Plane) {
-        let _ = self.into_ref_mut().reparent_family(new_parent.into_ref_mut());
+        let _ = self
+            .into_ref_mut()
+            .reparent_family(new_parent.into_ref_mut());
     }
 }
 
