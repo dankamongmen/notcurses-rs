@@ -7,6 +7,14 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ## [Unreleased]
 
+## [3.5.1] - 2024-10-01
+
+- update dependencies; bump `libnotcurses-sys` to `v3.10.1`.
+- fix `Plane::reparent_family`.
+- add `check.sh` script.
+- add changelog.
+- update CI.
+
 ## [3.5.0] - 2023-09-08
 
 ### Added
