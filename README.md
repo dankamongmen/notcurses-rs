@@ -22,7 +22,8 @@ fn main() -> Result<()> {
 
 ## Status of the library
 
-The current version is compatible with notcurses [`3.0.9`][tag].
+The latest released version is compatible with notcurses [`3.0.9`][tag].
+The unreleased version is compatible with notcurses unreleased master branch.
 
 *Current major version `3` is considered a development version*.
 
