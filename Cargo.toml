@@ -1,6 +1,6 @@
 [package]
 name = "notcurses"
-version = "3.5.0"
+version = "3.5.1"
 edition = "2021"
 rust-version = "1.65.0" # sync with README.md, check.sh & .github/workflows/check.yml
 authors = ["José Luis Cruz <joseluis@andamira.net>", "nick black <dankamongmen@gmail.com>"]
