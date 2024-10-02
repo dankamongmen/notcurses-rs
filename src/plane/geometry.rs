@@ -103,7 +103,7 @@ mod core_impls {
 impl PlaneGeometry {
     /// Returns the calculated geometry of the terminal using the desired `Blitter`.
     pub fn from_term(nc: &Notcurses, blitter: Blitter) -> Self {
-        let pg: NcPixelGeometry = unsafe { nc.into_ref().stdplane_const().pixel_geom() };
+        let pg: NcPixelGeometry = nc.with_nc(|nc| unsafe { nc.stdplane_const().pixel_geom() });
 
         let pixels_per_cell = Size::from((pg.cell_x, pg.cell_y));
         let pixels = Size::from((pg.term_x, pg.term_y));

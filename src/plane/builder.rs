@@ -6,9 +6,10 @@
 use crate::{
     error::NotcursesResult as Result,
     plane::{Align, Plane},
-    sys::{NcPlane, NcPlaneOptionsBuilder},
+    sys::{Nc, NcPlane, NcPlaneOptionsBuilder},
     Notcurses, Position, Size,
 };
+use std::{cell::RefMut, rc::Rc};
 
 /// A [`Plane`] builder.
 #[derive(Debug, Default)]
@@ -27,15 +28,29 @@ impl PlaneBuilder {
     }
 
     /// Returns a new standalone `Plane`.
-    pub fn build(self, nc: &mut Notcurses) -> Result<Plane> {
-        let ncplane = NcPlane::new_pile(nc.into_ref_mut(), &self.options.build())?;
-        Ok(Plane { nc: ncplane })
+    pub fn build(self, nc: &Notcurses) -> Result<Plane> {
+        let notcurses = Rc::clone(&nc.nc);
+        let ncplane = {
+            let nc_borrow: RefMut<*mut Nc> = notcurses.borrow_mut();
+            let nc_ptr: *mut Nc = *nc_borrow;
+            // SAFETY: ensured via RefCell's borrowing rules
+            let nc_ref: &mut Nc = unsafe { &mut *nc_ptr };
+            NcPlane::new_pile(nc_ref, &self.options.build())?
+        };
+
+        Ok(Plane {
+            nc: ncplane,
+            notcurses,
+        })
     }
 
     /// Returns a new child `Plane` of the provided parent.
     pub fn build_child(self, parent: &mut Plane) -> Result<Plane> {
         let ncplane = NcPlane::new_child(parent.into_ref_mut(), &self.options.build())?;
-        Ok(Plane { nc: ncplane })
+        Ok(Plane {
+            nc: ncplane,
+            notcurses: parent.notcurses.clone(),
+        })
     }
 }
 

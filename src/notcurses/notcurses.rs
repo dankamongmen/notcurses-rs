@@ -15,27 +15,33 @@ use crate::{
     visual::{Blitter, Visual, VisualGeometry},
     Position, Size, CLI_PLANE_LOCK, NOTCURSES_LOCK,
 };
+use std::{cell::RefCell, rc::Rc};
 
 /// *Notcurses* state for a given terminal, composed of [`Plane`][crate::plane::Plane]s.
 ///
 /// There can only be a single `Notcurses` instance per thread at any given moment.
 pub struct Notcurses {
-    pub(super) nc: *mut Nc,
+    pub(crate) nc: Rc<RefCell<*mut Nc>>,
     pub(super) options: NcOptionsBuilder,
 }
 
 mod core_impls {
-    use super::{Notcurses, OnceCell, NOTCURSES_LOCK};
+    use super::{Nc, Notcurses, OnceCell, NOTCURSES_LOCK};
     use core::fmt;
 
     impl Drop for Notcurses {
         fn drop(&mut self) {
-            unsafe { self.into_ref_mut().drop_planes() };
-            unsafe { self.into_ref_mut().stop().expect("Notcurses.drop()") };
             // Allows initializing a new Notcurses instance again.
             NOTCURSES_LOCK.with(|refcell| {
                 refcell.replace(OnceCell::new());
             });
+            let nc_ptr: *mut Nc = *self.nc.borrow_mut();
+            if !nc_ptr.is_null() {
+                unsafe {
+                    (*nc_ptr).drop_planes();
+                    (*nc_ptr).stop().expect("Notcurses.stop() failed");
+                }
+            }
         }
     }
 
@@ -113,6 +119,7 @@ impl Notcurses {
     }
 
     /// Returns `true` if there's already a notcurses instance initialized in this thread.
+    #[inline]
     pub fn is_initialized() -> bool {
         NOTCURSES_LOCK.with(|refcell| refcell.borrow().get().is_some())
     }
@@ -137,16 +144,22 @@ impl Notcurses {
     pub fn new() -> Result<Self> {
         Self::lock_notcurses()?;
         let options = NcOptionsBuilder::new().suppress_banners(true);
-        let nc = unsafe { Nc::with_options(options.build())? };
-        Ok(Notcurses { nc, options })
+        let nc_ptr = unsafe { Nc::with_options(options.build())? };
+        Ok(Notcurses {
+            nc: Rc::new(RefCell::new(nc_ptr)),
+            options,
+        })
     }
 
     /// Returns a new `Notcurses` context, with banners.
     pub fn with_banners() -> Result<Self> {
         Self::lock_notcurses()?;
         let options = NcOptionsBuilder::new();
-        let nc = unsafe { Nc::with_options(options.build())? };
-        Ok(Notcurses { nc, options })
+        let nc_ptr = unsafe { Nc::with_options(options.build())? };
+        Ok(Notcurses {
+            nc: Rc::new(RefCell::new(nc_ptr)),
+            options,
+        })
     }
 
     /// Returns a new `Notcurses` context in `CLI` mode.
@@ -155,36 +168,52 @@ impl Notcurses {
         let options = NcOptionsBuilder::new()
             .suppress_banners(true)
             .cli_mode(true);
-        let nc = unsafe { Nc::with_options(options.build())? };
-        Ok(Notcurses { nc, options })
+        let nc_ptr = unsafe { Nc::with_options(options.build())? };
+        Ok(Notcurses {
+            nc: Rc::new(RefCell::new(nc_ptr)),
+            options,
+        })
     }
 
     /// Returns a new `Notcurses` context in `CLI` mode, with banners.
     pub fn with_banners_cli() -> Result<Self> {
         Self::lock_notcurses()?;
         let options = NcOptionsBuilder::new().cli_mode(true);
-        let nc = unsafe { Nc::with_options(options.build())? };
-        Ok(Notcurses { nc, options })
+        let nc_ptr = unsafe { Nc::with_options(options.build())? };
+        Ok(Notcurses {
+            nc: Rc::new(RefCell::new(nc_ptr)),
+            options,
+        })
     }
 
     //
 
-    /// Returns a shared reference to the inner [`Nc`].
-    pub fn into_ref(&self) -> &Nc {
-        unsafe { &*self.nc }
+    /// Safely access the Nc reference.
+    #[inline]
+    pub fn with_nc<F, R>(&self, f: F) -> R
+    where
+        F: FnOnce(&Nc) -> R,
+    {
+        let nc_ptr = *self.nc.borrow();
+        unsafe { f(&*nc_ptr) }
     }
 
-    /// Returns an exclusive reference to the inner [`Nc`].
-    pub fn into_ref_mut(&mut self) -> &mut Nc {
-        unsafe { &mut *self.nc }
+    /// Safely access the mutable `Nc` reference.
+    #[inline]
+    pub fn with_nc_mut<F, R>(&self, f: F) -> R
+    where
+        F: FnOnce(&mut Nc) -> R,
+    {
+        let nc_ptr = *self.nc.borrow_mut();
+        unsafe { f(&mut *nc_ptr) }
     }
 }
 
 /// # constructors for other types.
 impl Notcurses {
-    pub fn cli_plane(&mut self) -> Result<Plane> {
+    pub fn cli_plane(&self) -> Result<Plane> {
         Self::lock_cli_plane()?;
-        Ok(unsafe { self.into_ref_mut().stdplane().into() })
+        self.with_nc_mut(|nc| Ok(Plane::from_ncplane(unsafe { nc.stdplane() }, self)))
     }
 
     pub fn new_palette(&mut self) -> Palette {
@@ -202,32 +231,36 @@ impl Notcurses {
     ///
     /// This is primarily useful if the screen is externally corrupted, or if a
     /// resize] event has been read and you're not yet ready to render.
-    pub fn refresh(&mut self) -> Result<(u32, u32)> {
-        Ok(self.into_ref_mut().refresh()?)
+    pub fn refresh(&self) -> Result<(u32, u32)> {
+        self.with_nc_mut(|nc| Ok(nc.refresh()?))
     }
 
     /// Enables receiving the provided mice events.
-    pub fn mice_enable(&mut self, input: MiceEvents) -> Result<()> {
-        Ok(self.into_ref_mut().mice_enable(input.into())?)
+    pub fn mice_enable(&self, input: MiceEvents) -> Result<()> {
+        self.with_nc_mut(|nc| Ok(nc.mice_enable(input.into())?))
     }
 
     /// Disables receiving the mice events.
-    pub fn mice_disable(&mut self) -> Result<()> {
+    pub fn mice_disable(&self) -> Result<()> {
         self.mice_enable(MiceEvents::None)
     }
 
     /// Waits for an event, blocking.
-    pub fn get_event(&mut self) -> Result<Input> {
+    pub fn get_event(&self) -> Result<Input> {
         let mut input = NcInput::new_empty();
-        let received = self.into_ref_mut().get_blocking(Some(&mut input))?;
-        Ok((received, input).into())
+        self.with_nc_mut(|nc| {
+            let received = nc.get_blocking(Some(&mut input))?;
+            Ok((received, input).into())
+        })
     }
 
     /// Tries to get an event, non blocking.
-    pub fn poll_event(&mut self) -> Result<Input> {
+    pub fn poll_event(&self) -> Result<Input> {
         let mut input = NcInput::new_empty();
-        let received = self.into_ref_mut().get_nblock(Some(&mut input))?;
-        Ok((received, input).into())
+        self.with_nc_mut(|nc| {
+            let received = nc.get_nblock(Some(&mut input))?;
+            Ok((received, input).into())
+        })
     }
 
     // /// Gets a file descriptor suitable for input event poll()ing.
@@ -244,7 +277,7 @@ impl Notcurses {
 impl Notcurses {
     /// Returns the terminal size.
     pub fn size(&self) -> Size {
-        Size::from(self.into_ref().term_dim_yx()).swapped()
+        Size::from(self.with_nc(|nc| nc.term_dim_yx())).swapped()
     }
 
     /// Returns the terminal geometry with the best resolution blitter available,
@@ -282,29 +315,30 @@ impl Notcurses {
 
     /// Returns the visual geometry of a visual.
     pub fn visual_geometry(&self, visual: &Visual) -> Result<VisualGeometry> {
-        Ok(self
-            .into_ref()
-            .visual_geom(Some(visual.into_ref()), Some(&visual.options().into()))?
-            .into())
+        self.with_nc(|nc| {
+            Ok(nc
+                .visual_geom(Some(visual.into_ref()), Some(&visual.options().into()))?
+                .into())
+        })
     }
 
     /// Returns the capabilities of the terminal.
     pub fn capabilities(&self) -> Capabilities {
-        Capabilities {
-            halfblock: self.into_ref().canhalfblock(),
-            quadrant: self.into_ref().canquadrant(),
-            sextant: self.into_ref().cansextant(),
-            braille: self.into_ref().canbraille(),
-            utf8: self.into_ref().canutf8(),
-            images: self.into_ref().canopen_images(),
-            videos: self.into_ref().canopen_videos(),
-            pixel: self.into_ref().canpixel(),
-            pixel_implementation: self.into_ref().check_pixel_support().into(),
-            truecolor: self.into_ref().cantruecolor(),
-            fade: self.into_ref().canfade(),
-            palette_change: self.into_ref().canchangecolor(),
-            palette_size: self.into_ref().palette_size().unwrap_or(0),
-        }
+        self.with_nc(|nc| Capabilities {
+            halfblock: nc.canhalfblock(),
+            quadrant: nc.canquadrant(),
+            sextant: nc.cansextant(),
+            braille: nc.canbraille(),
+            utf8: nc.canutf8(),
+            images: nc.canopen_images(),
+            videos: nc.canopen_videos(),
+            pixel: nc.canpixel(),
+            pixel_implementation: nc.check_pixel_support().into(),
+            truecolor: nc.cantruecolor(),
+            fade: nc.canfade(),
+            palette_change: nc.canchangecolor(),
+            palette_size: nc.palette_size().unwrap_or(0),
+        })
     }
 
     /// Returns an [`Style`] with the supported curses-style attributes.
@@ -312,17 +346,17 @@ impl Notcurses {
     /// The attribute is only indicated as supported if the terminal can support
     /// it together with color.
     pub fn supported_styles(&self) -> Style {
-        self.into_ref().supported_styles().into()
+        self.with_nc(|nc| nc.supported_styles().into())
     }
 
     /// Returns the default background color, if it is known.
     pub fn default_background(&self) -> Option<Rgb> {
-        self.into_ref().default_background().map(|rgb| rgb.into())
+        self.with_nc(|nc| nc.default_background().map(|rgb| rgb.into()))
     }
 
     /// Returns the default foreground color, if it is known.
     pub fn default_foreground(&self) -> Option<Rgb> {
-        self.into_ref().default_foreground().map(|rgb| rgb.into())
+        self.with_nc(|nc| nc.default_foreground().map(|rgb| rgb.into()))
     }
 
     /// Returns a human-readable string describing the running notcurses version.
@@ -353,27 +387,27 @@ impl Notcurses {
 
     /// Returns the name of the detected terminal.
     pub fn detected_terminal(&self) -> String {
-        self.into_ref().detected_terminal()
+        self.with_nc(|nc| nc.detected_terminal())
     }
 }
 
 /// # settings methods
 impl Notcurses {
     /// Disables the terminal's cursor.
-    pub fn cursor_disable(&mut self) -> Result<()> {
-        Ok(self.into_ref_mut().cursor_disable()?)
+    pub fn cursor_disable(&self) -> Result<()> {
+        self.with_nc_mut(|nc| Ok(nc.cursor_disable()?))
     }
 
     /// Enables the terminal's cursor, if available, placing it at `position`.
-    pub fn cursor_enable(&mut self, position: impl Into<Position>) -> Result<()> {
+    pub fn cursor_enable(&self, position: impl Into<Position>) -> Result<()> {
         let (y, x) = position.into().into();
-        Ok(self.into_ref_mut().cursor_enable(y, x)?)
+        self.with_nc_mut(|nc| Ok(nc.cursor_enable(y, x)?))
     }
 
     /// Leaves the alternate screen.
     pub fn leave_alternate_screen(&mut self) -> Result<()> {
         self.options.set_no_alternate_screen(true);
-        Ok(self.into_ref_mut().leave_alternate_screen()?)
+        self.with_nc_mut(|nc| Ok(nc.leave_alternate_screen()?))
     }
 
     /// Enters the alternate screen, if available.
@@ -381,21 +415,21 @@ impl Notcurses {
     /// Entering the alternate screen turns off scrolling for the *CLI* plane.
     pub fn enter_alternate_screen(&mut self) -> Result<()> {
         self.options.set_no_alternate_screen(false);
-        Ok(self.into_ref_mut().enter_alternate_screen()?)
+        self.with_nc_mut(|nc| Ok(nc.enter_alternate_screen()?))
     }
 
     /// Disables signals originating from the terminal's line discipline, i.e.
     /// SIGINT (^C), SIGQUIT (^), and SIGTSTP (^Z). They are enabled by default.
     pub fn signals_disable(&mut self) -> Result<()> {
         self.options.set_no_quit_sig_handlers(true);
-        Ok(self.into_ref_mut().linesigs_disable()?)
+        self.with_nc_mut(|nc| Ok(nc.linesigs_disable()?))
     }
 
     /// Restores signals originating from the terminal's line discipline, i.e.
     /// SIGINT (^C), SIGQUIT (^), and SIGTSTP (^Z), if disabled.
     pub fn signals_enable(&mut self) -> Result<()> {
         self.options.set_no_quit_sig_handlers(false);
-        Ok(self.into_ref_mut().linesigs_enable()?)
+        self.with_nc_mut(|nc| Ok(nc.linesigs_enable()?))
     }
 }
 

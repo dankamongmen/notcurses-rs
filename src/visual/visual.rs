@@ -146,30 +146,31 @@ impl Visual {
 impl Visual {
     /// Renders the `Visual` to a new [`Plane`], which is returned.
     #[inline]
-    pub fn blit(&mut self, nc: &mut Notcurses) -> Result<Plane> {
+    pub fn blit(&mut self, notcurses: &Notcurses) -> Result<Plane> {
         let vo: sys::NcVisualOptions = self.options.into();
-        let ncplane = unsafe { self.into_ref_mut().blit(nc.into_ref_mut(), Some(&vo))? };
-        Ok(ncplane.into())
+        let ncplane =
+            notcurses.with_nc_mut(|nc| unsafe { self.into_ref_mut().blit(nc, Some(&vo)) })?;
+        Ok(Plane::from_ncplane(ncplane, notcurses))
     }
 
     /// Renders the `Visual` to an existing `target` [`Plane`].
     #[inline]
-    pub fn blit_plane(&mut self, nc: &mut Notcurses, target: &mut Plane) -> Result<()> {
+    pub fn blit_plane(&mut self, notcurses: &Notcurses, target: &mut Plane) -> Result<()> {
         let mut vo: sys::NcVisualOptions = self.options.into();
         vo.n = target.into_ref_mut();
-        let _ = unsafe { self.into_ref_mut().blit(nc.into_ref_mut(), Some(&vo))? };
+        let _ = notcurses.with_nc_mut(|nc| unsafe { self.into_ref_mut().blit(nc, Some(&vo)) })?;
         Ok(())
     }
 
     /// Renders the `Visual` to a new child [`Plane`] of a `parent` plane, which is returned.
     #[inline]
-    pub fn blit_child(&mut self, nc: &mut Notcurses, parent: &mut Plane) -> Result<Plane> {
+    pub fn blit_child(&mut self, notcurses: &Notcurses, parent: &mut Plane) -> Result<Plane> {
         let mut vo: sys::NcVisualOptions = self.options.into();
         vo.n = parent.into_ref_mut();
         vo.flags |= sys::NcVisualFlag::ChildPlane;
-
-        let ncplane_child = unsafe { self.into_ref_mut().blit(nc.into_ref_mut(), Some(&vo))? };
-        Ok(ncplane_child.into())
+        let ncplane_child =
+            notcurses.with_nc_mut(|nc| unsafe { self.into_ref_mut().blit(nc, Some(&vo)) })?;
+        Ok(Plane::from_ncplane(ncplane_child, notcurses))
     }
 
     //
@@ -177,10 +178,12 @@ impl Visual {
     /// Returns the visual geometry.
     #[inline]
     pub fn geometry(&self, notcurses: &Notcurses) -> Result<VisualGeometry> {
-        Ok(self
-            .into_ref()
-            .geom(Some(notcurses.into_ref()), Some(&self.options().into()))?
-            .into())
+        notcurses.with_nc(|nc| {
+            Ok(self
+                .into_ref()
+                .geom(Some(nc), Some(&self.options().into()))?
+                .into())
+        })
     }
 
     /// Returns the internal size of the visual, in pixels.
