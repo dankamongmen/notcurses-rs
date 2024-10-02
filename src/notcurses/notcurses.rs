@@ -17,31 +17,46 @@ use crate::{
 };
 use std::{cell::RefCell, rc::Rc};
 
+/// Maintains the notcurses context alive until all dependend objects are dropped.
+pub(crate) struct NotcursesInner {
+    pub(crate) nc: *mut Nc,
+}
+impl NotcursesInner {
+    #[inline]
+    #[must_use]
+    pub(crate) fn new(nc: *mut Nc) -> Rc<RefCell<Self>> {
+        Rc::new(RefCell::new(NotcursesInner { nc }))
+    }
+}
+
 /// *Notcurses* state for a given terminal, composed of [`Plane`][crate::plane::Plane]s.
 ///
 /// There can only be a single `Notcurses` instance per thread at any given moment.
 pub struct Notcurses {
-    pub(crate) nc: Rc<RefCell<*mut Nc>>,
-    pub(super) options: NcOptionsBuilder,
+    // This is cloned in dependent objects, to ensure proper drop order.
+    pub(crate) inner: Rc<RefCell<NotcursesInner>>,
+    pub(crate) options: NcOptionsBuilder,
 }
 
 mod core_impls {
-    use super::{Nc, Notcurses, OnceCell, NOTCURSES_LOCK};
+    use super::{Notcurses, NotcursesInner, OnceCell, NOTCURSES_LOCK};
     use core::fmt;
 
-    impl Drop for Notcurses {
+    // Notcurses will be properly stopped after all dependent objects are dropped
+    impl Drop for NotcursesInner {
         fn drop(&mut self) {
-            // Allows initializing a new Notcurses instance again.
-            NOTCURSES_LOCK.with(|refcell| {
-                refcell.replace(OnceCell::new());
-            });
-            let nc_ptr: *mut Nc = *self.nc.borrow_mut();
+            let nc_ptr = self.nc;
             if !nc_ptr.is_null() {
                 unsafe {
                     (*nc_ptr).drop_planes();
                     (*nc_ptr).stop().expect("Notcurses.stop() failed");
                 }
             }
+
+            // Unlock the static lock to allow new `Notcurses` instances
+            NOTCURSES_LOCK.with(|refcell| {
+                refcell.replace(OnceCell::new());
+            });
         }
     }
 
@@ -146,7 +161,7 @@ impl Notcurses {
         let options = NcOptionsBuilder::new().suppress_banners(true);
         let nc_ptr = unsafe { Nc::with_options(options.build())? };
         Ok(Notcurses {
-            nc: Rc::new(RefCell::new(nc_ptr)),
+            inner: NotcursesInner::new(nc_ptr),
             options,
         })
     }
@@ -157,7 +172,7 @@ impl Notcurses {
         let options = NcOptionsBuilder::new();
         let nc_ptr = unsafe { Nc::with_options(options.build())? };
         Ok(Notcurses {
-            nc: Rc::new(RefCell::new(nc_ptr)),
+            inner: NotcursesInner::new(nc_ptr),
             options,
         })
     }
@@ -170,7 +185,7 @@ impl Notcurses {
             .cli_mode(true);
         let nc_ptr = unsafe { Nc::with_options(options.build())? };
         Ok(Notcurses {
-            nc: Rc::new(RefCell::new(nc_ptr)),
+            inner: NotcursesInner::new(nc_ptr),
             options,
         })
     }
@@ -181,7 +196,7 @@ impl Notcurses {
         let options = NcOptionsBuilder::new().cli_mode(true);
         let nc_ptr = unsafe { Nc::with_options(options.build())? };
         Ok(Notcurses {
-            nc: Rc::new(RefCell::new(nc_ptr)),
+            inner: NotcursesInner::new(nc_ptr),
             options,
         })
     }
@@ -194,7 +209,7 @@ impl Notcurses {
     where
         F: FnOnce(&Nc) -> R,
     {
-        let nc_ptr = *self.nc.borrow();
+        let nc_ptr = self.inner.borrow().nc;
         unsafe { f(&*nc_ptr) }
     }
 
@@ -204,7 +219,7 @@ impl Notcurses {
     where
         F: FnOnce(&mut Nc) -> R,
     {
-        let nc_ptr = *self.nc.borrow_mut();
+        let nc_ptr = self.inner.borrow_mut().nc;
         unsafe { f(&mut *nc_ptr) }
     }
 }

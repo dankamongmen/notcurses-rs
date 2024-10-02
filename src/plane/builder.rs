@@ -9,7 +9,6 @@ use crate::{
     sys::{Nc, NcPlane, NcPlaneOptionsBuilder},
     Notcurses, Position, Size,
 };
-use std::{cell::RefMut, rc::Rc};
 
 /// A [`Plane`] builder.
 #[derive(Debug, Default)]
@@ -29,15 +28,15 @@ impl PlaneBuilder {
 
     /// Returns a new standalone `Plane`.
     pub fn build(self, nc: &Notcurses) -> Result<Plane> {
-        let notcurses = Rc::clone(&nc.nc);
+        let notcurses = nc.inner.clone();
         let ncplane = {
-            let nc_borrow: RefMut<*mut Nc> = notcurses.borrow_mut();
-            let nc_ptr: *mut Nc = *nc_borrow;
+            let inner_nc = notcurses.borrow_mut();
+            let nc_ptr: *mut Nc = inner_nc.nc;
+
             // SAFETY: ensured via RefCell's borrowing rules
             let nc_ref: &mut Nc = unsafe { &mut *nc_ptr };
             NcPlane::new_pile(nc_ref, &self.options.build())?
         };
-
         Ok(Plane {
             nc: ncplane,
             notcurses,

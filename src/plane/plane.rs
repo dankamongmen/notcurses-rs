@@ -6,9 +6,9 @@
 use crate::{
     color::{Channel, Channels},
     error::NotcursesResult as Result,
-    notcurses::{Capabilities, Notcurses},
+    notcurses::{Capabilities, Notcurses, NotcursesInner},
     plane::{Align, Cell, PlaneBuilder, PlaneGeometry, Style},
-    sys::{Nc, NcPlane},
+    sys::NcPlane,
     visual::Blitter,
     Position, Size,
 };
@@ -17,7 +17,8 @@ use std::{cell::RefCell, rc::Rc};
 /// A drawable text surface, composed of [`Cell`]s.
 pub struct Plane {
     pub(super) nc: *mut NcPlane,
-    pub(super) notcurses: Rc<RefCell<*mut Nc>>,
+    // Ensures the notcurses context remains alive as long as this object exists
+    pub(super) notcurses: Rc<RefCell<NotcursesInner>>,
 }
 
 mod core_impls {
@@ -34,8 +35,7 @@ mod core_impls {
                 CLI_PLANE_LOCK.with(|refcell| {
                     refcell.replace(OnceCell::new());
                 });
-            } else if crate::Notcurses::is_initialized() && self.notcurses.try_borrow_mut().is_ok()
-            {
+            } else if crate::Notcurses::is_initialized() {
                 let _res = self.into_ref_mut().destroy();
             }
         }
@@ -89,7 +89,7 @@ impl Plane {
     pub fn from_ncplane(ncplane: &mut NcPlane, notcurses: &Notcurses) -> Plane {
         Plane {
             nc: ncplane as *mut NcPlane,
-            notcurses: notcurses.nc.clone(),
+            notcurses: notcurses.inner.clone(),
         }
     }
 
@@ -198,7 +198,7 @@ impl Plane {
     pub fn duplicate(&self) -> Plane {
         Plane {
             nc: self.into_ref().dup(),
-            notcurses: Rc::clone(&self.notcurses),
+            notcurses: self.notcurses.clone(),
         }
     }
 

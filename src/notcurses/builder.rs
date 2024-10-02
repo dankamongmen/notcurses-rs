@@ -5,10 +5,9 @@
 
 use crate::{
     error::NotcursesResult as Result,
-    notcurses::{LogLevel, Notcurses},
+    notcurses::{LogLevel, Notcurses, NotcursesInner},
     sys::{Nc, NcOptionsBuilder},
 };
-use std::{cell::RefCell, rc::Rc};
 
 /// A [`Notcurses`] builder.
 #[derive(Clone, Copy, Debug)]
@@ -39,8 +38,9 @@ impl NotcursesBuilder {
     pub fn build(self) -> Result<Notcurses> {
         Notcurses::lock_notcurses()?;
         let nc = unsafe { Nc::with_options(self.options.build())? };
+
         Ok(Notcurses {
-            nc: Rc::new(RefCell::new(nc)),
+            inner: NotcursesInner::new(nc),
             options: self.options,
         })
     }
