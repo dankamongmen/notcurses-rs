@@ -7,15 +7,20 @@ use super::{Blitter, Scale, VisualBuilder, VisualGeometry, VisualOptions};
 use crate::{
     color::Rgba,
     error::{NotcursesError as Error, NotcursesResult as Result},
+    notcurses::NotcursesInner,
     plane::{Align, Plane},
     sys::{self, NcRgba, NcVisual},
     Notcurses, Position, Size,
 };
+use std::{cell::RefCell, rc::Rc};
 
 /// A visual bit of multimedia.
 pub struct Visual {
     pub(super) nc: *mut NcVisual,
     pub(super) options: VisualOptions,
+    // Ensures the notcurses context remains alive as long as this object exists
+    #[allow(dead_code)]
+    pub(super) notcurses: Rc<RefCell<NotcursesInner>>,
 }
 
 mod core_impls {
@@ -54,22 +59,32 @@ impl Visual {
 
     /// Returns a new `Visual` from a byte buffer with RGBA content.
     #[inline]
-    pub fn from_rgba(rgba: &[u8], size: impl Into<Size>) -> Result<Visual> {
-        Visual::builder().build_from_rgba(rgba, size.into())
+    pub fn from_rgba(nc: &Notcurses, rgba: &[u8], size: impl Into<Size>) -> Result<Visual> {
+        Visual::builder().build_from_rgba(nc, rgba, size.into())
     }
 
     /// Builds a new `Visual` from a byte buffer with RGB content, providing
     /// the alpha to assign to all the pixels.
     #[inline]
-    pub fn from_rgb(rgb: &[u8], size: impl Into<Size>, alpha: u8) -> Result<Visual> {
-        Visual::builder().build_from_rgb(rgb, size.into(), alpha)
+    pub fn from_rgb(
+        nc: &Notcurses,
+        rgb: &[u8],
+        size: impl Into<Size>,
+        alpha: u8,
+    ) -> Result<Visual> {
+        Visual::builder().build_from_rgb(nc, rgb, size.into(), alpha)
     }
 
     /// Builds a new `Visual` from a byte buffer with RGBX content, overriding
     /// the alpha byte *X* for all the pixels.
     #[inline]
-    pub fn from_rgbx(rgbx: &[u8], size: impl Into<Size>, alpha: u8) -> Result<Visual> {
-        Visual::builder().build_from_rgbx(rgbx, size.into(), alpha)
+    pub fn from_rgbx(
+        nc: &Notcurses,
+        rgbx: &[u8],
+        size: impl Into<Size>,
+        alpha: u8,
+    ) -> Result<Visual> {
+        Visual::builder().build_from_rgbx(nc, rgbx, size.into(), alpha)
     }
 
     /// Builds a new `Visual` from a byte buffer with BGRA content.
@@ -77,8 +92,8 @@ impl Visual {
     /// This is slower than [`build_from_rgba`][VisualBuilder#method.build_fromrgba],
     /// since it has to convert the pixels to the rgba format used internally.
     #[inline]
-    pub fn from_bgra(bgra: &[u8], size: impl Into<Size>) -> Result<Visual> {
-        Visual::builder().build_from_bgra(bgra, size.into())
+    pub fn from_bgra(nc: &Notcurses, bgra: &[u8], size: impl Into<Size>) -> Result<Visual> {
+        Visual::builder().build_from_bgra(nc, bgra, size.into())
     }
 
     /// Builds a new `Visual` from a `file`, extracts the codec and parameters
@@ -86,8 +101,8 @@ impl Visual {
     ///
     /// It needs notcurses to be compiled with multimedia capabilities.
     #[inline]
-    pub fn from_file(file: &str) -> Result<Visual> {
-        Visual::builder().build_from_file(file)
+    pub fn from_file(nc: &Notcurses, file: &str) -> Result<Visual> {
+        Visual::builder().build_from_file(nc, file)
     }
 
     /// Builds a new `Visual` from a [`Plane`].

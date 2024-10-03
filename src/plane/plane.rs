@@ -18,7 +18,7 @@ use std::{cell::RefCell, rc::Rc};
 pub struct Plane {
     pub(super) nc: *mut NcPlane,
     // Ensures the notcurses context remains alive as long as this object exists
-    pub(super) notcurses: Rc<RefCell<NotcursesInner>>,
+    pub(crate) notcurses: Rc<RefCell<NotcursesInner>>,
 }
 
 mod core_impls {

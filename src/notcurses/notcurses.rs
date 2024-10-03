@@ -35,7 +35,7 @@ impl NotcursesInner {
 pub struct Notcurses {
     // This is cloned in dependent objects, to ensure proper drop order.
     pub(crate) inner: Rc<RefCell<NotcursesInner>>,
-    pub(crate) options: NcOptionsBuilder,
+    pub(super) options: NcOptionsBuilder,
 }
 
 mod core_impls {

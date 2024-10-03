@@ -6,6 +6,7 @@
 use crate::{
     color::{Palette, Rgba},
     error::NotcursesResult as Result,
+    notcurses::Notcurses,
     plane::{Align, Plane},
     sys::NcVisual,
     visual::{Blitter, Scale, Visual, VisualOptions},
@@ -29,34 +30,57 @@ impl VisualBuilder {
     }
 
     /// Builds a new `Visual` from a byte buffer with RGBA content.
-    pub fn build_from_rgba(self, rgba: &[u8], size: impl Into<Size>) -> Result<Visual> {
+    pub fn build_from_rgba(
+        self,
+        nc: &Notcurses,
+        rgba: &[u8],
+        size: impl Into<Size>,
+    ) -> Result<Visual> {
         let (w, h) = size.into().into();
         let ncvisual = NcVisual::from_rgba(rgba, h, w * 4, w)?;
+        let notcurses = nc.inner.clone();
         Ok(Visual {
             nc: ncvisual,
             options: self.options,
+            notcurses,
         })
     }
 
     /// Builds a new `Visual` from a byte buffer with RGB content, providing
     /// the alpha to assign to all the pixels.
-    pub fn build_from_rgb(self, rgb: &[u8], size: impl Into<Size>, alpha: u8) -> Result<Visual> {
+    pub fn build_from_rgb(
+        self,
+        nc: &Notcurses,
+        rgb: &[u8],
+        size: impl Into<Size>,
+        alpha: u8,
+    ) -> Result<Visual> {
         let (w, h) = size.into().into();
         let ncvisual = NcVisual::from_rgb_packed(rgb, h, w * 3, w, alpha)?;
+        let notcurses = nc.inner.clone();
         Ok(Visual {
             nc: ncvisual,
             options: self.options,
+            notcurses,
         })
     }
 
     /// Builds a new `Visual` from a byte buffer with RGBX content, overriding
     /// the alpha byte *X* for all the pixels.
-    pub fn build_from_rgbx(self, rgbx: &[u8], size: impl Into<Size>, alpha: u8) -> Result<Visual> {
+    pub fn build_from_rgbx(
+        self,
+        nc: &Notcurses,
+        rgbx: &[u8],
+        size: impl Into<Size>,
+        alpha: u8,
+    ) -> Result<Visual> {
         let (w, h) = size.into().into();
         let ncvisual = NcVisual::from_rgb_loose(rgbx, h, w * 4, w, alpha)?;
+        let notcurses = nc.inner.clone();
         Ok(Visual {
             nc: ncvisual,
             options: self.options,
+            notcurses,
         })
     }
 
@@ -64,12 +88,19 @@ impl VisualBuilder {
     ///
     /// This is slower than [`build_from_rgba`][VisualBuilder#method.build_fromrgba],
     /// since it has to convert the pixels to the rgba format used internally.
-    pub fn build_from_bgra(self, bgra: &[u8], size: impl Into<Size>) -> Result<Visual> {
+    pub fn build_from_bgra(
+        self,
+        nc: &Notcurses,
+        bgra: &[u8],
+        size: impl Into<Size>,
+    ) -> Result<Visual> {
         let (w, h) = size.into().into();
         let ncvisual = NcVisual::from_bgra(bgra, h, w * 4, w)?;
+        let notcurses = nc.inner.clone();
         Ok(Visual {
             nc: ncvisual,
             options: self.options,
+            notcurses,
         })
     }
 
@@ -77,11 +108,13 @@ impl VisualBuilder {
     /// and decodes the first image to memory.
     ///
     /// It needs notcurses to be compiled with multimedia capabilities.
-    pub fn build_from_file(self, file: &str) -> Result<Visual> {
+    pub fn build_from_file(self, nc: &Notcurses, file: &str) -> Result<Visual> {
         let ncvisual = NcVisual::from_file(file)?;
+        let notcurses = nc.inner.clone();
         Ok(Visual {
             nc: ncvisual,
             options: self.options,
+            notcurses,
         })
     }
 
@@ -110,18 +143,28 @@ impl VisualBuilder {
         len_y: Option<u32>,
     ) -> Result<Visual> {
         let ncvisual = NcVisual::from_plane(plane.into_ref(), blitter, beg_y, beg_x, len_y, len_x)?;
+        let notcurses = plane.notcurses.clone();
         Ok(Visual {
             nc: ncvisual,
             options: self.options,
+            notcurses,
         })
     }
 
     /// Builds a new `Visual` from a nul-terminated Sixel control `sequence`.
-    pub fn build_from_sixel(self, sequence: &str, len_x: u32, len_y: u32) -> Result<Visual> {
+    pub fn build_from_sixel(
+        self,
+        nc: &Notcurses,
+        sequence: &str,
+        len_x: u32,
+        len_y: u32,
+    ) -> Result<Visual> {
         let ncvisual = NcVisual::from_sixel(sequence, len_y, len_x)?;
+        let notcurses = nc.inner.clone();
         Ok(Visual {
             nc: ncvisual,
             options: self.options,
+            notcurses,
         })
     }
 
@@ -131,6 +174,7 @@ impl VisualBuilder {
     #[allow(clippy::too_many_arguments)]
     pub fn build_from_palidx(
         self,
+        nc: &Notcurses,
         data: &[u8],
         x: u32,
         y: u32,
@@ -141,9 +185,11 @@ impl VisualBuilder {
     ) -> Result<Visual> {
         let ncvisual =
             NcVisual::from_palidx(data, y, stride, x, palsize, pstride, palette.into_ref())?;
+        let notcurses = nc.inner.clone();
         Ok(Visual {
             nc: ncvisual,
             options: self.options,
+            notcurses,
         })
     }
 }

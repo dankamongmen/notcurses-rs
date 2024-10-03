@@ -28,7 +28,7 @@ fn main() -> NotcursesResult<()> {
     }
 
     // Create a visual from the rgba buffer:
-    let mut visual = Visual::from_rgba(rgba_buf.as_slice(), (W, H))?;
+    let mut visual = Visual::from_rgba(&nc, rgba_buf.as_slice(), (W, H))?;
     visual.set_blitter_pixel();
 
     // Blit the visual to a new plane:
