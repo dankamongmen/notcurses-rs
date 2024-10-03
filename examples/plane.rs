@@ -8,12 +8,12 @@
 use notcurses::*;
 
 fn main() -> NotcursesResult<()> {
-    let mut nc = Notcurses::new_cli()?;
+    let nc = Notcurses::new_cli()?;
 
     // # constructors
 
     // create a root plane at (1, 1), with a child at (2, 2)
-    let mut rootp = Plane::new_at(&mut nc, (1, 1))?;
+    let mut rootp = Plane::new_at(&nc, (1, 1))?;
     let child = rootp.new_child_at((2, 2))?;
 
     // check their position relative to their parent
@@ -29,7 +29,7 @@ fn main() -> NotcursesResult<()> {
     // create a square of Size::new(5, 5) at Position::new(10, 10)
     let size = Size::new(5, 5);
     let top_left = Position::new(10, 10);
-    let p1 = Plane::new_sized_at(&mut nc, size, top_left)?;
+    let p1 = Plane::new_sized_at(&nc, size, top_left)?;
 
     // check top-left and bottom-right square coordinates are inside the plane:
     assert_eq![p1.translate_root(top_left), (Position::new(0, 0), true)];
@@ -44,8 +44,8 @@ fn main() -> NotcursesResult<()> {
     // ...
 
     // # strings
-    // let mut p1 = Plane::new(&mut nc)?;
-    let mut p1 = Plane::new_sized(&mut nc, (4, 4))?;
+    // let mut p1 = Plane::new(&nc)?;
+    let mut p1 = Plane::new_sized(&nc, (4, 4))?;
     p1.set_scrolling(true);
 
     assert_eq!["hello world".len() as u32, p1.putstr("hello world")?];

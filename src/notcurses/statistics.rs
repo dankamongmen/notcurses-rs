@@ -90,9 +90,9 @@ mod core_impls {
 impl Statistics {
     /// Allocates a [`Statistics`] object.
     pub fn new(nc: &mut Notcurses) -> Self {
-        let mut stats = Self {
-            nc: nc.into_ref_mut().stats_alloc(),
-        };
+        let mut stats = nc.with_nc_mut(|nc| Self {
+            nc: nc.stats_alloc(),
+        });
         stats.update(nc);
         stats
     }
@@ -113,15 +113,15 @@ impl Statistics {
 /// # manager methods
 impl Statistics {
     /// Acquires an atomic snapshot of the notcurses object's stats.
-    pub fn update(&mut self, nc: &mut Notcurses) {
-        nc.into_ref_mut().stats(self.into_ref_mut())
+    pub fn update(&mut self, nc: &Notcurses) {
+        nc.with_nc_mut(|nc| nc.stats(self.into_ref_mut()));
     }
 
     /// Resets all cumulative stats.
     ///
     /// Immediate ones, such as fbbytes, are not reset.
-    pub fn reset(&mut self, nc: &mut Notcurses) {
-        nc.into_ref_mut().stats_reset(self.into_ref_mut())
+    pub fn reset(&mut self, nc: &Notcurses) {
+        nc.with_nc_mut(|nc| nc.stats_reset(self.into_ref_mut()));
     }
 }
 

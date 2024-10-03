@@ -5,7 +5,7 @@
 
 use crate::{
     error::NotcursesResult as Result,
-    notcurses::{LogLevel, Notcurses},
+    notcurses::{LogLevel, Notcurses, NotcursesInner},
     sys::{Nc, NcOptionsBuilder},
 };
 
@@ -38,8 +38,9 @@ impl NotcursesBuilder {
     pub fn build(self) -> Result<Notcurses> {
         Notcurses::lock_notcurses()?;
         let nc = unsafe { Nc::with_options(self.options.build())? };
+
         Ok(Notcurses {
-            nc,
+            inner: NotcursesInner::new(nc),
             options: self.options,
         })
     }

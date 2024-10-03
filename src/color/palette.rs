@@ -53,10 +53,10 @@ mod core_impls {
 impl Palette {
     /// Creates a new palette, that's initialized with our best
     /// knowledge of the currently configured palette.
-    pub fn new(terminal: &mut Notcurses) -> Palette {
-        Self {
-            nc: NcPalette::new(terminal.into_ref_mut()),
-        }
+    pub fn new(terminal: &Notcurses) -> Palette {
+        terminal.with_nc_mut(|nc| Self {
+            nc: NcPalette::new(nc),
+        })
     }
 
     //
@@ -75,8 +75,8 @@ impl Palette {
 /// # methods
 impl Palette {
     /// Attempts to use this palette in the `terminal`.
-    pub fn use_in(&self, terminal: &mut Notcurses) -> Result<()> {
-        Ok(self.into_ref().r#use(terminal.into_ref_mut())?)
+    pub fn use_in(&self, terminal: &Notcurses) -> Result<()> {
+        terminal.with_nc_mut(|nc| Ok(self.into_ref().r#use(nc)?))
     }
 
     /// Returns the `Rgb` value at `index`.

@@ -6,36 +6,37 @@
 use crate::{
     color::{Channel, Channels},
     error::NotcursesResult as Result,
-    notcurses::{Capabilities, Notcurses},
+    notcurses::{Capabilities, Notcurses, NotcursesInner},
     plane::{Align, Cell, PlaneBuilder, PlaneGeometry, Style},
     sys::NcPlane,
     visual::Blitter,
     Position, Size,
 };
+use std::{cell::RefCell, rc::Rc};
 
 /// A drawable text surface, composed of [`Cell`]s.
 pub struct Plane {
     pub(super) nc: *mut NcPlane,
+    // Ensures the notcurses context remains alive as long as this object exists
+    pub(crate) notcurses: Rc<RefCell<NotcursesInner>>,
 }
 
 mod core_impls {
-    use super::{NcPlane, Plane};
+    use super::Plane;
     use crate::CLI_PLANE_LOCK;
     use core::fmt;
     use once_cell::sync::OnceCell;
 
     impl Drop for Plane {
         fn drop(&mut self) {
+            // Only really destroy it if it's not the CLI plane.
             if self.is_cli() {
                 // Allows instancing a new Plane referring to the *standard* Plane again.
                 CLI_PLANE_LOCK.with(|refcell| {
                     refcell.replace(OnceCell::new());
                 });
-            } else {
-                // Only destroy it if it's not the CLI plane.
-                if crate::Notcurses::is_initialized() {
-                    let _res = self.into_ref_mut().destroy();
-                }
+            } else if crate::Notcurses::is_initialized() {
+                let _res = self.into_ref_mut().destroy();
             }
         }
     }
@@ -71,14 +72,6 @@ mod core_impls {
             )
         }
     }
-
-    impl From<&mut NcPlane> for Plane {
-        fn from(ncplane: &mut NcPlane) -> Plane {
-            Plane {
-                nc: ncplane as *mut NcPlane,
-            }
-        }
-    }
 }
 
 /// # constructors
@@ -87,8 +80,17 @@ impl Plane {
     ///
     /// Returns an error if there's already one *cli* plane instantiated.
     #[inline]
-    pub fn from_cli(notcurses: &mut Notcurses) -> Result<Plane> {
+    pub fn from_cli(notcurses: &Notcurses) -> Result<Plane> {
         notcurses.cli_plane()
+    }
+
+    /// Returns a new `Plane` from an `NcPlane`, associated to the `notcurses` context.
+    #[inline]
+    pub fn from_ncplane(ncplane: &mut NcPlane, notcurses: &Notcurses) -> Plane {
+        Plane {
+            nc: ncplane as *mut NcPlane,
+            notcurses: notcurses.inner.clone(),
+        }
     }
 
     //
@@ -105,7 +107,7 @@ impl Plane {
     ///
     /// The plane will be positioned at `(0, 0)` and have the size of the terminal.
     #[inline]
-    pub fn new(nc: &mut Notcurses) -> Result<Self> {
+    pub fn new(nc: &Notcurses) -> Result<Self> {
         Self::builder().build(nc)
     }
 
@@ -113,7 +115,7 @@ impl Plane {
     ///
     /// The plane will have the size of the terminal.
     #[inline]
-    pub fn new_at(nc: &mut Notcurses, position: impl Into<Position>) -> Result<Self> {
+    pub fn new_at(nc: &Notcurses, position: impl Into<Position>) -> Result<Self> {
         Self::builder().position(position).build(nc)
     }
 
@@ -122,7 +124,7 @@ impl Plane {
     /// - `size` must be greater than `0` in both dimensions.
     /// - The plane will be positioned at `(0, 0)`.
     #[inline]
-    pub fn new_sized(nc: &mut Notcurses, size: impl Into<Size>) -> Result<Self> {
+    pub fn new_sized(nc: &Notcurses, size: impl Into<Size>) -> Result<Self> {
         Self::builder().size(size).build(nc)
     }
 
@@ -131,7 +133,7 @@ impl Plane {
     /// `size` must be greater than `0` in both dimensions.
     #[inline]
     pub fn new_sized_at(
-        nc: &mut Notcurses,
+        nc: &Notcurses,
         size: impl Into<Size>,
         position: impl Into<Position>,
     ) -> Result<Self> {
@@ -194,7 +196,10 @@ impl Plane {
     ///
     #[inline]
     pub fn duplicate(&self) -> Plane {
-        self.into_ref().dup().into()
+        Plane {
+            nc: self.into_ref().dup(),
+            notcurses: self.notcurses.clone(),
+        }
     }
 
     //
