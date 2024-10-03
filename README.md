@@ -22,7 +22,7 @@ fn main() -> Result<()> {
 
 ## Status of the library
 
-The latest released version is compatible with notcurses [`3.0.9`][tag].
+The latest released version is compatible with notcurses [`3.0.11`].
 The unreleased version is compatible with notcurses unreleased master branch.
 
 *Current major version `3` is considered a development version*.
@@ -35,4 +35,4 @@ The unreleased version is compatible with notcurses unreleased master branch.
 - The *standard* plane is now known as the *CLI* plane.
 - The `*Options` structs are replaced by `*Builder`s.
 
-[tag]: https://github.com/dankamongmen/notcurses/releases/tag/v3.0.9
+[`3.0.11`]: https://github.com/dankamongmen/notcurses/releases/tag/v3.0.11
