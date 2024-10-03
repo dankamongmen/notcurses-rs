@@ -89,7 +89,7 @@ mod core_impls {
 /// # constructors & deconstructors
 impl Statistics {
     /// Allocates a [`Statistics`] object.
-    pub fn new(nc: &mut Notcurses) -> Self {
+    pub fn new(nc: &Notcurses) -> Self {
         let mut stats = nc.with_nc_mut(|nc| Self {
             nc: nc.stats_alloc(),
         });
