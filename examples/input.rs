@@ -5,10 +5,10 @@ use std::time::Instant;
 use std::{thread::sleep, time::Duration};
 
 fn main() -> NotcursesResult<()> {
-    let mut nc = Notcurses::new()?;
+    let nc = Notcurses::new()?;
     nc.mice_enable(MiceEvents::All)?;
 
-    let mut plane = Plane::new(&mut nc)?;
+    let mut plane = Plane::new(&nc)?;
     plane.set_scrolling(true);
 
     // blocking

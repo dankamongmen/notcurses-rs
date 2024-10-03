@@ -14,7 +14,7 @@ const W: u32 = 10;
 const NUMPIX: usize = (H * W) as usize;
 
 fn main() -> NotcursesResult<()> {
-    let mut nc = Notcurses::new_cli()?;
+    let nc = Notcurses::new_cli()?;
 
     // Create a byte buffer with random rgba pixels:
     let mut rng = rand::thread_rng();
@@ -32,19 +32,19 @@ fn main() -> NotcursesResult<()> {
     visual.set_blitter_pixel();
 
     // Blit the visual to a new plane:
-    let mut new_plane = visual.blit(&mut nc)?;
+    let mut new_plane = visual.blit(&nc)?;
     new_plane.render()?;
     sleep(Duration::from_millis(1000));
 
     // Blit the visual to a pre-existing plane:
-    let mut existing_plane = Plane::builder().position((0, 25)).build(&mut nc)?;
-    visual.blit_plane(&mut nc, &mut existing_plane)?;
+    let mut existing_plane = Plane::builder().position((0, 25)).build(&nc)?;
+    visual.blit_plane(&nc, &mut existing_plane)?;
     existing_plane.render()?;
     sleep(Duration::from_millis(1000));
 
     // Blit the visual into a new child plane:
-    let mut parent_plane = Plane::builder().position((10, 50)).build(&mut nc)?;
-    let mut child = visual.blit_child(&mut nc, &mut parent_plane)?;
+    let mut parent_plane = Plane::builder().position((10, 50)).build(&nc)?;
+    let mut child = visual.blit_child(&nc, &mut parent_plane)?;
     parent_plane.render()?;
     // child.render()?;
     sleep(Duration::from_millis(1000));

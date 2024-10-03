@@ -3,7 +3,7 @@
 use notcurses::*;
 
 fn main() -> NotcursesResult<()> {
-    let mut nc = Notcurses::new_cli()?;
+    let nc = Notcurses::new_cli()?;
     let mut cli = nc.cli_plane()?;
 
     let caps = nc.capabilities();
