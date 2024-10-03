@@ -7,10 +7,19 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ## [Unreleased]
 
-## [3.5.1] - 2024-10-01
+## [3.6.0] - 2024-10-03
+- bump `libnotcurses-sys` to `v3.11.0`.
+- wrap the raw notcurses pointer using reference counting to ensure proper dropping order.
+  - The stopping of the notcurses context is now deferred until all dependent objects are dropped.
+  - This fixes potential UB if `Notcurses` was dropped before planes or visuals.
+  - change all methods that previously required a mutable `Notcurses` reference to require a shared reference.
+  - require a new shared `Notcurses` reference in `Visual` and `VisualBuilder` constructors.
+  - update all examples.
 
+## [3.5.1] - 2024-10-01
 - update dependencies; bump `libnotcurses-sys` to `v3.10.1`.
 - fix `Plane::reparent_family`.
+- fix `Visual::from_file`.
 - add `check.sh` script.
 - add changelog.
 - update CI.
